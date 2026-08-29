@@ -27,18 +27,28 @@ There are **no auth cookies**. The SPA stores tokens in `localStorage` under the
 }
 ```
 
-- **Access token TTL ≈ 20 min.** Sent as `Authorization: Bearer <authToken.token>` on every
-  API call. Header name must be `Authorization`; raw token without `Bearer ` → 401.
-- **Refresh token TTL ≈ 30 days.**
+- **Access token TTL ≈ 1 hour** (JWT; observed ~3470s remaining right after a refresh).
+  Sent as `Authorization: Bearer <authToken.token>` on every API call. Header name must
+  be `Authorization`; raw token without `Bearer ` → 401.
+- **Refresh token TTL ≈ 30 days** (JWT). **Rotates on every refresh** — the previous
+  refresh token is invalidated, so a client must always use the most recently issued one
+  and persist the new bundle after refreshing.
 - `client_id` = `DBDStats`.
-- Refresh: `POST https://account-backend.bhvr.com/sso/token` with
-  `grant_type=refresh_token`, `refresh_token=<...>`, `client_id=DBDStats`.
+- **Refresh (confirmed from the SPA bundle):**
+  ```
+  POST https://account-backend.bhvr.com/sso/token
+  Content-Type: application/json
+  { "grant_type": "refresh_token", "client_id": "DBDStats", "refresh_token": "<current>" }
+  ```
+  (axios `.post` with a JSON body — *not* form-encoded. Exactly three keys.)
   Initial login uses `grant_type=authorization_code` (+ `code`, `redirect_uri`,
   `code_verifier`) — interactive, not automatable. Logout: `POST /sso/token/revoke`.
-- ⚠️ **Not yet verified live** (blocked in the discovery session): the exact
-  content-type (form vs JSON) and response body of the refresh call, and whether the
-  refresh token rotates. Confirm by leaving the stats tab open ~20 min and watching the
-  `POST /sso/token` the SPA fires, before relying on autonomous refresh.
+- ⚠️ Still not observed: the refresh *response* body shape. The extension's
+  `normalizeTokenResponse` handles both `{ authToken, refreshToken }` and OAuth-style
+  `{ access_token, refresh_token, expires_in }`; adjust once seen.
+- A stale stored refresh token (SPA rotated it while its own tab was open) → **HTTP 400**
+  on refresh. Recovery: revisit stats.deadbydaylight.com so the content script
+  re-mirrors the current bundle.
 - Unauthorized response shape: `{ "message": "Player not authorized", "code": "...", "traceId": "..." }`, HTTP 401.
 
 ### What this means for the extension
