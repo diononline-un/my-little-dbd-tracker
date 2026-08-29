@@ -10,7 +10,7 @@ next_steps:
   - Trends page needs 2+ daily career snapshots before line charts draw (BHVR updates ~daily)
   - Tune corrector thresholds (lobby-dc KILLER_MIN_BP, ragequit ratios) against more real anomaly samples
   - Confirm isCustomMatch / specialEventId handling (all captured matches were gameType "Online", no events)
-  - Optional: platform (steam/psn/egs) icons per player; session detection; time-of-day performance
+  - Backlog: OBS overlay mode, match-sharing links, 4-perk build combos, time-of-day performance, platform icons per player
 ---
 
 # Aktueller Stand
@@ -28,9 +28,14 @@ eingespielt), plus zweites Dataset (Career-Stats) und ausgebautes Dashboard.
 - **Match-Anreicherung**: `postGameStat` / `leaderboardScore` / `characterLevel` pro
   Spieler bleiben jetzt erhalten (additive Migration).
 - **Analytics**: `/api/analytics/{self-killers,maps,perk-pairs,offerings}`.
-- **Dashboard neu**: Overview (Career-Kacheln + Modus-Tabs + Emblem-Bars), Trends
-  (SVG-Linien-Charts), Matches (Score-Sparkbars, Emblem-Dots, Filter), Match-Detail
-  (Score-Breakdown), Analytics (7 Tabs). dataviz-Palette validiert.
+- **Dashboard**: top-nav responsive shell. Overview (Recap-Card mit Wochenvergleich +
+  Streak-Badges + Career-Kacheln + Emblem-Bars), Insights (Score-Radars, Usage-vs-
+  Performance-Scatter, Activity-Heatmap, Sessions, Gegner-Meta), Streaks (per-Character
+  Leaderboard), Trends (Linien-Charts), Matches (offizieller Karten-Look mit Gegner-
+  Spalte, Inline-Expand), Analytics (7 Tabs).
+- **Insights aus akkumulierter History**: Win-Streaks (overall/Rolle/per-Character),
+  Recent-Form, Sessions, Recap, Killer-Meta, Gegner-Perk-Meta, Score-Profile. Das
+  ist der Kern-Value, da BHVR nur 50 Matches + Tages-Aggregate hergibt.
 
 ---
 
