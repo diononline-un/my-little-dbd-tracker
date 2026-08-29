@@ -2,37 +2,43 @@
  * Runs on stats.deadbydaylight.com. The SPA keeps its OAuth tokens in
  * localStorage under "auth-store" (see docs/api-contract.md). A background
  * service worker can't read another origin's localStorage, so we mirror the
- * token bundle into chrome.storage.local whenever the user visits the site.
+ * token bundle into chrome.storage.local whenever it changes.
  *
- * This is the ONLY way the collector gets credentials. Between visits the
- * background worker refreshes the short-lived access token itself using the
- * ~30-day refresh token captured here.
+ * The SPA rotates its refresh token when it refreshes (roughly hourly, and on
+ * reload), invalidating the previous one — so we must mirror promptly. Content
+ * scripts can use chrome.storage directly, so we write there instead of
+ * round-tripping through the service worker.
  */
+let lastAccessFp = null;
+
 function readAuthStore() {
   try {
     const raw = localStorage.getItem('auth-store');
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    const s = parsed?.state ?? {};
+    const s = JSON.parse(raw)?.state ?? {};
     if (!s.authToken?.token || !s.refreshToken?.token) return null;
-    return {
-      authToken: s.authToken,
-      refreshToken: s.refreshToken,
-      capturedAt: Date.now(),
-    };
+    return { authToken: s.authToken, refreshToken: s.refreshToken, capturedAt: Date.now() };
   } catch {
     return null;
   }
 }
 
-function push() {
+async function mirror() {
   const auth = readAuthStore();
-  if (auth) {
-    chrome.runtime.sendMessage({ type: 'auth-mirror', auth }).catch(() => {});
+  if (!auth) return;
+  const fp = auth.authToken.token.slice(0, 12) + auth.authToken.expirationDate;
+  if (fp === lastAccessFp) return; // unchanged
+  lastAccessFp = fp;
+  try {
+    await chrome.storage.local.set({ auth });
+    // nudge the worker so it can poll right after a fresh sign-in
+    chrome.runtime.sendMessage({ type: 'auth-mirrored' }).catch(() => {});
+  } catch {
+    /* extension context invalidated (reloaded) — next page load re-mirrors */
   }
 }
 
-push();
-// Catch the SPA rotating its token while the tab is open.
-setInterval(push, 60_000);
-window.addEventListener('focus', push);
+mirror();
+setInterval(mirror, 15_000);
+window.addEventListener('focus', mirror);
+window.addEventListener('visibilitychange', () => { if (!document.hidden) mirror(); });

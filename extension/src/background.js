@@ -7,7 +7,7 @@
  *   2. POST it to the EntityTrack backend /api/ingest
  *   3. ask the backend which matches need a loadout re-poll, re-fetch, re-POST
  */
-import { getSettings, setAuth } from './config.js';
+import { getSettings } from './config.js';
 import { fetchMatchHistory } from './bhvr-client.js';
 
 const ALARM = 'entitytrack-poll';
@@ -97,8 +97,9 @@ chrome.alarms.onAlarm.addListener((a) => {
 });
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (msg?.type === 'auth-mirror' && msg.auth) {
-    setAuth(msg.auth).then(() => sendResponse({ ok: true }));
+  if (msg?.type === 'auth-mirrored') {
+    // fresh token just landed (e.g. user signed in) — opportunistic poll
+    runOnce().then(() => sendResponse({ ok: true }));
     return true;
   }
   if (msg?.type === 'run-now') {

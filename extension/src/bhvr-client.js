@@ -1,15 +1,18 @@
 /**
- * Thin client for the BHVR stats API. All auth is a bearer access token; when it
- * is within 60s of expiry we refresh it with the long-lived refresh token.
- *
- * ⚠️ The refresh request/response shape is NOT yet verified against a live token
- * rotation (see docs/api-contract.md "Open follow-ups"). We try form-encoded
- * first (OAuth2 standard) then JSON, and surface a clear error if both fail so
- * the user knows to revisit stats.deadbydaylight.com.
+ * Thin client for the BHVR stats API. All auth is a bearer access token (~1h
+ * lifetime); when it is near expiry we refresh it with the long-lived refresh
+ * token, exactly as the SPA does:
+ *   POST https://account-backend.bhvr.com/sso/token
+ *   Content-Type: application/json
+ *   { "grant_type": "refresh_token", "client_id": "DBDStats", "refresh_token": "..." }
+ * The refresh token rotates on every refresh, so we persist the new bundle.
+ * If the stored refresh token is stale (the SPA rotated it while its tab was
+ * open) the call 400s — the fix is to revisit stats.deadbydaylight.com so the
+ * content script re-mirrors.
  */
 import { BHVR, getAuth, setAuth } from './config.js';
 
-const EXPIRY_SKEW_MS = 60_000;
+const EXPIRY_SKEW_MS = 90_000;
 
 function isExpired(tok) {
   return !tok?.token || !tok.expirationDate || Date.now() > tok.expirationDate - EXPIRY_SKEW_MS;
@@ -19,38 +22,23 @@ async function refreshAccessToken(auth) {
   if (isExpired(auth.refreshToken)) {
     throw new Error('refresh token expired — open stats.deadbydaylight.com to re-auth');
   }
-  const url = BHVR.apiBase + BHVR.tokenPath;
-  const params = {
-    grant_type: 'refresh_token',
-    refresh_token: auth.refreshToken.token,
-    client_id: BHVR.clientId,
-  };
-
-  const attempts = [
-    {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(params).toString(),
-    },
-    {
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    },
-  ];
-
-  let lastErr;
-  for (const a of attempts) {
-    try {
-      const res = await fetch(url, { method: 'POST', ...a });
-      if (!res.ok) { lastErr = new Error(`token refresh ${res.status}`); continue; }
-      const data = await res.json();
-      const next = normalizeTokenResponse(data, auth);
-      await setAuth(next);
-      return next;
-    } catch (err) {
-      lastErr = err;
-    }
+  const res = await fetch(BHVR.apiBase + BHVR.tokenPath, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      grant_type: 'refresh_token',
+      client_id: BHVR.clientId,
+      refresh_token: auth.refreshToken.token,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(
+      `token refresh ${res.status} — stored token likely stale; open stats.deadbydaylight.com`,
+    );
   }
-  throw lastErr ?? new Error('token refresh failed');
+  const next = normalizeTokenResponse(await res.json(), auth);
+  await setAuth(next);
+  return next;
 }
 
 /** Map whatever /sso/token returns onto our { authToken, refreshToken } bundle. */
