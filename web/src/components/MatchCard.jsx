@@ -66,21 +66,26 @@ function Opponents({ list = [] }) {
         const st = STATUS_ICON[o.status];
         const perks = o.perks ?? [];
         return (
-          <div key={i} className={`opp${isKiller ? ' opp-killer' : ''}`}
-            title={`${o.character_name ?? ''}${o.prestige ? ` · P${o.prestige}` : ''}${perks.length ? `\n${perks.map((p) => p.name || p.id).join(', ')}` : ''}`}>
-            <GameIcon src={charIcon(o.character_id, o.role)} alt={o.character_name} size={44} rounded={4} />
-            <div className="opp-bp">
-              {o.bloodpoints?.toLocaleString() ?? '—'}
-              {isKiller
-                ? <span className="opp-role opp-role-killer" title={o.killer_grade ?? 'Killer'}>🗡</span>
-                : st && <GameIcon src={statusIcon(st)} alt={o.status} size={11} rounded={2} className="opp-role" />}
-            </div>
-            <div className="opp-perks">
-              {[0, 1, 2, 3].map((j) =>
-                perks[j]
-                  ? <GameIcon key={j} src={perkIcon(perks[j].id)} alt={perks[j].name} title={perks[j].name} size={12} rounded={2} />
-                  : <span key={j} className="opp-perk-empty" />,
-              )}
+          <div key={i} className={`opp-row${isKiller ? ' opp-killer' : ''}`}>
+            <GameIcon src={charIcon(o.character_id, o.role)} alt={o.character_name} size={30} rounded={4} />
+            <div className="opp-info">
+              <div className="opp-line1">
+                <span className="opp-name">
+                  {o.character_name ?? o.character_id ?? '—'}
+                  {o.prestige ? <span className="muted"> P{o.prestige}</span> : null}
+                </span>
+                <span className="opp-bp2">{o.bloodpoints?.toLocaleString() ?? '—'}</span>
+                {isKiller
+                  ? <span className="opp-tag" title={o.killer_grade ?? 'Killer'}>{(o.killer_grade ?? 'KILLER').replace(' KILLER', '')}</span>
+                  : st && <GameIcon src={statusIcon(st)} alt={o.status} size={13} rounded={2} />}
+              </div>
+              <div className="opp-perks">
+                {[0, 1, 2, 3].map((j) =>
+                  perks[j]
+                    ? <GameIcon key={j} src={perkIcon(perks[j].id)} alt={perks[j].name} title={perks[j].name} size={16} rounded={2} />
+                    : <span key={j} className="opp-perk-empty" />,
+                )}
+              </div>
             </div>
           </div>
         );

@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { api, dur, when, num } from '../api.js';
+import { dur, when, num } from '../api.js';
 import {
-  GameIcon, IconRow, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
+  GameIcon, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
 } from '../icons.jsx';
 
 const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
@@ -21,60 +20,81 @@ function Card({ label, children, wide }) {
   );
 }
 
-function PlayerRow({ p }) {
-  const [open, setOpen] = useState(false);
-  const st = STATUS_ICON[p.status] ?? null;
+/** icon + spelled-out label — no hover needed. */
+function Named({ src, name }) {
   return (
-    <div style={{ borderBottom: '1px solid var(--border)' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '8px 4px',
-          background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', textAlign: 'left',
-        }}
-      >
-        <GameIcon src={charIcon(p.character_id, p.role)} alt={p.character_name} size={34} rounded={5} />
-        <span style={{ flex: 1, color: p.is_self ? 'var(--text-bright)' : 'var(--text)' }}>
+    <span className="named-item">
+      <GameIcon src={src} alt={name ?? ''} size={20} rounded={3} />
+      <span>{name ?? '—'}</span>
+    </span>
+  );
+}
+
+function PlayerRow({ p }) {
+  const st = STATUS_ICON[p.status] ?? null;
+  const perks = p.perks ?? [];
+  const addons = p.addons ?? [];
+  return (
+    <div className={`tally-player${p.is_self ? ' is-self' : ''}`}>
+      <div className="tally-head">
+        <GameIcon src={charIcon(p.character_id, p.role)} alt={p.character_name} size={38} rounded={5} />
+        <span className="tally-name">
           {p.character_name ?? p.character_id ?? '—'}
           {p.is_self ? ' · you' : ''}
           {p.prestige ? <span className="muted"> P{p.prestige}</span> : null}
+          {p.character_level ? <span className="muted"> · lvl {p.character_level}</span> : null}
         </span>
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.bloodpoints?.toLocaleString() ?? '—'}</span>
+        <span className="tally-bp">{p.bloodpoints?.toLocaleString() ?? '—'} BP</span>
         {st && <GameIcon src={statusIcon(st)} alt={p.status} size={18} rounded={2} />}
         {p.killer_grade && <span className="muted" style={{ fontSize: 11 }}>{p.killer_grade.replace(' KILLER', '')}</span>}
-        <span className="muted">{open ? '▾' : '▸'}</span>
-      </button>
-      {open && (
-        <div style={{ padding: '4px 4px 12px 44px', display: 'grid', gap: 8 }}>
-          <div>
-            <span className="section-label">Perks</span>
-            <IconRow items={(p.perks ?? []).map((x) => ({ key: x.id, src: perkIcon(x.id), alt: x.name, title: x.name }))} size={26} />
-          </div>
-          {(p.addons ?? []).length > 0 && (
-            <div>
-              <span className="section-label">Item &amp; add-ons</span>
-              <IconRow
-                items={[
-                  ...(p.power_id ? [{ key: 'pw', src: itemIcon(p.power_id), alt: p.power_name, title: p.power_name }] : []),
-                  ...(p.addons ?? []).map((x) => ({ key: x.id, src: addonIcon(x.id), alt: x.name, title: x.name })),
-                ]}
-                size={26} plusAfter={p.power_id ? 1 : undefined}
-              />
-            </div>
-          )}
-          {p.offering_id && (
-            <div>
-              <span className="section-label">Offering</span>
-              <GameIcon src={offeringIcon(p.offering_id)} alt={p.offering_name} title={p.offering_name} size={26} rounded={4} />
-            </div>
-          )}
-          {p.post_game_stat && (
-            <div className="muted" style={{ fontSize: 12 }}>
-              {Object.entries(p.post_game_stat).map(([k, v]) => `${CAT_LABEL(k)} ${num(v)}`).join(' · ')}
-            </div>
-          )}
+      </div>
+
+      <div className="tally-loadout">
+        <div className="tally-line">
+          <span className="tally-lbl">Perks</span>
+          {perks.length
+            ? perks.map((x) => <Named key={x.id} src={perkIcon(x.id)} name={x.name || x.id} />)
+            : <span className="muted">— not recorded</span>}
         </div>
-      )}
+        {(p.power_id || addons.length > 0) && (
+          <div className="tally-line">
+            <span className="tally-lbl">{p.role === 'killer' ? 'Power' : 'Item'}</span>
+            {p.power_id && <Named src={itemIcon(p.power_id)} name={p.power_name || p.power_id} />}
+            {addons.map((x) => <Named key={x.id} src={addonIcon(x.id)} name={x.name || x.id} />)}
+          </div>
+        )}
+        {p.offering_id && (
+          <div className="tally-line">
+            <span className="tally-lbl">Offering</span>
+            <Named src={offeringIcon(p.offering_id)} name={p.offering_name || p.offering_id} />
+          </div>
+        )}
+        {p.post_game_stat && (
+          <div className="tally-line">
+            <span className="tally-lbl">Score</span>
+            <span className="muted" style={{ fontSize: 12 }}>
+              {Object.entries(p.post_game_stat).map(([k, v]) => `${CAT_LABEL(k)} ${num(v)}`).join(' · ')}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Factors({ list = [] }) {
+  if (!list.length) return null;
+  return (
+    <div className="panel-block anim-rise" style={{ marginTop: 0, gridColumn: '1 / -1' }}>
+      <div className="section-label">
+        Likely factors <span className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>· heuristic read from perks &amp; scores, not a verdict</span>
+      </div>
+      {list.map((x, i) => (
+        <div key={i} className={`factor factor-${x.dir}${x.weight === 'major' ? ' major' : ''}`}>
+          <span className="factor-mark">{x.dir === 'for' ? '＋' : x.dir === 'against' ? '－' : '·'}</span>
+          {x.text}
+        </div>
+      ))}
     </div>
   );
 }
@@ -122,40 +142,56 @@ export default function MatchDetailBody({ match: m, showHeader = true }) {
       )}
 
       <div className="detail-grid">
-        <Card label="Duration"><div style={{ fontSize: 18, fontVariantNumeric: 'tabular-nums' }}>{dur(m.duration_seconds)}</div></Card>
-        <Card label="Perks">
-          <IconRow items={load.map((x) => ({ key: x.id, src: perkIcon(x.id), alt: x.name, title: x.name }))} size={30} />
+        <Card label="Your build">
+          <div className="tally-loadout">
+            <div className="tally-line">
+              <span className="tally-lbl">Perks</span>
+              {load.length ? load.map((x) => <Named key={x.id} src={perkIcon(x.id)} name={x.name || x.id} />)
+                : <span className="muted">— not recorded</span>}
+            </div>
+            {(self.power_id || (self.addons ?? []).length) && (
+              <div className="tally-line">
+                <span className="tally-lbl">{self.role === 'killer' ? 'Power' : 'Item'}</span>
+                {self.power_id && <Named src={itemIcon(self.power_id)} name={self.power_name || self.power_id} />}
+                {(self.addons ?? []).map((x) => <Named key={x.id} src={addonIcon(x.id)} name={x.name || x.id} />)}
+              </div>
+            )}
+            {self.offering_id && (
+              <div className="tally-line">
+                <span className="tally-lbl">Offering</span>
+                <Named src={offeringIcon(self.offering_id)} name={self.offering_name || self.offering_id} />
+              </div>
+            )}
+          </div>
         </Card>
-        <Card label="Item & add-ons">
-          <IconRow
-            items={[
-              ...(self.power_id ? [{ key: 'pw', src: itemIcon(self.power_id), alt: self.power_name, title: self.power_name }] : []),
-              ...(self.addons ?? []).map((x) => ({ key: x.id, src: addonIcon(x.id), alt: x.name, title: x.name })),
-            ]}
-            size={30} plusAfter={self.power_id ? 1 : undefined}
-          />
-        </Card>
-        <Card label="Offering">
-          {self.offering_id
-            ? <GameIcon src={offeringIcon(self.offering_id)} alt={self.offering_name} title={self.offering_name} size={30} rounded={5} />
-            : <span className="muted">—</span>}
+        <Card label="Duration & result">
+          <div style={{ fontSize: 18, fontVariantNumeric: 'tabular-nums' }}>{dur(m.duration_seconds)}</div>
+          <div className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+            {m.outcome}{m.self_kills != null ? ` · ${m.self_kills} kills` : ''}
+          </div>
         </Card>
         <Card label="Emblems">
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {(self.emblems ?? []).map((e, i) => (
-              <GameIcon key={i} src={emblemIcon(e.emblem_id, e.emblem_quality)} alt={`${e.emblem_name} ${e.emblem_quality}`}
-                title={`${e.emblem_name}: ${e.emblem_quality}`} size={26} rounded={3} />
+              <span key={i} className="named-item">
+                <GameIcon src={emblemIcon(e.emblem_id, e.emblem_quality)} alt="" size={22} rounded={3} />
+                <span>{e.emblem_name} <span className="muted">{e.emblem_quality}</span></span>
+              </span>
             ))}
           </div>
         </Card>
-        <Card label="Map">
-          <GameIcon src={mapIcon(m.map_id)} alt={m.map_name} w="100%" h={120} rounded={6} />
-          <div style={{ marginTop: 6, color: 'var(--text-bright)' }}>{m.map_name ?? m.map_id ?? 'Unknown'}</div>
+        <Card label="Map" wide>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <GameIcon src={mapIcon(m.map_id)} alt={m.map_name} w={200} h={112} rounded={6} />
+            <div style={{ color: 'var(--text-bright)', fontSize: 15 }}>{m.map_name ?? m.map_id ?? 'Unknown'}</div>
+          </div>
         </Card>
       </div>
 
-      <Card label="Players" wide>
-        <div style={{ marginTop: 4 }}>
+      <Factors list={m.factors} />
+
+      <Card label="Everyone's loadout" wide>
+        <div className="tally-list">
           {m.players.map((p) => <PlayerRow key={p.id} p={p} />)}
         </div>
       </Card>

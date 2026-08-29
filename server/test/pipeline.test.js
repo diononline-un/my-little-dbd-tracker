@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { ingestPayload } from '../src/ingest-pipeline.js';
 import { getMatch } from '../src/repository.js';
+import { analyzeMatch } from '../src/factors.js';
 import {
   summary, listMatches, buildAnalytics, streaks, recentForm, scoreProfile,
   characterStreaks, sessions, recap, scatter, history, emblemSum,
@@ -112,6 +113,19 @@ describe('ingest pipeline end-to-end (temp SQLite)', () => {
     expect(Array.isArray(h.series.overallWinRate)).toBe(true);
     expect(h.series.overallWinRate.length).toBe(3);
     for (const p of h.series.overallWinRate) expect(p.value).toBeGreaterThanOrEqual(0);
+  });
+
+  it('analyzeMatch returns framed factors and stays empty for canceled', () => {
+    const killer = getMatch('1787606284'); // 1019s merciless killer game
+    const factors = analyzeMatch(killer);
+    expect(Array.isArray(factors)).toBe(true);
+    for (const x of factors) {
+      expect(['for', 'against', 'neutral']).toContain(x.dir);
+      expect(['major', 'minor']).toContain(x.weight);
+      expect(typeof x.text).toBe('string');
+    }
+    const canceled = getMatch('1787516875'); // the 46s lobby-DC match
+    expect(analyzeMatch(canceled)).toEqual([]);
   });
 
   it('listMatches self carries emblemScore and opponents carry perks', () => {

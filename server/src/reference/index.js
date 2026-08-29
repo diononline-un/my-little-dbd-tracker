@@ -110,3 +110,66 @@ export function playerNeverPlayed(rawPlayer) {
       !rawPlayer?.platform)
   );
 }
+
+// ---------------------------------------------------------------------------
+// Perk / killer classification for the per-match "likely factors" analyzer.
+// Matched on a normalized display name (lowercase, alnum only) since the
+// payload's perk display names are more stable than the ids.
+// ---------------------------------------------------------------------------
+
+const norm = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const PERK_GROUPS = {
+  killerSlowdown: [
+    'Hex: Ruin', 'Scourge Hook: Pain Resonance', 'Pop Goes the Weasel', 'Eruption',
+    'Deadlock', 'Grim Embrace', 'Corrupt Intervention', "Dead Man's Switch", 'Oppression',
+    'Call of Brine', 'Overcharge', 'Scourge Hook: Gift of Pain', 'Hex: Pentimento',
+    'Trail of Torment', 'Hex: Plaything', 'No Way Out',
+  ],
+  killerInfo: [
+    'Barbecue & Chili', 'Lethal Pursuer', 'Nowhere to Hide', "A Nurse's Calling",
+    "I'm All Ears", 'Scourge Hook: Floods of Rage', 'Darkness Revealed', 'Bitter Murmur',
+    'Discordance', 'Weave Attunement', 'Nemesis',
+  ],
+  killerEndgame: ['Hex: No One Escapes Death', 'No One Escapes Death', 'Bloodwarden', 'Remember Me', 'Terminus'],
+  killerChase: [
+    'Bamboozle', 'Enduring', 'Spirit Fury', 'Hex: Blood Favor', 'Save the Best for Last',
+    'Brutal Strength', 'Fire Up', 'Bloodhound', 'Coup de Grâce',
+  ],
+  survSecondChance: [
+    'Decisive Strike', 'Off the Record', 'Dead Hard', 'Unbreakable', 'Adrenaline',
+    'Deliverance', 'Soul Guard', 'Power Struggle', 'Flip-Flop', 'Buckle Up',
+  ],
+  survExhaustion: ['Sprint Burst', 'Lithe', 'Balanced Landing', 'Dead Hard', 'Overcome', 'Head On', 'Smash Hit'],
+  survChase: ['Windows of Opportunity', 'Bond', 'Fixated', 'Quick & Quiet', 'Lucky Break', 'Iron Will', 'Resilience'],
+  survGen: ['Prove Thyself', 'Deja Vu', 'Hyperfocus', 'Stake Out', 'Built to Last', 'Blast Mine', 'Made for This', 'Five Moves Ahead'],
+  survAltruism: [
+    "We'll Make It", 'Botany Knowledge', 'Autodidact', 'Empathy', "We're Gonna Live Forever",
+    'For the People', 'Reassurance', 'Guardian', 'Kindred', 'Bond',
+  ],
+};
+
+const PERK_TAG = new Map();
+for (const [group, names] of Object.entries(PERK_GROUPS)) {
+  for (const n of names) PERK_TAG.set(norm(n), group);
+}
+
+/** Tags for a loadout's perk list: { killerSlowdown: [names], ... }. */
+export function tagPerks(perks = []) {
+  const out = {};
+  for (const p of perks) {
+    const tag = PERK_TAG.get(norm(p?.name)) ?? PERK_TAG.get(norm(p?.id));
+    if (tag) (out[tag] ??= []).push(p.name || p.id);
+  }
+  return out;
+}
+
+/** High-pressure / high-mobility killers — for a "tough matchup" note. */
+export const STRONG_KILLERS = new Set(
+  ['The Nurse', 'The Blight', 'The Spirit', 'The Hillbilly', 'The Huntress', 'The Oni',
+   'The Artist', 'The Mastermind', 'The Good Guy', 'The Wraith', 'The Executioner',
+   'The Plague', 'The Nightmare', 'The Dark Lord', 'The Lich', 'The Houndmaster'].map(norm),
+);
+export function isStrongKiller(name) {
+  return STRONG_KILLERS.has(norm(name));
+}

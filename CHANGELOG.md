@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-29 — Prominent opponents, spelled-out loadouts, "likely factors"
+
+- **Match card opponents are now a vertical list** — portrait + name + prestige + BP +
+  status + a 4-perk row per opponent, killer row red-tinted with its grade. Everything
+  legible at a glance instead of a cramped icon grid.
+- **Match detail: nothing is hover-only.** Perks, add-ons, items, offerings are all
+  icon + spelled-out name. "Everyone's loadout" shows all 5 players fully expanded —
+  perks, item/add-ons, offering, and score categories, no clicking.
+- **Likely factors** per match (`analyzeMatch`, `server/src/factors.js`): a heuristic
+  read of contributing signals — killer slowdown/endgame stacks, a teammate DC, an
+  early chase loss, gen speed from team objective scores, a high-pressure killer,
+  second-chance perk loads. Framed as "likely factors, not a verdict"; ＋/－ marked and
+  colour-coded. Perk classification lives in `reference/index.js`.
+
 ## 2026-08-29 — Opponent loadouts on the card, match-history trends, emblem-score (pip proxy)
 
 - **Match cards show opponent perks** without expanding — a 4-perk strip under each

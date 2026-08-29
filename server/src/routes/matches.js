@@ -1,6 +1,7 @@
 import { getMatch } from '../repository.js';
 import { listMatches, summary } from '../analytics.js';
 import { assetUrl } from '../reference/index.js';
+import { analyzeMatch } from '../factors.js';
 
 export default async function matchRoutes(app) {
   app.get('/summary', async () => summary());
@@ -24,7 +25,7 @@ export default async function matchRoutes(app) {
     if (!match) return reply.code(404).send({ error: 'no such match' });
 
     // enrich player rows with absolute image urls for the tally screen
-    return {
+    const hydrated = {
       ...match,
       is_corrected: Boolean(match.isCorrected ?? match.is_corrected),
       players: match.players.map((p) => ({
@@ -32,5 +33,6 @@ export default async function matchRoutes(app) {
         perks: (p.perks ?? []).map((x) => ({ ...x, image: assetUrl(`perks/${x.id}.png`) })),
       })),
     };
+    return { ...hydrated, factors: analyzeMatch(hydrated) };
   });
 }

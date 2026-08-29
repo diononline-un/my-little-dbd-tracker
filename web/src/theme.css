@@ -211,7 +211,7 @@ input, select {
 
 .match-card-head {
   display: grid;
-  grid-template-columns: 108px minmax(210px, 1.4fr) minmax(190px, 1.1fr) minmax(140px, auto);
+  grid-template-columns: 108px minmax(200px, 1.1fr) minmax(230px, 1.3fr) minmax(140px, auto);
   gap: 16px; padding: 14px; cursor: pointer; align-items: start;
 }
 .match-col + .match-col { border-left: 1px solid var(--border); padding-left: 16px; }
@@ -260,24 +260,54 @@ input, select {
 .match-cat .cv { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text); }
 .match-cat .cl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
 
-.match-opps { display: flex; gap: 8px; flex-wrap: wrap; }
-.opp { width: 54px; text-align: center; }
-.opp > .game-icon, .opp > .game-icon-fallback { width: 44px; height: 44px; }
-.opp-killer {
-  border-radius: 5px; padding: 2px 2px 3px;
-  background: linear-gradient(157deg, rgba(139,0,0,0.5), rgba(60,10,10,0.32));
+.match-opps { display: flex; flex-direction: column; gap: 5px; }
+.opp-row {
+  display: flex; gap: 8px; align-items: center; padding: 4px 6px; border-radius: 5px;
 }
-.opp-bp {
-  font-size: 10px; color: var(--text-dim); font-variant-numeric: tabular-nums; margin-top: 2px;
-  display: flex; align-items: center; justify-content: center; gap: 3px;
-}
-.opp-role { display: inline-block; }
-.opp-role-killer { font-size: 9px; }
-.opp-perks { display: flex; gap: 2px; justify-content: center; margin-top: 3px; }
-.opp-perks .game-icon, .opp-perks .game-icon-fallback { width: 12px; height: 12px; }
-.opp-perk-empty { width: 12px; height: 12px; border-radius: 2px; background: #0e0e0e; border: 1px solid var(--border); display: inline-block; }
+.opp-row:hover { background: rgba(255,255,255,0.03); }
+.opp-killer { background: linear-gradient(157deg, rgba(139,0,0,0.42), rgba(60,10,10,0.24)); }
+.opp-info { flex: 1; min-width: 0; }
+.opp-line1 { display: flex; align-items: center; gap: 6px; }
+.opp-name { flex: 1; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opp-bp2 { font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.opp-tag { font-size: 9px; letter-spacing: 0.03em; color: #d99; text-transform: uppercase; }
+.opp-perks { display: flex; gap: 3px; margin-top: 3px; }
+.opp-perks .game-icon, .opp-perks .game-icon-fallback { width: 16px; height: 16px; }
+.opp-perk-empty { width: 16px; height: 16px; border-radius: 2px; background: #0e0e0e; border: 1px solid var(--border); display: inline-block; }
 
 .emblem-score { text-transform: none; letter-spacing: 0; color: var(--text-dim); font-size: 10px; }
+
+/* ---------- spelled-out loadout (match detail) ---------- */
+.named-item {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+  border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px 3px 4px;
+  background: #0f0f0f; white-space: nowrap;
+}
+.tally-list { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.tally-player { padding: 10px 4px; border-bottom: 1px solid var(--border); }
+.tally-player.is-self { background: rgba(255,255,255,0.025); border-radius: 6px; }
+.tally-head { display: flex; align-items: center; gap: 10px; }
+.tally-name { flex: 1; color: var(--text-bright); }
+.tally-player:not(.is-self) .tally-name { color: var(--text); }
+.tally-bp { font-variant-numeric: tabular-nums; color: var(--text-dim); font-size: 12px; }
+.tally-loadout { display: grid; gap: 6px; margin-top: 8px; }
+.tally-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tally-lbl {
+  width: 62px; flex: 0 0 62px; font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-dim);
+}
+
+/* ---------- likely factors ---------- */
+.factor {
+  display: flex; gap: 8px; padding: 7px 10px; margin: 5px 0; border-radius: 5px;
+  font-size: 13px; background: #0f0f0f; border: 1px solid var(--border);
+}
+.factor.major { border-left-width: 3px; }
+.factor-for { border-left-color: var(--good); }
+.factor-against { border-left-color: var(--blood); }
+.factor-mark { color: var(--text-dim); flex: 0 0 auto; }
+.factor-for .factor-mark { color: var(--good); }
+.factor-against .factor-mark { color: var(--blood-bright); }
 
 .match-meta { color: var(--text-dim); font-size: 12px; }
 .match-meta .map { color: var(--text-bright); font-size: 13px; margin: 3px 0 1px; }
