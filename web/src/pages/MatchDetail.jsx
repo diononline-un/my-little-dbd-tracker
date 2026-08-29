@@ -127,7 +127,7 @@ export default function MatchDetail() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 12, marginTop: 12 }}>
+      <div className="detail-grid">
         <Card label="Duration"><div style={{ fontSize: 18, fontVariantNumeric: 'tabular-nums' }}>{dur(m.duration_seconds)}</div></Card>
         <Card label="Perks">
           <IconRow items={load.map((x) => ({ key: x.id, src: perkIcon(x.id), alt: x.name, title: x.name }))} size={30} />

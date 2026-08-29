@@ -75,7 +75,7 @@ export default function Overview() {
         {(career.data?.availableCategories ?? [{ id: 'Regular', label: 'Regular Trials' }]).map((c) => (
           <button key={c.id} className={cat === c.id ? 'active' : ''} onClick={() => setCat(c.id)}>{c.label}</button>
         ))}
-        <span style={{ flex: 1 }} />
+        <span className="spacer" />
         {['30-days', 'all-time'].map((x) => (
           <button key={x} className={win === x ? 'active' : ''} onClick={() => setWin(x)}>
             {x === '30-days' ? 'Last 30 days' : 'All time'}
