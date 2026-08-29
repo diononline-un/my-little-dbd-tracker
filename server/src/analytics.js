@@ -102,8 +102,9 @@ export function listMatches(filters = {}) {
     const ph = ids.map(() => '?').join(',');
     for (const p of sqlite
       .prepare(
-        `SELECT match_id, role, character_id, character_name, prestige, perks, addons,
-                offering_id, offering_name, power_id, power_name, post_game_stat, emblems
+        `SELECT match_id, role, character_id, character_name, prestige, leaderboard_score,
+                perks, addons, offering_id, offering_name, power_id, power_name,
+                post_game_stat, emblems
          FROM match_players WHERE is_self = 1 AND match_id IN (${ph})`,
       )
       .all(...ids)) {
@@ -113,6 +114,7 @@ export function listMatches(filters = {}) {
         character_id: p.character_id,
         character_name: p.character_name,
         prestige: p.prestige,
+        leaderboardScore: p.leaderboard_score,
         perks: safeJson(p.perks, []),
         addons: safeJson(p.addons, []),
         offering_id: p.offering_id,
@@ -127,7 +129,8 @@ export function listMatches(filters = {}) {
     for (const p of sqlite
       .prepare(
         `SELECT match_id, slot, role, character_id, character_name, prestige, bloodpoints,
-                status, killer_grade, perks, emblems
+                leaderboard_score, status, killer_grade, perks, addons, offering_id,
+                offering_name, power_id, power_name, post_game_stat, emblems
          FROM match_players WHERE is_self = 0 AND match_id IN (${ph}) ORDER BY slot`,
       )
       .all(...ids)) {
@@ -137,9 +140,16 @@ export function listMatches(filters = {}) {
         character_name: p.character_name,
         prestige: p.prestige,
         bloodpoints: p.bloodpoints,
+        leaderboardScore: p.leaderboard_score,
         status: p.status,
         killer_grade: p.killer_grade,
         perks: safeJson(p.perks, []),
+        addons: safeJson(p.addons, []),
+        offering_id: p.offering_id,
+        offering_name: p.offering_name,
+        power_id: p.power_id,
+        power_name: p.power_name,
+        post_game_stat: safeJson(p.post_game_stat, null),
         emblemScore: emblemSum(safeJson(p.emblems, [])),
       });
     }

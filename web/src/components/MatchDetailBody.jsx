@@ -44,7 +44,10 @@ function PlayerRow({ p }) {
           {p.prestige ? <span className="muted"> P{p.prestige}</span> : null}
           {p.character_level ? <span className="muted"> · lvl {p.character_level}</span> : null}
         </span>
-        <span className="tally-bp">{p.bloodpoints?.toLocaleString() ?? '—'} BP</span>
+        <span className="tally-bp">
+          {p.leaderboard_score != null && <strong style={{ color: 'var(--text)' }}>{p.leaderboard_score.toLocaleString()}</strong>}
+          {' '}{p.bloodpoints?.toLocaleString() ?? '—'} BP
+        </span>
         {st && <GameIcon src={statusIcon(st)} alt={p.status} size={18} rounded={2} />}
         {p.killer_grade && <span className="muted" style={{ fontSize: 11 }}>{p.killer_grade.replace(' KILLER', '')}</span>}
       </div>
@@ -128,7 +131,10 @@ export default function MatchDetailBody({ match: m, showHeader = true }) {
           </div>
           <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
             <div className="match-scorelabel">Score</div>
-            <div className="match-score">{self.bloodpoints?.toLocaleString() ?? '—'}</div>
+            <div className="match-score">
+              {(self.leaderboard_score ?? self.bloodpoints)?.toLocaleString() ?? '—'}
+              <span className="match-bp"> · {self.bloodpoints?.toLocaleString() ?? '—'} BP</span>
+            </div>
           </div>
         </div>
       )}

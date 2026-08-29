@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-29 — Score fix (leaderboard vs BP), bigger card, full opponent tiles
+
+- **The card's "Score" was showing bloodpoints, not the match score.** Fixed — it now
+  shows `leaderboardScore` (= the sum of the 4 score categories, what the official site
+  calls Score), with bloodpoints as a smaller "· N BP". Same on the detail header and
+  every player row.
+- **Match card is bigger and reorganised**: portrait + self build + map on top, then a
+  full-width row of four generous **opponent tiles** — portrait, name, prestige, score
+  + BP, a 4-perk row, and all four score categories. All the other players' data is
+  legible without expanding. Score-category tiles for yourself are larger too.
+- `/api/matches` opponents now also carry `leaderboardScore`, add-ons, offering,
+  power, and `post_game_stat`.
+
 ## 2026-08-29 — Prominent opponents, spelled-out loadouts, "likely factors"
 
 - **Match card opponents are now a vertical list** — portrait + name + prestige + BP +
