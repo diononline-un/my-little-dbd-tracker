@@ -13,6 +13,35 @@ const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
 const CAT_SHORT = (k) => CAT_LABEL(k).slice(0, 3);
 const score = (p) => p?.leaderboardScore ?? null;
 
+const CAT_COLOR = {
+  Objectives: 'var(--s1)', Altruism: 'var(--s3)', Boldness: 'var(--s4)', Survival: 'var(--s5)',
+  Hunter: 'var(--s1)', Deviousness: 'var(--s7)', Brutality: 'var(--s2)', Sacrifice: 'var(--s8)',
+};
+
+/** A slim stacked bar of the 4 score categories + a compact value legend. */
+function ScoreBar({ cats, compact }) {
+  if (!cats.length) return null;
+  const total = cats.reduce((a, [, v]) => a + v, 0) || 1;
+  return (
+    <div className={`score-bar-wrap${compact ? ' compact' : ''}`}>
+      <div className="score-bar">
+        {cats.map(([k, v]) => (
+          <span key={k} title={`${CAT_LABEL(k)} ${v.toLocaleString()}`}
+            style={{ width: `${(v / total) * 100}%`, background: CAT_COLOR[CAT_LABEL(k)] ?? 'var(--text-dim)' }} />
+        ))}
+      </div>
+      <div className="score-bar-legend">
+        {cats.map(([k, v]) => (
+          <span key={k}>
+            <i style={{ background: CAT_COLOR[CAT_LABEL(k)] ?? 'var(--text-dim)' }} />
+            {compact ? CAT_SHORT(k) : CAT_LABEL(k)} {v.toLocaleString()}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Diamond({ src, alt, title, size = 26 }) {
   return (
     <span className="perk-diamond" style={{ width: size, height: size }} title={title ?? alt}>
@@ -83,15 +112,7 @@ function OppTile({ o }) {
             : <span key={j} className="opp-perk-empty" />,
         )}
       </div>
-      {cats.length > 0 && (
-        <div className="opp-cats">
-          {cats.map(([k, v]) => (
-            <span key={k} title={`${CAT_LABEL(k)}: ${v.toLocaleString()}`}>
-              <span className="muted">{CAT_SHORT(k)}</span> {v.toLocaleString()}
-            </span>
-          ))}
-        </div>
-      )}
+      <ScoreBar cats={cats} compact />
     </div>
   );
 }
@@ -129,15 +150,25 @@ export default function MatchCard({ m, avg }) {
     enabled: open,
   });
 
+  const outcomeClass = isKiller
+    ? ''
+    : GOOD.has(m.outcome) ? ' won' : BAD.has(m.outcome) ? ' lost' : '';
+  const cardStyle = {};
+  if (isKiller && m.self_kills) cardStyle['--kill-tint'] = (m.self_kills / 4) * 0.14;
+  const mapUrl = mapIcon(m.map_id);
+  const headStyle = mapUrl
+    ? { backgroundImage: `linear-gradient(90deg, #101010 22%, rgba(16,16,16,0.82) 52%, rgba(16,16,16,0.45) 100%), url(${mapUrl})` }
+    : undefined;
+
   return (
     <div
-      className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}`}
-      style={isKiller && m.self_kills ? { '--kill-tint': (m.self_kills / 4) * 0.14 } : undefined}
+      className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}${outcomeClass}`}
+      style={cardStyle}
     >
       <div className={`result-strip ${isKiller ? 'killer' : 'survivor'}`}>
         {strip.map((s, i) => <span key={i} className={`rs rs-${s}`} />)}
       </div>
-      <div className="match-card-head" role="button" tabIndex={0}
+      <div className="match-card-head" role="button" tabIndex={0} style={headStyle}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setOpen((o) => !o))}>
 
@@ -182,23 +213,13 @@ export default function MatchCard({ m, avg }) {
               </div>
             )}
             <LoadoutRow self={self} />
-            {cats.length > 0 && (
-              <div className="match-cats">
-                {cats.map(([k, v]) => (
-                  <div className="match-cat" key={k}>
-                    <div className="cv">{v.toLocaleString()}</div>
-                    <div className="cl">{CAT_LABEL(k)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ScoreBar cats={cats} />
           </div>
 
           <div className="match-meta">
-            <GameIcon src={mapIcon(m.map_id)} alt={m.map_name} w={140} h={82} rounded={5} />
-            <div className="muted" style={{ marginTop: 6 }}>{when(m.played_at)}</div>
-            <div className="map">{m.map_name ?? m.map_id ?? 'Unknown'}</div>
             <div className="dur">{dur(m.duration_seconds)}</div>
+            <div className="map">{m.map_name ?? m.map_id ?? 'Unknown map'}</div>
+            <div className="muted">{when(m.played_at)}</div>
           </div>
         </div>
 

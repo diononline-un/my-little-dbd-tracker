@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-29 — Match card visual pass
+
+- **Map art bleeds in as an atmospheric card background** (heavily masked from the
+  right) — instant place identity and colour per match.
+- **Score categories → one slim stacked bar + value legend** instead of four plain
+  boxes; same on the opponent tiles. You see where the score came from at a glance.
+- **Outcome accent**: green left edge for an escape, red for a death (killer matches
+  keep the kill-count wash + result strip).
+- Bigger score and duration, cleaner meta column, warmer portrait frame, more
+  generous spacing and opponent tiles.
+
 ## 2026-08-29 — Death ✕, result strip, at-a-glance context
 
 - **Dead players get a red ✕ over a dimmed portrait** (survivors who died / were
