@@ -7,10 +7,10 @@ scope: "Self-hosted DBD match tracker: MV3 extension polls the official BHVR mat
 last_updated: "2026-08-29"
 next_steps:
   - Verify POST /sso/token refresh RESPONSE body shape against a live token expiry (request shape confirmed: JSON {grant_type, client_id, refresh_token}); client handles both {authToken,...} and OAuth {access_token,...}
-  - Reload the extension so it starts sending career snapshots; confirm Overview + Trends populate
+  - Trends page needs 2+ daily career snapshots before line charts draw (BHVR updates ~daily)
   - Tune corrector thresholds (lobby-dc KILLER_MIN_BP, ragequit ratios) against more real anomaly samples
-  - Backfill post_game_stat/character_level on the ~50 pre-enrichment matches (re-poll overwrites recent ones automatically; older ones stay sparse)
   - Confirm isCustomMatch / specialEventId handling (all captured matches were gameType "Online", no events)
+  - Optional: platform (steam/psn/egs) icons per player; session detection; time-of-day performance
 ---
 
 # Aktueller Stand
