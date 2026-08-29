@@ -191,9 +191,11 @@ export function listMatches(filters = {}) {
   };
 }
 
+const pts = (p) => p?.leaderboardScore ?? p?.bloodpoints ?? -1;
+
 function hydrateMatchRow(r, self, opponents = [], vsKiller = {}) {
-  // survivors first, killer last — matches the official card ordering
-  const ordered = [...opponents].sort((a, b) => (a.role === 'killer') - (b.role === 'killer'));
+  // highest score first
+  const ordered = [...opponents].sort((a, b) => pts(b) - pts(a));
 
   // where you fell among the survivors (by time in match) — survivor games only
   let deathPosition = null;

@@ -1,4 +1,4 @@
-import { dur, when, num } from '../api.js';
+import { dur, when, num, orderedCats } from '../api.js';
 import {
   GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
 } from '../icons.jsx';
@@ -77,7 +77,7 @@ function PlayerRow({ p }) {
           <div className="tally-line">
             <span className="tally-lbl">Score</span>
             <span className="muted" style={{ fontSize: 12 }}>
-              {Object.entries(p.post_game_stat).map(([k, v]) => `${CAT_LABEL(k)} ${num(v)}`).join(' · ')}
+              {orderedCats(p.post_game_stat).map(([k, v]) => `${CAT_LABEL(k)} ${num(v)}`).join(' · ')}
             </span>
           </div>
         )}

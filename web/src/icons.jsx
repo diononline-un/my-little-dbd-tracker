@@ -75,25 +75,26 @@ export function GameIcon({ src, alt = '', size = 28, w, h, rounded = 6, title, c
   );
 }
 
-const DOWNED = new Set(['died', 'sacrificed', 'dc', 'ragequit']);
+const DOWNED = new Set(['died', 'sacrificed', 'dc', 'ragequit', 'surrender_loss']);
 
 /**
- * Character portrait with the in-game result overlay: for a survivor who died,
- * disconnected or was sacrificed, the DBD `VE_*` status symbol (skull / entity
- * claw / disconnect) sits centred over a dimmed portrait. Escapes and the killer
- * are untouched.
+ * Character portrait with the in-game result symbol centred over it: escape gate
+ * / entity claw / skull / disconnect, straight from BHVR's `stats/VE_*` art.
+ * A downed survivor's portrait is also dimmed; an escape is left bright.
  */
 export function PlayerPortrait({ characterId, role, name, status, size = 40, rounded = 4 }) {
-  const downed = role !== 'killer' && DOWNED.has(status);
+  const isSurvivor = role !== 'killer';
+  const downed = isSurvivor && DOWNED.has(status);
+  const icon = isSurvivor ? veIcon(status) : null;
   return (
     <span className="pp" style={{ width: size, height: size }}>
       <GameIcon
         src={charIcon(characterId, role)} alt={name} size={size} rounded={rounded}
         className={downed ? 'pp-dim' : ''}
       />
-      {downed && (
-        <img className="pp-status" src={veIcon(status)} alt={status}
-          style={{ width: size * 0.62, height: size * 0.62 }} />
+      {icon && (
+        <img className={`pp-status${downed ? '' : ' pp-status-good'}`} src={icon} alt={status}
+          style={{ width: size * 0.6, height: size * 0.6 }} />
       )}
     </span>
   );

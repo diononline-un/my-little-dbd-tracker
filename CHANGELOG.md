@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-29 — Fixed category order, k-rounding, players by score, portrait-only result
+
+- **Score categories always render in the same order** (Objectives · Altruism ·
+  Boldness · Survival / Hunter · Deviousness · Brutality · Sacrifice) — was previously
+  JSON key order, which varied per player. `orderedCats()` in `api.js`.
+- **k-rounded on the card** (1.5k, 10k); full precision kept in the detail view.
+- **Players sorted by score, highest first** — opponent tiles on the card and the
+  "Everyone's loadout" list; `/api/matches/:id` returns players in that order too.
+- **Dropped the result strip, the kill wash and the score bars.** The `VE_*` symbol
+  over each portrait is the result at a glance now — and escapes get theirs too
+  (`VE_Escaped`; the API doesn't distinguish gate vs hatch).
+
 ## 2026-08-29 — Match card visual pass
 
 - **Map art bleeds in as an atmospheric card background** (heavily masked from the

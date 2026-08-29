@@ -24,14 +24,16 @@ export default async function matchRoutes(app) {
     const match = getMatch(req.params.matchId);
     if (!match) return reply.code(404).send({ error: 'no such match' });
 
-    // enrich player rows with absolute image urls for the tally screen
+    // enrich player rows with absolute image urls; order by score (highest first)
     const hydrated = {
       ...match,
       is_corrected: Boolean(match.isCorrected ?? match.is_corrected),
-      players: match.players.map((p) => ({
-        ...p,
-        perks: (p.perks ?? []).map((x) => ({ ...x, image: assetUrl(`perks/${x.id}.png`) })),
-      })),
+      players: match.players
+        .map((p) => ({
+          ...p,
+          perks: (p.perks ?? []).map((x) => ({ ...x, image: assetUrl(`perks/${x.id}.png`) })),
+        }))
+        .sort((a, b) => (b.leaderboard_score ?? b.bloodpoints ?? -1) - (a.leaderboard_score ?? a.bloodpoints ?? -1)),
     };
     return { ...hydrated, factors: analyzeMatch(hydrated) };
   });

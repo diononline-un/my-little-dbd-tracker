@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { api, dur, when } from '../api.js';
+import { api, dur, when, kfmt, orderedCats } from '../api.js';
 import {
   GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, veIcon,
 } from '../icons.jsx';
@@ -18,26 +18,18 @@ const CAT_COLOR = {
   Hunter: 'var(--s1)', Deviousness: 'var(--s7)', Brutality: 'var(--s2)', Sacrifice: 'var(--s8)',
 };
 
-/** A slim stacked bar of the 4 score categories + a compact value legend. */
-function ScoreBar({ cats, compact }) {
+/** Score categories in a fixed order, k-rounded, with a small colour dot each. */
+function ScoreLine({ post, compact }) {
+  const cats = orderedCats(post);
   if (!cats.length) return null;
-  const total = cats.reduce((a, [, v]) => a + v, 0) || 1;
   return (
-    <div className={`score-bar-wrap${compact ? ' compact' : ''}`}>
-      <div className="score-bar">
-        {cats.map(([k, v]) => (
-          <span key={k} title={`${CAT_LABEL(k)} ${v.toLocaleString()}`}
-            style={{ width: `${(v / total) * 100}%`, background: CAT_COLOR[CAT_LABEL(k)] ?? 'var(--text-dim)' }} />
-        ))}
-      </div>
-      <div className="score-bar-legend">
-        {cats.map(([k, v]) => (
-          <span key={k}>
-            <i style={{ background: CAT_COLOR[CAT_LABEL(k)] ?? 'var(--text-dim)' }} />
-            {compact ? CAT_SHORT(k) : CAT_LABEL(k)} {v.toLocaleString()}
-          </span>
-        ))}
-      </div>
+    <div className={`score-line${compact ? ' compact' : ''}`}>
+      {cats.map(([k, v]) => (
+        <span key={k}>
+          <i style={{ background: CAT_COLOR[CAT_LABEL(k)] ?? 'var(--text-dim)' }} />
+          {compact ? CAT_SHORT(k) : CAT_LABEL(k)} {kfmt(v)}
+        </span>
+      ))}
     </div>
   );
 }
@@ -85,7 +77,6 @@ function LoadoutRow({ self }) {
 function OppTile({ o }) {
   const isKiller = o.role === 'killer';
   const perks = o.perks ?? [];
-  const cats = o.post_game_stat ? Object.entries(o.post_game_stat) : [];
   return (
     <div className={`opp-tile${isKiller ? ' opp-killer' : ''}`}>
       <div className="opp-tile-head">
@@ -112,7 +103,7 @@ function OppTile({ o }) {
             : <span key={j} className="opp-perk-empty" />,
         )}
       </div>
-      <ScoreBar cats={cats} compact />
+      <ScoreLine post={o.post_game_stat} compact />
     </div>
   );
 }
@@ -130,17 +121,9 @@ export default function MatchCard({ m, avg }) {
   const outcomeLabel = isKiller
     ? (m.self_kills != null ? `${m.self_kills} / 4 kills` : (m.self_grade ?? 'killer').replace(' KILLER', ''))
     : (GOOD.has(m.outcome) ? 'Escaped' : (m.outcome ?? '').replace('_', ' '));
-  const cats = self.post_game_stat ? Object.entries(self.post_game_stat) : [];
   const bigScore = score(self) ?? m.self_bloodpoints;
-  const selfDowned = m.self_role === 'survivor' && ['died', 'sacrificed', 'dc', 'ragequit'].includes(m.outcome);
-
-  // result strip: killer → kills/4 red; survivor → per-survivor escaped(green)/died(red)
-  const strip = isKiller
-    ? Array.from({ length: 4 }, (_, i) => (i < (m.self_kills ?? 0) ? 'k' : 'e'))
-    : [self, ...(m.opponents ?? []).filter((o) => o.role === 'survivor')]
-        .slice(0, 4)
-        .map((p) => (['escaped', 'surrender_draw'].includes(p === self ? m.outcome : p.status) ? 'e'
-          : ['dc', 'ragequit'].includes(p.status) ? 'o' : 'd'));
+  const selfDowned = !isKiller && ['died', 'sacrificed', 'dc', 'ragequit'].includes(m.outcome);
+  const selfStatus = isKiller ? null : m.outcome;
 
   const scoreDelta = avg && bigScore != null ? bigScore - avg : null;
 
@@ -150,24 +133,13 @@ export default function MatchCard({ m, avg }) {
     enabled: open,
   });
 
-  const outcomeClass = isKiller
-    ? ''
-    : GOOD.has(m.outcome) ? ' won' : BAD.has(m.outcome) ? ' lost' : '';
-  const cardStyle = {};
-  if (isKiller && m.self_kills) cardStyle['--kill-tint'] = (m.self_kills / 4) * 0.14;
   const mapUrl = mapIcon(m.map_id);
   const headStyle = mapUrl
     ? { backgroundImage: `linear-gradient(90deg, #101010 22%, rgba(16,16,16,0.82) 52%, rgba(16,16,16,0.45) 100%), url(${mapUrl})` }
     : undefined;
 
   return (
-    <div
-      className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}${outcomeClass}`}
-      style={cardStyle}
-    >
-      <div className={`result-strip ${isKiller ? 'killer' : 'survivor'}`}>
-        {strip.map((s, i) => <span key={i} className={`rs rs-${s}`} />)}
-      </div>
+    <div className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}`}>
       <div className="match-card-head" role="button" tabIndex={0} style={headStyle}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setOpen((o) => !o))}>
@@ -176,8 +148,9 @@ export default function MatchCard({ m, avg }) {
           <div className="match-portrait">
             {portrait && <img src={portrait} alt={self.character_name ?? ''} loading="lazy"
               className={selfDowned ? 'pp-dim' : ''} />}
-            {selfDowned && <img className="pp-status" src={veIcon(m.outcome)} alt={m.outcome}
-              style={{ width: 56, height: 56 }} />}
+            {selfStatus && veIcon(selfStatus) && (
+              <img className="pp-status" src={veIcon(selfStatus)} alt={selfStatus} style={{ width: 56, height: 56 }} />
+            )}
             <div className={`outcome${outcomeBad ? ' bad' : ''}`}>{outcomeLabel}</div>
           </div>
 
@@ -213,7 +186,7 @@ export default function MatchCard({ m, avg }) {
               </div>
             )}
             <LoadoutRow self={self} />
-            <ScoreBar cats={cats} />
+            <ScoreLine post={self.post_game_stat} />
           </div>
 
           <div className="match-meta">
