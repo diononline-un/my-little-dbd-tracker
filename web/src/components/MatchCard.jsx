@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api, dur, when } from '../api.js';
 import {
-  GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon,
+  GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, veIcon,
 } from '../icons.jsx';
 import MatchDetailBody from './MatchDetailBody.jsx';
 
@@ -111,7 +111,7 @@ export default function MatchCard({ m, avg }) {
     : (GOOD.has(m.outcome) ? 'Escaped' : (m.outcome ?? '').replace('_', ' '));
   const cats = self.post_game_stat ? Object.entries(self.post_game_stat) : [];
   const bigScore = score(self) ?? m.self_bloodpoints;
-  const selfDead = m.self_role === 'survivor' && BAD.has(m.outcome) && m.outcome !== 'surrender_loss';
+  const selfDowned = m.self_role === 'survivor' && ['died', 'sacrificed', 'dc', 'ragequit'].includes(m.outcome);
 
   // result strip: killer → kills/4 red; survivor → per-survivor escaped(green)/died(red)
   const strip = isKiller
@@ -144,8 +144,9 @@ export default function MatchCard({ m, avg }) {
         <div className="match-top">
           <div className="match-portrait">
             {portrait && <img src={portrait} alt={self.character_name ?? ''} loading="lazy"
-              className={selfDead ? 'pp-dim' : ''} />}
-            {selfDead && <span className="pp-x" style={{ fontSize: '3rem' }}>✕</span>}
+              className={selfDowned ? 'pp-dim' : ''} />}
+            {selfDowned && <img className="pp-status" src={veIcon(m.outcome)} alt={m.outcome}
+              style={{ width: 56, height: 56 }} />}
             <div className={`outcome${outcomeBad ? ' bad' : ''}`}>{outcomeLabel}</div>
           </div>
 

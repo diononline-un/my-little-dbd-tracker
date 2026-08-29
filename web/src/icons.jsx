@@ -18,6 +18,18 @@ export const statusIcon = (id) => url(`stats/${id}.png`);
 export const charIcon = (id, role) =>
   url(`characters/${role === 'killer' ? 'killers' : 'survivors'}/${id}.png`);
 
+/** normalized player status → the BHVR `stats/VE_*` art id */
+export const STATUS_VE = {
+  escaped: 'VE_Escaped',
+  died: 'VE_Killed',
+  sacrificed: 'VE_Sacrificed',
+  dc: 'VE_Disconnected',
+  ragequit: 'VE_Disconnected',
+  surrender_loss: 'VE_SurrenderDraw',
+  surrender_draw: 'VE_SurrenderDraw',
+};
+export const veIcon = (status) => (STATUS_VE[status] ? statusIcon(STATUS_VE[status]) : null);
+
 const QUALITY_INDEX = { None: 0, Bronze: 1, Silver: 2, Gold: 3, Iridescent: 4 };
 export const emblemIcon = (emblemId, quality) =>
   url(`emblems/${emblemId}_${QUALITY_INDEX[quality] ?? 0}.png`);
@@ -63,24 +75,26 @@ export function GameIcon({ src, alt = '', size = 28, w, h, rounded = 6, title, c
   );
 }
 
-const DEAD = new Set(['died', 'sacrificed']);
-const OUT = new Set(['dc', 'ragequit']);
+const DOWNED = new Set(['died', 'sacrificed', 'dc', 'ragequit']);
 
 /**
- * Character portrait with a result overlay: red ✕ + dimmed for a death,
- * "OUT" for a disconnect, untouched for an escape / the killer.
+ * Character portrait with the in-game result overlay: for a survivor who died,
+ * disconnected or was sacrificed, the DBD `VE_*` status symbol (skull / entity
+ * claw / disconnect) sits centred over a dimmed portrait. Escapes and the killer
+ * are untouched.
  */
 export function PlayerPortrait({ characterId, role, name, status, size = 40, rounded = 4 }) {
-  const dead = DEAD.has(status);
-  const out = OUT.has(status);
+  const downed = role !== 'killer' && DOWNED.has(status);
   return (
     <span className="pp" style={{ width: size, height: size }}>
       <GameIcon
         src={charIcon(characterId, role)} alt={name} size={size} rounded={rounded}
-        className={dead || out ? 'pp-dim' : ''}
+        className={downed ? 'pp-dim' : ''}
       />
-      {dead && <span className="pp-x" aria-label="died">✕</span>}
-      {out && <span className="pp-out">OUT</span>}
+      {downed && (
+        <img className="pp-status" src={veIcon(status)} alt={status}
+          style={{ width: size * 0.62, height: size * 0.62 }} />
+      )}
     </span>
   );
 }
