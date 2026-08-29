@@ -6,6 +6,7 @@ import { GameIcon, charIcon, perkIcon } from '../icons.jsx';
 import Radar from '../charts/Radar.jsx';
 import Heatmap from '../charts/Heatmap.jsx';
 import Scatter from '../charts/Scatter.jsx';
+import CareerPanel from '../components/CareerPanel.jsx';
 
 const SCATTER_DIMS = [
   ['my-killers', 'My killers'],
@@ -161,6 +162,10 @@ export default function Insights() {
           <div className="section-label">Perks the opposition runs</div>
           <OpponentPerks />
         </div>
+      </div>
+
+      <div style={{ marginTop: 22 }}>
+        <CareerPanel />
       </div>
 
       <p className="muted" style={{ marginTop: 14, fontSize: 12 }}>

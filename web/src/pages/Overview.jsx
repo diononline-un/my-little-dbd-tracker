@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { api, pct, num, hrs, QUALITY_COLORS, QUALITY_ORDER } from '../api.js';
-import StackedBar from '../charts/StackedBar.jsx';
+import { api, pct } from '../api.js';
 import StreakBadge from '../components/StreakBadge.jsx';
 import FormStrip from '../components/FormStrip.jsx';
 import RecapCard from '../components/RecapCard.jsx';
 import HistoryTrends from '../components/HistoryTrends.jsx';
+import MatchCard from '../components/MatchCard.jsx';
 
 function Tile({ k, v, sub, neg }) {
   return (
@@ -18,44 +17,19 @@ function Tile({ k, v, sub, neg }) {
   );
 }
 
-function emblemRows(emblems) {
-  if (!emblems) return [];
-  return Object.entries(emblems).map(([id, byQuality]) => ({
-    label: id.split('_').pop(),
-    segments: QUALITY_ORDER.map((q) => ({
-      key: q,
-      label: q,
-      value: byQuality[q] ?? 0,
-      color: QUALITY_COLORS[q],
-    })),
-  }));
-}
-
 export default function Overview() {
-  const [cat, setCat] = useState('Regular');
-  const [win, setWin] = useState('all-time');
-
   const tracked = useQuery({ queryKey: ['summary'], queryFn: api.summary });
-  const career = useQuery({ queryKey: ['career', cat], queryFn: () => api.career({ category: cat }) });
   const streak = useQuery({ queryKey: ['streaks'], queryFn: api.streaks });
   const form = useQuery({ queryKey: ['form', 20], queryFn: () => api.form({ limit: 20 }) });
-
-  const w = career.data?.windows?.[win];
-  const surv = w?.survivors;
-  const kill = w?.killers;
-  const gen = w?.general;
+  const recent = useQuery({ queryKey: ['matches', { limit: 4, page: 'overview' }], queryFn: () => api.matches({ limit: 4 }) });
 
   return (
     <>
       <h2>Overview</h2>
 
-      <div style={{ marginBottom: 14 }}>
-        <RecapCard />
-      </div>
-
-      {/* --- streaks + recent form --- */}
+      {/* --- quick pulse: streaks + recent form --- */}
       {streak.data && (
-        <div className="streak-row" style={{ marginBottom: 14 }}>
+        <div className="streak-row" style={{ marginBottom: 16 }}>
           <StreakBadge label="Current streak" s={streak.data.overall} />
           <StreakBadge label="Survivor" s={streak.data.survivor} />
           <StreakBadge label="Killer" s={streak.data.killer} />
@@ -71,8 +45,25 @@ export default function Overview() {
         </div>
       )}
 
-      {/* --- our own tracked data --- */}
-      <div className="section-label">Tracked by EntityTrack</div>
+      {/* --- the last few matches, in full --- */}
+      <div className="section-label">
+        Recent matches <Link to="/matches" className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>all matches →</Link>
+      </div>
+      {recent.isLoading && <p className="muted">Loading…</p>}
+      {recent.data?.matches?.length === 0 && <p className="muted">No matches tracked yet.</p>}
+      <div className="stagger">
+        {(recent.data?.matches ?? []).map((m) => (
+          <MatchCard key={m.match_id} m={m} avg={recent.data.avgScoreByRole?.[m.self_role]} />
+        ))}
+      </div>
+
+      {/* --- this week's recap --- */}
+      <div style={{ marginTop: 20 }}>
+        <RecapCard />
+      </div>
+
+      {/* --- tracked-data totals --- */}
+      <div className="section-label" style={{ marginTop: 22 }}>Tracked by EntityTrack</div>
       {tracked.data && (
         <div className="grid cols-4 stagger">
           <Tile k="Matches tracked" v={tracked.data.totalMatches} sub={`${tracked.data.canceledMatches} canceled`} />
@@ -91,67 +82,11 @@ export default function Overview() {
         </div>
       )}
 
-      {/* --- rolling form trend, computed from match history --- */}
+      {/* --- rolling form trend --- */}
       <div className="section-label" style={{ marginTop: 22 }}>
         Form trend <Link to="/trends" className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>more →</Link>
       </div>
       <HistoryTrends only={['combined']} rollingN={10} />
-
-      {/* --- BHVR career stats --- */}
-      <div className="section-label" style={{ marginTop: 26 }}>
-        Career (BHVR){' '}
-        {career.data?.bhvrUpdatedAt && (
-          <span className="muted">· updated {new Date(career.data.bhvrUpdatedAt).toLocaleDateString()}</span>
-        )}
-      </div>
-
-      <div className="tabs">
-        {(career.data?.availableCategories ?? [{ id: 'Regular', label: 'Regular Trials' }]).map((c) => (
-          <button key={c.id} className={cat === c.id ? 'active' : ''} onClick={() => setCat(c.id)}>{c.label}</button>
-        ))}
-        <span className="spacer" />
-        {['30-days', 'all-time'].map((x) => (
-          <button key={x} className={win === x ? 'active' : ''} onClick={() => setWin(x)}>
-            {x === '30-days' ? 'Last 30 days' : 'All time'}
-          </button>
-        ))}
-      </div>
-
-      {!career.data?.windows && (
-        <p className="muted">
-          No career snapshot yet — the collector extension pulls these on its next run.
-        </p>
-      )}
-
-      {w && (
-        <>
-          <div className="grid cols-4 stagger">
-            <Tile k="Hours played" v={hrs(gen?.totalHoursPlayed)} sub={`${num(gen?.totalMatchesPlayed)} matches`} />
-            <Tile k="Avg BP / match" v={num(Math.round(gen?.avgBPEarnedPerMatch ?? 0))} />
-            <Tile k="Escape rate" v={pct(surv?.escapeRate)} sub={`${num(surv?.matchesEscaped)} escapes`} neg={surv?.escapeRate != null && surv.escapeRate < 0.35} />
-            <Tile k="Kill rate" v={pct(kill?.avgKillRate)} sub={`${num(kill?.totalKills)} kills · ${kill?.avgHooks?.toFixed(1) ?? '—'} avg hooks`} />
-          </div>
-
-          <div className="grid cols-3 stagger" style={{ marginTop: 12 }}>
-            <Tile k="Survivor · chases won" v={num(surv?.survivorChasesWon)} sub={`longest ${Math.round(surv?.survivorLongestChaseTimeInSeconds ?? 0)}s`} />
-            <Tile k="Survivor · heals" v={num(surv?.survivorSuccessfullyHealed)} sub={`hooked ${num(surv?.survivorTimesHooked)}×`} />
-            <Tile k="Killer · pallets / gens / walls" v={`${num(kill?.totalPalletsDestroyed)} / ${num(kill?.totalGenKicked)} / ${num(kill?.totalWallsBroken)}`} />
-          </div>
-
-          {surv?.emblems && Object.keys(surv.emblems).length > 0 && (
-            <div className="panel-block">
-              <div className="section-label">Survivor emblems</div>
-              <StackedBar rows={emblemRows(surv.emblems)} />
-            </div>
-          )}
-          {kill?.emblems && Object.keys(kill.emblems).length > 0 && (
-            <div className="panel-block">
-              <div className="section-label">Killer emblems</div>
-              <StackedBar rows={emblemRows(kill.emblems)} />
-            </div>
-          )}
-        </>
-      )}
     </>
   );
 }

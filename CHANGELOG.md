@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-29 — Overview is a recent-matches feed
+
+- The Overview now leads with the **last 4 matches in full** (the same detail cards
+  as the Matches page) instead of the BHVR career "filter view".
+- Order: streak/form pulse → recent matches → weekly recap → tracked totals → form
+  trend chart.
+- The BHVR career panel (mode tabs, 30-day / all-time toggle, emblem distributions)
+  moved to **Insights** as its own section (`CareerPanel` component).
+
 ## 2026-08-29 — Role badge, killer pinned top-right, bigger teammate tiles
 
 - **Role badge** (Survivor / Killer, colour-coded) next to the character name — the
