@@ -1,0 +1,2246 @@
+[
+  {
+    "matchStat": {
+      "gameType": {
+        "id": "Online",
+        "name": "Online"
+      },
+      "isCustomMatch": false,
+      "mapName": "Glo_Level_01",
+      "matchDuration": 1018.7262573242188,
+      "matchStartTime": 1787606284,
+      "specialEventId": "NONE",
+      "map": {
+        "id": "Glo_Level_01",
+        "name": "Ormond Lake Mine",
+        "image": {
+          "path": "maps/Glo_Level_01.png"
+        }
+      }
+    },
+    "playerStat": {
+      "bloodpointsEarned": 193690,
+      "characterLevel": 45,
+      "platform": "steam",
+      "postGameStat": {
+        "DBD_SlasherScoreCat_Hunter": 10000,
+        "DBD_SlasherScoreCat_Deviousness": 3964,
+        "DBD_SlasherScoreCat_Brutality": 6300,
+        "DBD_SlasherScoreCat_Sacrifice": 10000
+      },
+      "leaderboardScore": 30264,
+      "emblems": [
+        {
+          "emblem_id": "Emblem_Killer_Chaser",
+          "emblem_name": "CHASER",
+          "emblem_quality": "Gold"
+        },
+        {
+          "emblem_id": "Emblem_Killer_Devout",
+          "emblem_name": "DEVOUT",
+          "emblem_quality": "Iridescent"
+        },
+        {
+          "emblem_id": "Emblem_Killer_Gatekeeper",
+          "emblem_name": "GATEKEEPER",
+          "emblem_quality": "Iridescent"
+        },
+        {
+          "emblem_id": "Emblem_Killer_Malicious",
+          "emblem_name": "MALICIOUS",
+          "emblem_quality": "Gold"
+        }
+      ],
+      "characterClass": null,
+      "characterName": {
+        "id": "Shape",
+        "name": "The Shape",
+        "image": {
+          "path": "characters/killers/Shape.png"
+        }
+      },
+      "playerTimeInMatch": 1018,
+      "characterLoadout": {
+        "addOns": [
+          {
+            "id": "Addon_Stalker_FragrantTuftOfHair",
+            "name": "Fragrant Tuft of Hair",
+            "image": {
+              "path": "add-ons/Addon_Stalker_FragrantTuftOfHair.png"
+            }
+          },
+          {
+            "id": "Addon_Stalker_HairBow",
+            "name": "Hair Bow",
+            "image": {
+              "path": "add-ons/Addon_Stalker_HairBow.png"
+            }
+          }
+        ],
+        "offering": {
+          "id": "SurvivorPudding",
+          "name": "Survivor Pudding",
+          "image": {
+            "path": "offerings/SurvivorPudding.png",
+            "background": "display/offering_bg.png"
+          }
+        },
+        "perks": [
+          {
+            "id": "Hex_Ruin",
+            "name": "Hex: Ruin",
+            "image": {
+              "path": "perks/Hex_Ruin.png"
+            }
+          },
+          {
+            "id": "InfectiousFright",
+            "name": "Infectious Fright",
+            "image": {
+              "path": "perks/InfectiousFright.png"
+            }
+          },
+          {
+            "id": "K26P02",
+            "name": "Scourge Hook: Pain Resonance",
+            "image": {
+              "path": "perks/K26P02.png"
+            }
+          },
+          {
+            "id": "K27P01",
+            "name": "Scourge Hook: Floods of Rage",
+            "image": {
+              "path": "perks/K27P01.png"
+            }
+          }
+        ],
+        "power": {
+          "id": "Item_Slasher_Stalker",
+          "name": "Evil Within",
+          "image": {
+            "path": "items/Item_Slasher_Stalker.png"
+          }
+        }
+      },
+      "playerRole": "VE_Slasher",
+      "killerMatchStatus": "MERCILESS KILLER",
+      "prestigeLevel": 6
+    },
+    "opponentStat": [
+      {
+        "bloodpointsEarned": 56051,
+        "characterLevel": 34,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 2268,
+          "DBD_CamperScoreCat_Altruism": 1580,
+          "DBD_CamperScoreCat_Boldness": 1894,
+          "DBD_CamperScoreCat_Survival": 4449
+        },
+        "leaderboardScore": 10191,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Silver"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S22",
+          "name": "Cheryl Mason",
+          "image": {
+            "path": "characters/survivors/S22.png"
+          }
+        },
+        "playerTimeInMatch": 601,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "ADDON_flashlight_intensehalogen",
+              "name": "Intense Halogen",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_intensehalogen.png"
+              }
+            },
+            {
+              "id": "Addon_Flashlight_006",
+              "name": "TIR Optic",
+              "image": {
+                "path": "add-ons/Addon_Flashlight_006.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Vigil",
+              "name": "Vigil",
+              "image": {
+                "path": "perks/Vigil.png"
+              }
+            },
+            {
+              "id": "S52P03",
+              "name": "Five Moves Ahead",
+              "image": {
+                "path": "perks/S52P03.png"
+              }
+            },
+            {
+              "id": "Balanced_Landing",
+              "name": "Balanced Landing",
+              "image": {
+                "path": "perks/Balanced_Landing.png"
+              }
+            },
+            {
+              "id": "Fixated",
+              "name": "Fixated",
+              "image": {
+                "path": "perks/Fixated.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight_Anniversary2026",
+            "name": "Banquet Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight_Anniversary2026.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Killed",
+          "name": "DEAD",
+          "image": {
+            "path": "stats/VE_Killed.png"
+          }
+        },
+        "prestigeLevel": 51
+      },
+      {
+        "bloodpointsEarned": 161562,
+        "characterLevel": 50,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 7872,
+          "DBD_CamperScoreCat_Altruism": 8631,
+          "DBD_CamperScoreCat_Boldness": 10000,
+          "DBD_CamperScoreCat_Survival": 3416
+        },
+        "leaderboardScore": 29919,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Silver"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S27",
+          "name": "Leon S. Kennedy",
+          "image": {
+            "path": "characters/survivors/S27.png"
+          }
+        },
+        "playerTimeInMatch": 1000,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "ADDON_flashlight_lonflifebattery",
+              "name": "Long Life Battery",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_lonflifebattery.png"
+              }
+            },
+            {
+              "id": "ADDON_flashlight_highendsapphire",
+              "name": "High-end Sapphire lens",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_highendsapphire.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "DecisiveStrike",
+              "name": "DecisiveStrike",
+              "image": {
+                "path": "perks/DecisiveStrike.png"
+              }
+            },
+            {
+              "id": "S36P01",
+              "name": "Background Player",
+              "image": {
+                "path": "perks/S36P01.png"
+              }
+            },
+            {
+              "id": "Iron_Will",
+              "name": "Iron Will",
+              "image": {
+                "path": "perks/Iron_Will.png"
+              }
+            },
+            {
+              "id": "Empathy",
+              "name": "Empathy",
+              "image": {
+                "path": "perks/Empathy.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight02",
+            "name": "Sport Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight02.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Killed",
+          "name": "DEAD",
+          "image": {
+            "path": "stats/VE_Killed.png"
+          }
+        },
+        "prestigeLevel": 100
+      },
+      {
+        "bloodpointsEarned": 160181,
+        "characterLevel": 48,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 6976,
+          "DBD_CamperScoreCat_Altruism": 10000,
+          "DBD_CamperScoreCat_Boldness": 10000,
+          "DBD_CamperScoreCat_Survival": 2148
+        },
+        "leaderboardScore": 29124,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S35",
+          "name": "Thalita Lyra",
+          "image": {
+            "path": "characters/survivors/S35.png"
+          }
+        },
+        "playerTimeInMatch": 1011,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "ADDON_flashlight_highendsapphire",
+              "name": "High-end Sapphire lens",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_highendsapphire.png"
+              }
+            },
+            {
+              "id": "Addon_Flashlight_002",
+              "name": "Heavy Duty Battery",
+              "image": {
+                "path": "add-ons/Addon_Flashlight_002.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "S52P03",
+              "name": "Five Moves Ahead",
+              "image": {
+                "path": "perks/S52P03.png"
+              }
+            },
+            {
+              "id": "DeadHard",
+              "name": "Dead Hard",
+              "image": {
+                "path": "perks/DeadHard.png"
+              }
+            },
+            {
+              "id": "S36P01",
+              "name": "Background Player",
+              "image": {
+                "path": "perks/S36P01.png"
+              }
+            },
+            {
+              "id": "S26P03",
+              "name": "Blast Mine",
+              "image": {
+                "path": "perks/S26P03.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight02",
+            "name": "Sport Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight02.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_SurrenderLoss",
+          "image": {
+            "path": "stats/VE_SurrenderDraw.png"
+          }
+        },
+        "prestigeLevel": 38
+      },
+      {
+        "bloodpointsEarned": 147654,
+        "characterLevel": 49,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 4717,
+          "DBD_CamperScoreCat_Altruism": 9225,
+          "DBD_CamperScoreCat_Boldness": 8267,
+          "DBD_CamperScoreCat_Survival": 4637
+        },
+        "leaderboardScore": 26846,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Silver"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S23",
+          "name": "Felix Richter",
+          "image": {
+            "path": "characters/survivors/S23.png"
+          }
+        },
+        "playerTimeInMatch": 820,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Flashlight_001",
+              "name": "Battery",
+              "image": {
+                "path": "add-ons/Addon_Flashlight_001.png"
+              }
+            },
+            {
+              "id": "ADDON_flashlight_rubbergrip",
+              "name": "Rubber Grip",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_rubbergrip.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "WereGonnaLiveForever",
+              "name": "We're Gonna Live Forever",
+              "image": {
+                "path": "perks/WereGonnaLiveForever.png"
+              }
+            },
+            {
+              "id": "DecisiveStrike",
+              "name": "DecisiveStrike",
+              "image": {
+                "path": "perks/DecisiveStrike.png"
+              }
+            },
+            {
+              "id": "Resilience",
+              "name": "Resilience",
+              "image": {
+                "path": "perks/Resilience.png"
+              }
+            },
+            {
+              "id": "Lithe",
+              "name": "Lithe",
+              "image": {
+                "path": "perks/Lithe.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight02",
+            "name": "Sport Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight02.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Sacrificed",
+          "name": "SACRIFICED",
+          "image": {
+            "path": "stats/VE_Sacrificed.png"
+          }
+        },
+        "prestigeLevel": 29
+      }
+    ]
+  },
+  {
+    "matchStat": {
+      "gameType": {
+        "id": "Online",
+        "name": "Online"
+      },
+      "isCustomMatch": false,
+      "mapName": "Ind_Foundry",
+      "matchDuration": 593.600830078125,
+      "matchStartTime": 1787596295,
+      "specialEventId": "NONE",
+      "map": {
+        "id": "Ind_Foundry",
+        "name": "Ironworks of Misery",
+        "image": {
+          "path": "maps/Ind_Foundry.png"
+        }
+      }
+    },
+    "playerStat": {
+      "bloodpointsEarned": 117173,
+      "characterLevel": 7,
+      "platform": "steam",
+      "postGameStat": {
+        "DBD_CamperScoreCat_Objectives": 3053,
+        "DBD_CamperScoreCat_Altruism": 4215,
+        "DBD_CamperScoreCat_Survival": 10000,
+        "DBD_CamperScoreCat_Boldness": 9362
+      },
+      "leaderboardScore": 26630,
+      "emblems": [
+        {
+          "emblem_id": "Emblem_Survivor_Benevolent",
+          "emblem_name": "BENEVOLENT",
+          "emblem_quality": "Gold"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Evader",
+          "emblem_name": "EVADER",
+          "emblem_quality": "Gold"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Lightbringer",
+          "emblem_name": "LIGHTBRINGER",
+          "emblem_quality": "Gold"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Unbroken",
+          "emblem_name": "UNBROKEN",
+          "emblem_quality": "Gold"
+        }
+      ],
+      "characterClass": null,
+      "characterName": {
+        "id": "Smoke",
+        "name": "David King",
+        "image": {
+          "path": "characters/survivors/Smoke.png"
+        }
+      },
+      "playerTimeInMatch": 537,
+      "characterLoadout": {
+        "addOns": [],
+        "offering": {
+          "id": "Anniversary2026Offering",
+          "name": "Toothy Torte",
+          "image": {
+            "path": "offerings/Anniversary2026Offering.png",
+            "background": "display/offering_bg.png"
+          }
+        },
+        "perks": [
+          {
+            "id": "S52P03",
+            "name": "Five Moves Ahead",
+            "image": {
+              "path": "perks/S52P03.png"
+            }
+          },
+          {
+            "id": "Deja_Vu",
+            "name": "Deja Vu",
+            "image": {
+              "path": "perks/Deja_Vu.png"
+            }
+          },
+          {
+            "id": "Fixated",
+            "name": "Fixated",
+            "image": {
+              "path": "perks/Fixated.png"
+            }
+          },
+          {
+            "id": "DeadHard",
+            "name": "Dead Hard",
+            "image": {
+              "path": "perks/DeadHard.png"
+            }
+          }
+        ],
+        "power": {
+          "id": "Item_Camper_Flashlight",
+          "name": "Flashlight",
+          "image": {
+            "path": "items/Item_Camper_Flashlight.png"
+          }
+        }
+      },
+      "playerRole": "VE_Camper",
+      "playerStatus": {
+        "id": "VE_Escaped",
+        "name": "ESCAPED",
+        "image": {
+          "path": "stats/VE_Escaped.png"
+        }
+      },
+      "prestigeLevel": 14
+    },
+    "opponentStat": [
+      {
+        "bloodpointsEarned": 108820,
+        "characterLevel": 15,
+        "platform": "egs",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 1784,
+          "DBD_CamperScoreCat_Altruism": 10000,
+          "DBD_CamperScoreCat_Boldness": 10000,
+          "DBD_CamperScoreCat_Survival": 2948
+        },
+        "leaderboardScore": 24732,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "Dwight",
+          "name": "Dwight Fairfield",
+          "image": {
+            "path": "characters/survivors/Dwight.png"
+          }
+        },
+        "playerTimeInMatch": 579,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "ADDON_flashlight_lonflifebattery",
+              "name": "Long Life Battery",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_lonflifebattery.png"
+              }
+            },
+            {
+              "id": "Addon_Flashlight_007",
+              "name": "Low Amp Filament",
+              "image": {
+                "path": "add-ons/Addon_Flashlight_007.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "MacMillanPhalanxBone",
+            "name": "MacMillan's Phalanx Bone",
+            "image": {
+              "path": "offerings/MacMillanPhalanxBone.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "S37P02",
+              "name": "Made for This",
+              "image": {
+                "path": "perks/S37P02.png"
+              }
+            },
+            {
+              "id": "WereGonnaLiveForever",
+              "name": "We're Gonna Live Forever",
+              "image": {
+                "path": "perks/WereGonnaLiveForever.png"
+              }
+            },
+            {
+              "id": "SelfSufficient",
+              "name": "Unbreakable",
+              "image": {
+                "path": "perks/SelfSufficient.png"
+              }
+            },
+            {
+              "id": "S33P03",
+              "name": "Hyperfocus",
+              "image": {
+                "path": "perks/S33P03.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight03",
+            "name": "Utility Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight03.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_SurrenderLoss",
+          "image": {
+            "path": "stats/VE_SurrenderDraw.png"
+          }
+        },
+        "prestigeLevel": 9
+      },
+      {
+        "bloodpointsEarned": 134618,
+        "characterLevel": 33,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 9837,
+          "DBD_CamperScoreCat_Altruism": 7053,
+          "DBD_CamperScoreCat_Boldness": 3705,
+          "DBD_CamperScoreCat_Survival": 10000
+        },
+        "leaderboardScore": 30595,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S27",
+          "name": "Leon S. Kennedy",
+          "image": {
+            "path": "characters/survivors/S27.png"
+          }
+        },
+        "playerTimeInMatch": 538,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Medkit_004",
+              "name": "Butterfly Tape",
+              "image": {
+                "path": "add-ons/Addon_Medkit_004.png"
+              }
+            },
+            {
+              "id": "Addon_Medkit_001",
+              "name": "Bandages",
+              "image": {
+                "path": "add-ons/Addon_Medkit_001.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Bond",
+              "name": "Bond",
+              "image": {
+                "path": "perks/Bond.png"
+              }
+            },
+            {
+              "id": "Iron_Will",
+              "name": "Iron Will",
+              "image": {
+                "path": "perks/Iron_Will.png"
+              }
+            },
+            {
+              "id": "SelfSufficient",
+              "name": "Unbreakable",
+              "image": {
+                "path": "perks/SelfSufficient.png"
+              }
+            },
+            {
+              "id": "Deja_Vu",
+              "name": "Deja Vu",
+              "image": {
+                "path": "perks/Deja_Vu.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_MedKit",
+            "name": "Camping Aid Kit",
+            "image": {
+              "path": "items/Item_Camper_MedKit.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Escaped",
+          "name": "ESCAPED",
+          "image": {
+            "path": "stats/VE_Escaped.png"
+          }
+        },
+        "prestigeLevel": 9
+      },
+      {
+        "bloodpointsEarned": 178165,
+        "characterLevel": 1,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_SlasherScoreCat_Hunter": 10000,
+          "DBD_SlasherScoreCat_Deviousness": 9316,
+          "DBD_SlasherScoreCat_Brutality": 6300,
+          "DBD_SlasherScoreCat_Sacrifice": 8000
+        },
+        "leaderboardScore": 33616,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Killer_Chaser",
+            "emblem_name": "CHASER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Killer_Devout",
+            "emblem_name": "DEVOUT",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Killer_Gatekeeper",
+            "emblem_name": "GATEKEEPER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Killer_Malicious",
+            "emblem_name": "MALICIOUS",
+            "emblem_quality": "Silver"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "Nightmare",
+          "name": "The Nightmare",
+          "image": {
+            "path": "characters/killers/Nightmare.png"
+          }
+        },
+        "playerTimeInMatch": 593,
+        "characterLoadout": {
+          "addOns": [],
+          "offering": {
+            "id": "SurvivorPudding",
+            "name": "Survivor Pudding",
+            "image": {
+              "path": "offerings/SurvivorPudding.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "BBQAndChilli",
+              "name": "Barbecue & Chili",
+              "image": {
+                "path": "perks/BBQAndChilli.png"
+              }
+            },
+            {
+              "id": "K25P01",
+              "name": "No Holds Barred",
+              "image": {
+                "path": "perks/K25P01_override.png"
+              }
+            },
+            {
+              "id": "K24P03",
+              "name": "Eruption",
+              "image": {
+                "path": "perks/K24P03.png"
+              }
+            },
+            {
+              "id": "pop_goes_the_weasel",
+              "name": "Pop Goes the Weasel",
+              "image": {
+                "path": "perks/pop_goes_the_weasel.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Slasher_DreamInducer",
+            "name": "Dream Demon",
+            "image": {
+              "path": "items/Item_Slasher_DreamInducer.png"
+            }
+          }
+        },
+        "playerRole": "VE_Slasher",
+        "killerMatchStatus": "BRUTAL KILLER",
+        "prestigeLevel": 6
+      },
+      {
+        "bloodpointsEarned": 148068,
+        "characterLevel": 50,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 8667,
+          "DBD_CamperScoreCat_Altruism": 5494,
+          "DBD_CamperScoreCat_Survival": 9491,
+          "DBD_CamperScoreCat_Boldness": 10000
+        },
+        "leaderboardScore": 33652,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S23",
+          "name": "Felix Richter",
+          "image": {
+            "path": "characters/survivors/S23.png"
+          }
+        },
+        "playerTimeInMatch": 579,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Flashlight_002",
+              "name": "Heavy Duty Battery",
+              "image": {
+                "path": "add-ons/Addon_Flashlight_002.png"
+              }
+            },
+            {
+              "id": "Addon_Flashlight_001",
+              "name": "Battery",
+              "image": {
+                "path": "add-ons/Addon_Flashlight_001.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Iron_Will",
+              "name": "Iron Will",
+              "image": {
+                "path": "perks/Iron_Will.png"
+              }
+            },
+            {
+              "id": "WindowsOfOpportunity",
+              "name": "Windows of Opportunity",
+              "image": {
+                "path": "perks/WindowsOfOpportunity.png"
+              }
+            },
+            {
+              "id": "S34P03",
+              "name": "Quick Gambit",
+              "image": {
+                "path": "perks/S34P03.png"
+              }
+            },
+            {
+              "id": "DeadHard",
+              "name": "Dead Hard",
+              "image": {
+                "path": "perks/DeadHard.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight_Anniversary2026",
+            "name": "Banquet Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight_Anniversary2026.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Escaped",
+          "name": "ESCAPED",
+          "image": {
+            "path": "stats/VE_Escaped.png"
+          }
+        },
+        "prestigeLevel": 100
+      }
+    ]
+  },
+  {
+    "matchStat": {
+      "gameType": {
+        "id": "Online",
+        "name": "Online"
+      },
+      "isCustomMatch": false,
+      "mapName": "Jnk_Office",
+      "matchDuration": 261.7127990722656,
+      "matchStartTime": 1787602727,
+      "specialEventId": "NONE",
+      "map": {
+        "id": "Jnk_Office",
+        "name": "Azarov’s Resting Place",
+        "image": {
+          "path": "maps/Jnk_Office.png"
+        }
+      }
+    },
+    "playerStat": {
+      "bloodpointsEarned": 8045,
+      "characterLevel": 6,
+      "platform": "steam",
+      "postGameStat": {
+        "DBD_CamperScoreCat_Boldness": 1932,
+        "DBD_CamperScoreCat_Survival": 590
+      },
+      "leaderboardScore": 2522,
+      "emblems": [
+        {
+          "emblem_id": "Emblem_Survivor_Benevolent",
+          "emblem_name": "BENEVOLENT",
+          "emblem_quality": "Bronze"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Evader",
+          "emblem_name": "EVADER",
+          "emblem_quality": "Bronze"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Lightbringer",
+          "emblem_name": "LIGHTBRINGER",
+          "emblem_quality": "None"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Unbroken",
+          "emblem_name": "UNBROKEN",
+          "emblem_quality": "Gold"
+        }
+      ],
+      "characterClass": null,
+      "characterName": {
+        "id": "Smoke",
+        "name": "David King",
+        "image": {
+          "path": "characters/survivors/Smoke.png"
+        }
+      },
+      "playerTimeInMatch": 155,
+      "characterLoadout": {
+        "addOns": [
+          {
+            "id": "Addon_Flashlight_001",
+            "name": "Battery",
+            "image": {
+              "path": "add-ons/Addon_Flashlight_001.png"
+            }
+          },
+          {
+            "id": "Addon_Flashlight_005",
+            "name": "Power Bulb",
+            "image": {
+              "path": "add-ons/Addon_Flashlight_005.png"
+            }
+          }
+        ],
+        "offering": {
+          "id": "Anniversary2026Offering",
+          "name": "Toothy Torte",
+          "image": {
+            "path": "offerings/Anniversary2026Offering.png",
+            "background": "display/offering_bg.png"
+          }
+        },
+        "perks": [
+          {
+            "id": "S52P03",
+            "name": "Five Moves Ahead",
+            "image": {
+              "path": "perks/S52P03.png"
+            }
+          },
+          {
+            "id": "Deja_Vu",
+            "name": "Deja Vu",
+            "image": {
+              "path": "perks/Deja_Vu.png"
+            }
+          },
+          {
+            "id": "Fixated",
+            "name": "Fixated",
+            "image": {
+              "path": "perks/Fixated.png"
+            }
+          },
+          {
+            "id": "DeadHard",
+            "name": "Dead Hard",
+            "image": {
+              "path": "perks/DeadHard.png"
+            }
+          }
+        ],
+        "power": {
+          "id": "Item_Camper_Flashlight",
+          "name": "Flashlight",
+          "image": {
+            "path": "items/Item_Camper_Flashlight.png"
+          }
+        }
+      },
+      "playerRole": "VE_Camper",
+      "playerStatus": {
+        "id": "VE_SurrenderLoss",
+        "image": {
+          "path": "stats/VE_SurrenderDraw.png"
+        }
+      },
+      "prestigeLevel": 15
+    },
+    "opponentStat": [
+      {
+        "bloodpointsEarned": 26653,
+        "characterLevel": 1,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 5076,
+          "DBD_CamperScoreCat_Altruism": 600,
+          "DBD_CamperScoreCat_Boldness": 6,
+          "DBD_CamperScoreCat_Survival": 1082
+        },
+        "leaderboardScore": 6764,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "None"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "Jeff",
+          "name": "Jeff Johansen",
+          "image": {
+            "path": "characters/survivors/Jeff.png"
+          }
+        },
+        "playerTimeInMatch": 165,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Medkit_001",
+              "name": "Bandages",
+              "image": {
+                "path": "add-ons/Addon_Medkit_001.png"
+              }
+            },
+            {
+              "id": "Addon_Medkit_004",
+              "name": "Butterfly Tape",
+              "image": {
+                "path": "add-ons/Addon_Medkit_004.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "FragrantBogLaurel",
+            "name": "Fragrant Bog Laurel",
+            "image": {
+              "path": "offerings/FragrantBogLaurel.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Lithe",
+              "name": "Lithe",
+              "image": {
+                "path": "perks/Lithe.png"
+              }
+            },
+            {
+              "id": "S26P03",
+              "name": "Blast Mine",
+              "image": {
+                "path": "perks/S26P03.png"
+              }
+            },
+            {
+              "id": "Deja_Vu",
+              "name": "Deja Vu",
+              "image": {
+                "path": "perks/Deja_Vu.png"
+              }
+            },
+            {
+              "id": "WindowsOfOpportunity",
+              "name": "Windows of Opportunity",
+              "image": {
+                "path": "perks/WindowsOfOpportunity.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_MedKit",
+            "name": "Camping Aid Kit",
+            "image": {
+              "path": "items/Item_Camper_MedKit.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_SurrenderDraw",
+          "name": "ESCAPED",
+          "image": {
+            "path": "stats/VE_SurrenderDraw.png"
+          }
+        },
+        "prestigeLevel": 5
+      },
+      {
+        "bloodpointsEarned": 79028,
+        "characterLevel": 5,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_SlasherScoreCat_Hunter": 1973,
+          "DBD_SlasherScoreCat_Deviousness": 7854,
+          "DBD_SlasherScoreCat_Brutality": 3100,
+          "DBD_SlasherScoreCat_Sacrifice": 10000
+        },
+        "leaderboardScore": 22927,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Killer_Chaser",
+            "emblem_name": "CHASER",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Killer_Devout",
+            "emblem_name": "DEVOUT",
+            "emblem_quality": "Gold"
+          },
+          {
+            "emblem_id": "Emblem_Killer_Gatekeeper",
+            "emblem_name": "GATEKEEPER",
+            "emblem_quality": "Iridescent"
+          },
+          {
+            "emblem_id": "Emblem_Killer_Malicious",
+            "emblem_name": "MALICIOUS",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "K23",
+          "name": "The Trickster",
+          "image": {
+            "path": "characters/killers/K23.png"
+          }
+        },
+        "playerTimeInMatch": 261,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Trickster_03",
+              "name": "Killing Part Chords",
+              "image": {
+                "path": "add-ons/Addon_Trickster_03.png"
+              }
+            },
+            {
+              "id": "Addon_Trickster_08",
+              "name": "Caged Heart Shoes",
+              "image": {
+                "path": "add-ons/Addon_Trickster_08.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "DevoutRavenWreath",
+            "name": "Devout Raven Wreath",
+            "image": {
+              "path": "offerings/DevoutRavenWreath.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "K23P03",
+              "name": "No Way Out",
+              "image": {
+                "path": "perks/K23P03.png"
+              }
+            },
+            {
+              "id": "No_One_Escapes_Death",
+              "name": "Hex: No One Escapes Death",
+              "image": {
+                "path": "perks/No_One_Escapes_Death.png"
+              }
+            },
+            {
+              "id": "HexBloodFavor",
+              "name": "Hex: Blood Favor",
+              "image": {
+                "path": "perks/HexBloodFavor.png"
+              }
+            },
+            {
+              "id": "Hex_Thrill_Of_The_Hunt",
+              "name": "Hex: Thrill of the Hunt",
+              "image": {
+                "path": "perks/Hex_Thrill_Of_The_Hunt.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Slasher_ThrowingKnives",
+            "name": "Showstopper",
+            "image": {
+              "path": "items/Item_Slasher_ThrowingKnives.png"
+            }
+          }
+        },
+        "playerRole": "VE_Slasher",
+        "killerMatchStatus": "MERCILESS KILLER",
+        "prestigeLevel": 4
+      },
+      {
+        "bloodpointsEarned": 30295,
+        "characterLevel": 50,
+        "platform": "psn",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 4364,
+          "DBD_CamperScoreCat_Altruism": 3641,
+          "DBD_CamperScoreCat_Boldness": 1265,
+          "DBD_CamperScoreCat_Survival": 227
+        },
+        "leaderboardScore": 9497,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "None"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S32",
+          "name": "Ada Wong",
+          "image": {
+            "path": "characters/survivors/S32.png"
+          }
+        },
+        "playerTimeInMatch": 154,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Medkit_003",
+              "name": "Medical Scissors",
+              "image": {
+                "path": "add-ons/Addon_Medkit_003.png"
+              }
+            },
+            {
+              "id": "ADDON_medkit_gauzeroll",
+              "name": "Gauze Roll",
+              "image": {
+                "path": "add-ons/ADDON_medkit_gauzeroll.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2025Offering",
+            "name": "Coconut Scream Pie",
+            "image": {
+              "path": "offerings/Anniversary2025Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Bond",
+              "name": "Bond",
+              "image": {
+                "path": "perks/Bond.png"
+              }
+            },
+            {
+              "id": "Lithe",
+              "name": "Lithe",
+              "image": {
+                "path": "perks/Lithe.png"
+              }
+            },
+            {
+              "id": "WindowsOfOpportunity",
+              "name": "Windows of Opportunity",
+              "image": {
+                "path": "perks/WindowsOfOpportunity.png"
+              }
+            },
+            {
+              "id": "S43P01",
+              "name": "Finesse",
+              "image": {
+                "path": "perks/S43P01.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_MedKit03",
+            "name": "Emergency Med-kit",
+            "image": {
+              "path": "items/Item_Camper_MedKit03.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_SurrenderLoss",
+          "image": {
+            "path": "stats/VE_SurrenderDraw.png"
+          }
+        },
+        "prestigeLevel": 100
+      },
+      {
+        "bloodpointsEarned": 17360,
+        "characterLevel": 50,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Boldness": 213,
+          "DBD_CamperScoreCat_Survival": 1500,
+          "DBD_CamperScoreCat_Altruism": 3729
+        },
+        "leaderboardScore": 5442,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "None"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Gold"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "Nea",
+          "name": "Nea Karlsson",
+          "image": {
+            "path": "characters/survivors/Nea.png"
+          }
+        },
+        "playerTimeInMatch": 154,
+        "characterLoadout": {
+          "addOns": [],
+          "offering": null,
+          "perks": [
+            {
+              "id": "S53P03",
+              "name": "Cross-Examination",
+              "image": {
+                "path": "perks/S53P03.png"
+              }
+            },
+            {
+              "id": "S37P02",
+              "name": "Made for This",
+              "image": {
+                "path": "perks/S37P02.png"
+              }
+            },
+            {
+              "id": "Bond",
+              "name": "Bond",
+              "image": {
+                "path": "perks/Bond.png"
+              }
+            },
+            {
+              "id": "DeadHard",
+              "name": "Dead Hard",
+              "image": {
+                "path": "perks/DeadHard.png"
+              }
+            }
+          ],
+          "power": null
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_SurrenderLoss",
+          "image": {
+            "path": "stats/VE_SurrenderDraw.png"
+          }
+        },
+        "prestigeLevel": 100
+      }
+    ]
+  },
+  {
+    "matchStat": {
+      "gameType": {
+        "id": "Online",
+        "name": "Online"
+      },
+      "isCustomMatch": false,
+      "mapName": "Wal_Level_01",
+      "matchDuration": 46.638675689697266,
+      "matchStartTime": 1787516875,
+      "specialEventId": "NONE",
+      "map": {
+        "id": "Wal_Level_01",
+        "name": "Midwich Elementary School",
+        "image": {
+          "path": "maps/Wal_Level_01.png"
+        }
+      }
+    },
+    "playerStat": {
+      "bloodpointsEarned": 48068,
+      "characterLevel": 7,
+      "platform": "steam",
+      "postGameStat": {
+        "DBD_CamperScoreCat_Objectives": 195,
+        "DBD_CamperScoreCat_Survival": 7000,
+        "DBD_CamperScoreCat_Altruism": 200
+      },
+      "leaderboardScore": 7395,
+      "emblems": [
+        {
+          "emblem_id": "Emblem_Survivor_Benevolent",
+          "emblem_name": "BENEVOLENT",
+          "emblem_quality": "Bronze"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Evader",
+          "emblem_name": "EVADER",
+          "emblem_quality": "None"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Lightbringer",
+          "emblem_name": "LIGHTBRINGER",
+          "emblem_quality": "Silver"
+        },
+        {
+          "emblem_id": "Emblem_Survivor_Unbroken",
+          "emblem_name": "UNBROKEN",
+          "emblem_quality": "Iridescent"
+        }
+      ],
+      "characterClass": null,
+      "characterName": {
+        "id": "Smoke",
+        "name": "David King",
+        "image": {
+          "path": "characters/survivors/Smoke.png"
+        }
+      },
+      "playerTimeInMatch": 46,
+      "characterLoadout": {
+        "addOns": [
+          {
+            "id": "Addon_Flashlight_002",
+            "name": "Heavy Duty Battery",
+            "image": {
+              "path": "add-ons/Addon_Flashlight_002.png"
+            }
+          }
+        ],
+        "offering": {
+          "id": "Anniversary2026Offering",
+          "name": "Toothy Torte",
+          "image": {
+            "path": "offerings/Anniversary2026Offering.png",
+            "background": "display/offering_bg.png"
+          }
+        },
+        "perks": [
+          {
+            "id": "S52P03",
+            "name": "Five Moves Ahead",
+            "image": {
+              "path": "perks/S52P03.png"
+            }
+          },
+          {
+            "id": "Deja_Vu",
+            "name": "Deja Vu",
+            "image": {
+              "path": "perks/Deja_Vu.png"
+            }
+          },
+          {
+            "id": "Fixated",
+            "name": "Fixated",
+            "image": {
+              "path": "perks/Fixated.png"
+            }
+          },
+          {
+            "id": "DeadHard",
+            "name": "Dead Hard",
+            "image": {
+              "path": "perks/DeadHard.png"
+            }
+          }
+        ],
+        "power": {
+          "id": "Item_Camper_Flashlight",
+          "name": "Flashlight",
+          "image": {
+            "path": "items/Item_Camper_Flashlight.png"
+          }
+        }
+      },
+      "playerRole": "VE_Camper",
+      "playerStatus": {
+        "id": "VE_Escaped",
+        "name": "ESCAPED",
+        "image": {
+          "path": "stats/VE_Escaped.png"
+        }
+      },
+      "prestigeLevel": 14
+    },
+    "opponentStat": [
+      {
+        "bloodpointsEarned": 50798,
+        "characterLevel": 1,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 615,
+          "DBD_CamperScoreCat_Survival": 7000,
+          "DBD_CamperScoreCat_Altruism": 200
+        },
+        "leaderboardScore": 7815,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "None"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Iridescent"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S46",
+          "name": "Orela Rose",
+          "image": {
+            "path": "characters/survivors/S46.png"
+          }
+        },
+        "playerTimeInMatch": 46,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Medkit_006",
+              "name": "Rubber Gloves",
+              "image": {
+                "path": "add-ons/Addon_Medkit_006.png"
+              }
+            },
+            {
+              "id": "Addon_Medkit_004",
+              "name": "Butterfly Tape",
+              "image": {
+                "path": "add-ons/Addon_Medkit_004.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "WellMakeIt",
+              "name": "We'll make it",
+              "image": {
+                "path": "perks/WellMakeIt.png"
+              }
+            },
+            {
+              "id": "Empathy",
+              "name": "Empathy",
+              "image": {
+                "path": "perks/Empathy.png"
+              }
+            },
+            {
+              "id": "S46P01",
+              "name": "Do No Harm",
+              "image": {
+                "path": "perks/S46P01.png"
+              }
+            },
+            {
+              "id": "DesperateMeasures",
+              "name": "Desperate Measures",
+              "image": {
+                "path": "perks/DesperateMeasures.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_MedKit03",
+            "name": "Emergency Med-kit",
+            "image": {
+              "path": "items/Item_Camper_MedKit03.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Escaped",
+          "name": "ESCAPED",
+          "image": {
+            "path": "stats/VE_Escaped.png"
+          }
+        },
+        "prestigeLevel": 8
+      },
+      {
+        "bloodpointsEarned": 0,
+        "characterLevel": 3,
+        "postGameStat": {},
+        "leaderboardScore": 0,
+        "characterClass": null,
+        "characterName": {
+          "id": "Shape",
+          "name": "The Shape",
+          "image": {
+            "path": "characters/killers/Shape.png"
+          }
+        },
+        "playerTimeInMatch": -1,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "Addon_Stalker_JudithsJournal",
+              "name": "Judith's Journal",
+              "image": {
+                "path": "add-ons/Addon_Stalker_JudithsJournal.png"
+              }
+            },
+            {
+              "id": "Addon_Stalker_JewelryBox",
+              "name": "Jewelry Box",
+              "image": {
+                "path": "add-ons/Addon_Stalker_JewelryBox.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "K26P02",
+              "name": "Scourge Hook: Pain Resonance",
+              "image": {
+                "path": "perks/K26P02.png"
+              }
+            },
+            {
+              "id": "DeadMansSwitch",
+              "name": "Dead Man’s Switch",
+              "image": {
+                "path": "perks/DeadMansSwitch.png"
+              }
+            },
+            {
+              "id": "NurseCalling",
+              "name": "A Nurse's Calling",
+              "image": {
+                "path": "perks/NurseCalling.png"
+              }
+            },
+            {
+              "id": "K43P02",
+              "name": "Silent Shadow",
+              "image": {
+                "path": "perks/K43P02.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Slasher_Stalker",
+            "name": "Evil Within",
+            "image": {
+              "path": "items/Item_Slasher_Stalker.png"
+            }
+          }
+        },
+        "playerRole": "VE_Slasher",
+        "playerStatus": {
+          "id": "VE_Disconnected",
+          "image": {
+            "path": "stats/VE_Disconnected.png"
+          }
+        },
+        "killerMatchStatus": "THE ENTITY HUNGERS...",
+        "prestigeLevel": 27
+      },
+      {
+        "bloodpointsEarned": 47450,
+        "characterLevel": 26,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 100,
+          "DBD_CamperScoreCat_Survival": 7000,
+          "DBD_CamperScoreCat_Altruism": 200
+        },
+        "leaderboardScore": 7300,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "None"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Iridescent"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "S27",
+          "name": "Leon S. Kennedy",
+          "image": {
+            "path": "characters/survivors/S27.png"
+          }
+        },
+        "playerTimeInMatch": 46,
+        "characterLoadout": {
+          "addOns": [],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Bond",
+              "name": "Bond",
+              "image": {
+                "path": "perks/Bond.png"
+              }
+            },
+            {
+              "id": "Iron_Will",
+              "name": "Iron Will",
+              "image": {
+                "path": "perks/Iron_Will.png"
+              }
+            },
+            {
+              "id": "SelfSufficient",
+              "name": "Unbreakable",
+              "image": {
+                "path": "perks/SelfSufficient.png"
+              }
+            },
+            {
+              "id": "Deja_Vu",
+              "name": "Deja Vu",
+              "image": {
+                "path": "perks/Deja_Vu.png"
+              }
+            }
+          ],
+          "power": null
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Escaped",
+          "name": "ESCAPED",
+          "image": {
+            "path": "stats/VE_Escaped.png"
+          }
+        },
+        "prestigeLevel": 8
+      },
+      {
+        "bloodpointsEarned": 61750,
+        "characterLevel": 1,
+        "platform": "steam",
+        "postGameStat": {
+          "DBD_CamperScoreCat_Objectives": 300,
+          "DBD_CamperScoreCat_Survival": 9000,
+          "DBD_CamperScoreCat_Altruism": 200
+        },
+        "leaderboardScore": 9500,
+        "emblems": [
+          {
+            "emblem_id": "Emblem_Survivor_Benevolent",
+            "emblem_name": "BENEVOLENT",
+            "emblem_quality": "Bronze"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Evader",
+            "emblem_name": "EVADER",
+            "emblem_quality": "None"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Lightbringer",
+            "emblem_name": "LIGHTBRINGER",
+            "emblem_quality": "Silver"
+          },
+          {
+            "emblem_id": "Emblem_Survivor_Unbroken",
+            "emblem_name": "UNBROKEN",
+            "emblem_quality": "Iridescent"
+          }
+        ],
+        "characterClass": null,
+        "characterName": {
+          "id": "Claudette",
+          "name": "Claudette Morel",
+          "image": {
+            "path": "characters/survivors/Claudette.png"
+          }
+        },
+        "playerTimeInMatch": 46,
+        "characterLoadout": {
+          "addOns": [
+            {
+              "id": "ADDON_flashlight_lonflifebattery",
+              "name": "Long Life Battery",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_lonflifebattery.png"
+              }
+            },
+            {
+              "id": "ADDON_flashlight_rubbergrip",
+              "name": "Rubber Grip",
+              "image": {
+                "path": "add-ons/ADDON_flashlight_rubbergrip.png"
+              }
+            }
+          ],
+          "offering": {
+            "id": "Anniversary2026Offering",
+            "name": "Toothy Torte",
+            "image": {
+              "path": "offerings/Anniversary2026Offering.png",
+              "background": "display/offering_bg.png"
+            }
+          },
+          "perks": [
+            {
+              "id": "Iron_Will",
+              "name": "Iron Will",
+              "image": {
+                "path": "perks/Iron_Will.png"
+              }
+            },
+            {
+              "id": "WindowsOfOpportunity",
+              "name": "Windows of Opportunity",
+              "image": {
+                "path": "perks/WindowsOfOpportunity.png"
+              }
+            },
+            {
+              "id": "S34P03",
+              "name": "Quick Gambit",
+              "image": {
+                "path": "perks/S34P03.png"
+              }
+            },
+            {
+              "id": "DeadHard",
+              "name": "Dead Hard",
+              "image": {
+                "path": "perks/DeadHard.png"
+              }
+            }
+          ],
+          "power": {
+            "id": "Item_Camper_Flashlight03",
+            "name": "Utility Flashlight",
+            "image": {
+              "path": "items/Item_Camper_Flashlight03.png"
+            }
+          }
+        },
+        "playerRole": "VE_Camper",
+        "playerStatus": {
+          "id": "VE_Escaped",
+          "name": "ESCAPED",
+          "image": {
+            "path": "stats/VE_Escaped.png"
+          }
+        },
+        "prestigeLevel": 62
+      }
+    ]
+  }
+]

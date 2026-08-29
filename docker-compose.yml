@@ -1,0 +1,14 @@
+services:
+  entitytrack:
+    build: .
+    image: entitytrack:latest
+    container_name: entitytrack
+    restart: unless-stopped
+    ports:
+      - "${ENTITYTRACK_PORT:-8787}:8787"
+    environment:
+      INGEST_TOKEN: "${INGEST_TOKEN:?set INGEST_TOKEN in .env}"
+      REPOLL_DELAY_MINUTES: "${REPOLL_DELAY_MINUTES:-15}"
+      REPOLL_MAX_ATTEMPTS: "${REPOLL_MAX_ATTEMPTS:-3}"
+    volumes:
+      - ./data:/data

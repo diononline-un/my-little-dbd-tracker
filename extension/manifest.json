@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "EntityTrack Collector",
+  "version": "0.0.1",
+  "description": "Silently mirrors your Dead by Daylight match history from stats.deadbydaylight.com to a local EntityTrack backend.",
+  "permissions": ["alarms", "storage"],
+  "host_permissions": [
+    "https://stats.deadbydaylight.com/*",
+    "https://account-backend.bhvr.com/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://stats.deadbydaylight.com/*"],
+      "js": ["src/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "src/options.html",
+  "action": { "default_title": "EntityTrack Collector" }
+}

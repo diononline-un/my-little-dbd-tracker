@@ -1,0 +1,27 @@
+{
+  "name": "entitytrack",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "OS-agnostic automated match tracker for Dead by Daylight, sourced from the official stats.deadbydaylight.com API.",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm --workspace server run dev",
+    "dev:web": "npm --workspace web run dev",
+    "build": "npm --workspace web run build",
+    "start": "npm --workspace server run start",
+    "test": "npm --workspace server run test",
+    "migrate": "npm --workspace server run migrate"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "allowScripts": {
+    "better-sqlite3@11.10.0": true,
+    "esbuild@0.21.5": true,
+    "esbuild@0.25.12": true
+  }
+}
