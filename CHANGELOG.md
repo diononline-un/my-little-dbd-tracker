@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-29 — Opponent loadouts on the card, match-history trends, emblem-score (pip proxy)
+
+- **Match cards show opponent perks** without expanding — a 4-perk strip under each
+  opponent portrait; `/api/matches` opponents now carry `perks` + `prestige`.
+- **Pips: not in the API.** Verified again — no pip / grade / rank / MMR field anywhere
+  in the match payload or `/players/me`. Added a derived **emblem score (0–16)** = sum
+  of the 4 emblem qualities (None 0 … Iridescent 4), the closest proxy; shown on the
+  card and trended.
+- **Trends computed straight from match history** (`/api/insights/history`): rolling
+  N-match averages for escape rate, kill rate, overall win rate, avg BP, emblem score —
+  available immediately, with a "live estimate, gets more accurate with more matches"
+  note. Overview gets a compact Form-trend chart; the Trends page now has a "From your
+  tracked matches" section above the BHVR-snapshot section.
+
 ## 2026-08-29 — Official-style match cards, inline expand, per-character streaks, recap, sessions, scatter
 
 Informed by community research (NightLight.gg, the dedicated DBD-Winstreak-Tracker,

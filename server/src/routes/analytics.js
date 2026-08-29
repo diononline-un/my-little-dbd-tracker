@@ -16,6 +16,7 @@ import {
   sessions,
   recap,
   scatter,
+  history,
 } from '../analytics.js';
 
 const SCATTER_DIMS = new Set(['vs-killers', 'my-killers', 'builds', 'maps', 'offerings']);
@@ -48,6 +49,7 @@ export default async function analyticsRoutes(app) {
     sessions: sessions({ gapMinutes: Number(req.query?.gap) || 45 }),
   }));
   app.get('/insights/recap', async (req) => recap({ offset: Math.max(0, Number(req.query?.offset) || 0) }));
+  app.get('/insights/history', async (req) => history({ rollingN: Number(req.query?.rollingN) || 15 }));
   app.get('/insights/scatter', async (req) => {
     const dimension = SCATTER_DIMS.has(req.query?.dimension) ? req.query.dimension : 'my-killers';
     return { dimension, points: scatter({ dimension }) };

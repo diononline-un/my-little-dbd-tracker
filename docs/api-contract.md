@@ -224,6 +224,11 @@ pull older matches or finer-grained history — EntityTrack's depth comes from a
 match history over time (streaks, activity, opponent meta, score profiles are all derived
 locally).
 
+**No pips / grade / rank / MMR.** Re-verified: nothing rank-like in the match payload or
+`/players/me`. The only signal is the 4 `emblems` per player with `emblem_quality`
+(None/Bronze/Silver/Gold/Iridescent). EntityTrack derives an "emblem score" (0–16, sum of
+the four qualities) as a pip proxy — approximate, not authoritative.
+
 ## Anomaly signatures for the Entity Corrector
 
 From real captured matches:

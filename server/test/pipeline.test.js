@@ -5,7 +5,7 @@ import { ingestPayload } from '../src/ingest-pipeline.js';
 import { getMatch } from '../src/repository.js';
 import {
   summary, listMatches, buildAnalytics, streaks, recentForm, scoreProfile,
-  characterStreaks, sessions, recap, scatter,
+  characterStreaks, sessions, recap, scatter, history, emblemSum,
 } from '../src/analytics.js';
 
 const fixture = readFileSync(
@@ -98,5 +98,27 @@ describe('ingest pipeline end-to-end (temp SQLite)', () => {
     expect(r.current).toHaveProperty('winRate');
     expect(r.previous.to).toBe(r.current.from); // contiguous windows
     expect(typeof r.delta).toBe('object');
+  });
+
+  it('emblemSum maps qualities to 0–16 and history returns rolling series', () => {
+    expect(emblemSum([
+      { emblem_quality: 'Iridescent' }, { emblem_quality: 'Gold' },
+      { emblem_quality: 'Silver' }, { emblem_quality: 'None' },
+    ])).toBe(9); // 4 + 3 + 2 + 0
+    expect(emblemSum([])).toBeNull();
+
+    const h = history({ rollingN: 5 });
+    expect(h.totalMatches).toBe(3); // 4 fixture matches, 1 canceled
+    expect(Array.isArray(h.series.overallWinRate)).toBe(true);
+    expect(h.series.overallWinRate.length).toBe(3);
+    for (const p of h.series.overallWinRate) expect(p.value).toBeGreaterThanOrEqual(0);
+  });
+
+  it('listMatches self carries emblemScore and opponents carry perks', () => {
+    const page = listMatches({ limit: 5 });
+    const withEmblems = page.matches.find((m) => m.self?.emblemScore != null);
+    expect(withEmblems).toBeTruthy();
+    const withOppPerks = page.matches.find((m) => m.opponents.some((o) => (o.perks ?? []).length));
+    expect(withOppPerks).toBeTruthy();
   });
 });

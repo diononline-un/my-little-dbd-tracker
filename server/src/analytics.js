@@ -107,6 +107,7 @@ export function listMatches(filters = {}) {
          FROM match_players WHERE is_self = 1 AND match_id IN (${ph})`,
       )
       .all(...ids)) {
+      const emblems = safeJson(p.emblems, []);
       selfByMatch[p.match_id] = {
         role: p.role,
         character_id: p.character_id,
@@ -119,13 +120,14 @@ export function listMatches(filters = {}) {
         power_id: p.power_id,
         power_name: p.power_name,
         post_game_stat: safeJson(p.post_game_stat, null),
-        emblems: safeJson(p.emblems, []),
+        emblems,
+        emblemScore: emblemSum(emblems),
       };
     }
     for (const p of sqlite
       .prepare(
-        `SELECT match_id, slot, role, character_id, character_name, bloodpoints,
-                status, killer_grade
+        `SELECT match_id, slot, role, character_id, character_name, prestige, bloodpoints,
+                status, killer_grade, perks, emblems
          FROM match_players WHERE is_self = 0 AND match_id IN (${ph}) ORDER BY slot`,
       )
       .all(...ids)) {
@@ -133,9 +135,12 @@ export function listMatches(filters = {}) {
         role: p.role,
         character_id: p.character_id,
         character_name: p.character_name,
+        prestige: p.prestige,
         bloodpoints: p.bloodpoints,
         status: p.status,
         killer_grade: p.killer_grade,
+        perks: safeJson(p.perks, []),
+        emblemScore: emblemSum(safeJson(p.emblems, [])),
       });
     }
   }
@@ -166,6 +171,15 @@ function hydrateMatchRow(r, self, opponents = []) {
 function safeJson(s, fallback) {
   try { return JSON.parse(s); } catch { return fallback; }
 }
+
+// Derived "emblem score" (0–16): BHVR exposes no pips/grade, but the 4 emblem
+// qualities per match historically drove pip gain. None=0 … Iridescent=4.
+const EMBLEM_Q = { None: 0, Bronze: 1, Silver: 2, Gold: 3, Iridescent: 4 };
+function emblemSum(emblems) {
+  if (!Array.isArray(emblems) || !emblems.length) return null;
+  return emblems.reduce((a, e) => a + (EMBLEM_Q[e.emblem_quality] ?? 0), 0);
+}
+export { emblemSum };
 
 /**
  * Survival/win rate vs each killer the player faced as survivor. Optionally
@@ -546,8 +560,7 @@ export function sessions({ gapMinutes = 45 } = {}) {
 }
 
 /** One week's aggregate vs the prior week. offset 0 = the last 7 days. */
-function weekAgg(offset) {
-  const now = Date.now();
+function weekAgg(offset, now = Date.now()) {
   const hi = now - offset * 7 * 86_400_000;
   const lo = hi - 7 * 86_400_000;
 
@@ -593,13 +606,62 @@ function weekAgg(offset) {
 }
 
 export function recap({ offset = 0 } = {}) {
-  const cur = weekAgg(offset);
-  const prev = weekAgg(offset + 1);
+  const now = Date.now();
+  const cur = weekAgg(offset, now);
+  const prev = weekAgg(offset + 1, now);
   const delta = {};
   for (const k of ['matches', 'wins', 'winRate', 'bp', 'avgBp', 'bestStreak']) {
     if (cur[k] != null && prev[k] != null) delta[k] = cur[k] - prev[k];
   }
   return { offset, current: cur, previous: prev, delta };
+}
+
+/**
+ * Trends computed directly from tracked match history (no BHVR snapshot needed).
+ * Each series is a trailing-window rolling average, one point per relevant match.
+ * Accuracy improves as more matches accumulate — caller shows a note.
+ */
+export function history({ rollingN = 15 } = {}) {
+  const n = Math.max(3, Math.min(50, rollingN));
+  const rows = sqlite
+    .prepare(
+      `SELECT m.played_at, m.self_role, m.self_bloodpoints,
+              ${wonExpr('m')} AS won,
+              sp.emblems AS emblems
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE m.outcome IS NOT 'canceled'
+       ORDER BY m.played_at ASC`,
+    )
+    .all();
+
+  const rolling = (arr, valueOf) => {
+    const out = [];
+    const buf = [];
+    for (const r of arr) {
+      const v = valueOf(r);
+      if (v == null) continue;
+      buf.push({ t: r.played_at, v });
+      if (buf.length > n) buf.shift();
+      out.push({ t: r.played_at, value: buf.reduce((a, b) => a + b.v, 0) / buf.length });
+    }
+    return out;
+  };
+
+  const survivor = rows.filter((r) => r.self_role === 'survivor');
+  const killer = rows.filter((r) => r.self_role === 'killer');
+
+  return {
+    rollingN: n,
+    totalMatches: rows.length,
+    series: {
+      overallWinRate: rolling(rows, (r) => (r.won == null ? null : (r.won ? 1 : 0))),
+      escapeRate: rolling(survivor, (r) => (r.won == null ? null : (r.won ? 1 : 0))),
+      killRate: rolling(killer, (r) => (r.won == null ? null : (r.won ? 1 : 0))),
+      avgBloodpoints: rolling(rows, (r) => r.self_bloodpoints ?? null),
+      emblemScore: rolling(rows, (r) => emblemSum(safeJson(r.emblems, []))),
+    },
+  };
 }
 
 /** Usage-vs-performance points for a scatter chart. */

@@ -6,6 +6,7 @@ import StackedBar from '../charts/StackedBar.jsx';
 import StreakBadge from '../components/StreakBadge.jsx';
 import FormStrip from '../components/FormStrip.jsx';
 import RecapCard from '../components/RecapCard.jsx';
+import HistoryTrends from '../components/HistoryTrends.jsx';
 
 function Tile({ k, v, sub, neg }) {
   return (
@@ -89,6 +90,12 @@ export default function Overview() {
           />
         </div>
       )}
+
+      {/* --- rolling form trend, computed from match history --- */}
+      <div className="section-label" style={{ marginTop: 22 }}>
+        Form trend <Link to="/trends" className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>more →</Link>
+      </div>
+      <HistoryTrends only={['combined']} rollingN={10} />
 
       {/* --- BHVR career stats --- */}
       <div className="section-label" style={{ marginTop: 26 }}>

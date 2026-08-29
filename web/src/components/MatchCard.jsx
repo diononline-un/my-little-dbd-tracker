@@ -64,13 +64,24 @@ function Opponents({ list = [] }) {
       {list.map((o, i) => {
         const isKiller = o.role === 'killer';
         const st = STATUS_ICON[o.status];
+        const perks = o.perks ?? [];
         return (
-          <div key={i} className={`opp${isKiller ? ' opp-killer' : ''}`} title={o.character_name ?? ''}>
+          <div key={i} className={`opp${isKiller ? ' opp-killer' : ''}`}
+            title={`${o.character_name ?? ''}${o.prestige ? ` · P${o.prestige}` : ''}${perks.length ? `\n${perks.map((p) => p.name || p.id).join(', ')}` : ''}`}>
             <GameIcon src={charIcon(o.character_id, o.role)} alt={o.character_name} size={44} rounded={4} />
-            <div className="opp-bp">{o.bloodpoints?.toLocaleString() ?? '—'}</div>
-            {isKiller
-              ? <span className="opp-role opp-role-killer" title={o.killer_grade ?? 'Killer'}>🗡</span>
-              : st && <GameIcon src={statusIcon(st)} alt={o.status} size={12} rounded={2} className="opp-role" />}
+            <div className="opp-bp">
+              {o.bloodpoints?.toLocaleString() ?? '—'}
+              {isKiller
+                ? <span className="opp-role opp-role-killer" title={o.killer_grade ?? 'Killer'}>🗡</span>
+                : st && <GameIcon src={statusIcon(st)} alt={o.status} size={11} rounded={2} className="opp-role" />}
+            </div>
+            <div className="opp-perks">
+              {[0, 1, 2, 3].map((j) =>
+                perks[j]
+                  ? <GameIcon key={j} src={perkIcon(perks[j].id)} alt={perks[j].name} title={perks[j].name} size={12} rounded={2} />
+                  : <span key={j} className="opp-perk-empty" />,
+              )}
+            </div>
           </div>
         );
       })}
@@ -115,7 +126,14 @@ export default function MatchCard({ m }) {
             {self.prestige ? <span className="muted" style={{ fontWeight: 400 }}> · P{self.prestige}</span> : null}
             {m.is_corrected && <> <span className="flag">corrected</span></>}
           </div>
-          <div className="match-scorelabel">Score</div>
+          <div className="match-scorelabel">
+            Score
+            {self.emblemScore != null && (
+              <span className="emblem-score" title="Emblem score (0–16) — sum of your 4 emblem qualities. BHVR exposes no pips; this is the closest proxy.">
+                · emblems {self.emblemScore}/16
+              </span>
+            )}
+          </div>
           <div className="match-score">{m.self_bloodpoints?.toLocaleString() ?? '—'}</div>
           <LoadoutRow self={self} />
           {cats.length > 0 && (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api, pct, num } from '../api.js';
 import LineChart from '../charts/LineChart.jsx';
+import HistoryTrends from '../components/HistoryTrends.jsx';
 
 const PANELS = [
   {
@@ -66,9 +67,14 @@ export default function Trends() {
   return (
     <>
       <h2>Trends</h2>
-      <p className="muted">
-        Career stats snapshotted each time BHVR updates them (~daily). Trends fill in over the
-        weeks the collector runs.
+
+      <div className="section-label">From your tracked matches</div>
+      <HistoryTrends rollingN={15} />
+
+      <div className="section-label" style={{ marginTop: 28 }}>BHVR career snapshots</div>
+      <p className="muted" style={{ fontSize: 12, marginTop: -4 }}>
+        BHVR's own aggregate stats, one snapshot each time they refresh (~daily). These lines
+        fill in over the weeks the collector runs — need at least two snapshots to draw.
       </p>
 
       <div className="tabs">

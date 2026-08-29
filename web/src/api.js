@@ -32,6 +32,7 @@ export const api = {
   sessions: (params = {}) => get(`/insights/sessions?${qs(params)}`),
   recap: (params = {}) => get(`/insights/recap?${qs(params)}`),
   scatter: (params = {}) => get(`/insights/scatter?${qs(params)}`),
+  history: (params = {}) => get(`/insights/history?${qs(params)}`),
 };
 
 export const pct = (r) => (r == null ? '—' : `${(r * 100).toFixed(1)}%`);
