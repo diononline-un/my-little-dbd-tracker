@@ -64,4 +64,7 @@ Lebensdauer des Refresh-Tokens.
 
 ## Repo
 
-- Kein GitHub-Remote bisher. `git init` gemacht, noch kein Commit.
+- github.com/diononline-un/entitytrack (privat). Container läuft self-hosted auf
+  `localhost:2012` (docker compose, `restart: unless-stopped`).
+- Access-Token-Lebensdauer korrigiert: ~1 h (nicht 20 min). Refresh-Request-Format
+  bestätigt (JSON), nur die Response-Form noch offen.
