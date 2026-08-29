@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api, pct, pct0, num } from '../api.js';
+import { api, pct, num } from '../api.js';
+import { GameIcon, IconRow, charIcon, mapIcon, perkIcon, offeringIcon } from '../icons.jsx';
 
 function Bar({ rate, danger = 0.4 }) {
   return (
@@ -9,6 +10,10 @@ function Bar({ rate, danger = 0.4 }) {
     </div>
   );
 }
+
+const withIcon = (icon, label) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>{icon}{label}</span>
+);
 
 function RateTable({ rows, cols }) {
   if (!rows?.length) return <p className="muted">Not enough data yet.</p>;
@@ -33,7 +38,7 @@ const TABS = {
     q: () => api.killers(),
     pick: (d) => d.killers,
     cols: [
-      { key: 'n', h: 'Killer', render: (r) => r.killerName ?? r.killerId ?? '—' },
+      { key: 'n', h: 'Killer', render: (r) => withIcon(<GameIcon src={charIcon(r.killerId, 'killer')} alt={r.killerName} size={26} rounded={4} />, r.killerName ?? r.killerId ?? '—') },
       { key: 'm', h: 'Matches', render: (r) => r.matches },
       { key: 'r', h: 'Escape', render: (r) => pct(r.escapeRate) },
       { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.escapeRate} /> },
@@ -45,7 +50,7 @@ const TABS = {
     q: () => api.selfKillers(),
     pick: (d) => d.killers,
     cols: [
-      { key: 'n', h: 'Killer', render: (r) => r.killerName ?? r.killerId ?? '—' },
+      { key: 'n', h: 'Killer', render: (r) => withIcon(<GameIcon src={charIcon(r.killerId, 'killer')} alt={r.killerName} size={26} rounded={4} />, r.killerName ?? r.killerId ?? '—') },
       { key: 'm', h: 'Matches', render: (r) => r.matches },
       { key: 'w', h: 'Win (3K+)', render: (r) => pct(r.winRate) },
       { key: 'k', h: 'Avg kills', render: (r) => r.avgKills?.toFixed(2) ?? '—' },
@@ -58,7 +63,7 @@ const TABS = {
     q: () => api.maps(),
     pick: (d) => d.maps,
     cols: [
-      { key: 'n', h: 'Map', render: (r) => r.mapName ?? r.mapId },
+      { key: 'n', h: 'Map', render: (r) => withIcon(<GameIcon src={mapIcon(r.mapId)} alt={r.mapName} w={40} h={26} rounded={3} />, r.mapName ?? r.mapId) },
       { key: 'role', h: 'Role', render: (r) => r.role },
       { key: 'm', h: 'Matches', render: (r) => r.matches },
       { key: 'r', h: 'Rate', render: (r) => pct(r.role === 'survivor' ? r.escapeRate : r.killerWinRate) },
@@ -71,7 +76,7 @@ const TABS = {
     q: () => api.builds({ minMatches: 2 }),
     pick: (d) => d.builds,
     cols: [
-      { key: 'n', h: 'Perk', render: (r) => r.perkName ?? r.perkId },
+      { key: 'n', h: 'Perk', render: (r) => withIcon(<GameIcon src={perkIcon(r.perkId)} alt={r.perkName} size={26} rounded={4} />, r.perkName ?? r.perkId) },
       { key: 'm', h: 'Matches', render: (r) => r.matches },
       { key: 'r', h: 'Escape', render: (r) => pct(r.escapeRate) },
       { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.escapeRate} /> },
@@ -83,7 +88,7 @@ const TABS = {
     q: () => api.perkPairs({ minMatches: 2 }),
     pick: (d) => d.pairs,
     cols: [
-      { key: 'n', h: 'Pair', render: (r) => r.perks.map((p) => p.name || p.id).join(' + ') },
+      { key: 'n', h: 'Pair', render: (r) => withIcon(<IconRow items={r.perks.map((p) => ({ key: p.id, src: perkIcon(p.id), alt: p.name, title: p.name }))} size={22} />, r.perks.map((p) => p.name || p.id).join(' + ')) },
       { key: 'm', h: 'Matches', render: (r) => r.matches },
       { key: 'r', h: 'Escape', render: (r) => pct(r.escapeRate) },
       { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.escapeRate} /> },
@@ -95,7 +100,7 @@ const TABS = {
     q: () => api.offerings({ minMatches: 2 }),
     pick: (d) => d.offerings,
     cols: [
-      { key: 'n', h: 'Offering', render: (r) => r.offeringName ?? r.offeringId },
+      { key: 'n', h: 'Offering', render: (r) => withIcon(<GameIcon src={offeringIcon(r.offeringId)} alt={r.offeringName} size={26} rounded={4} />, r.offeringName ?? r.offeringId) },
       { key: 'role', h: 'Role', render: (r) => r.role },
       { key: 'm', h: 'Matches', render: (r) => r.matches },
       { key: 'r', h: 'Rate', render: (r) => pct(r.rate) },

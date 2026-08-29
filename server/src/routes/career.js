@@ -4,6 +4,10 @@ import { latestCareer, careerCategories, careerTrend } from '../repository.js';
 import { careerWindows } from '../normalize/career.js';
 import { categoryLabel, REAL_CATEGORIES } from '../reference/index.js';
 
+// display order: main mode first, then the rotating/limited modes
+const CATEGORY_ORDER = ['Regular', 'Calamari', 'ChocolateBox', 'Firefly', 'Cake'];
+const byOrder = (a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b);
+
 export default async function careerRoutes(app) {
   // --- ingest (token-guarded, same secret as /api/ingest) ---
   app.post('/ingest/career', async (req, reply) => {
@@ -31,10 +35,10 @@ export default async function careerRoutes(app) {
     return {
       category,
       categoryLabel: categoryLabel(category),
-      availableCategories: (known.length ? known : REAL_CATEGORIES).map((c) => ({
-        id: c,
-        label: categoryLabel(c),
-      })),
+      availableCategories: (known.length ? known : REAL_CATEGORIES)
+        .slice()
+        .sort(byOrder)
+        .map((c) => ({ id: c, label: categoryLabel(c) })),
       capturedAt: snap?.captured_at ?? null,
       bhvrUpdatedAt: snap?.bhvr_updated_at ?? null,
       windows: snap ? careerWindows(snap.payload) : null,

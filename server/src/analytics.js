@@ -101,14 +101,22 @@ export function listMatches(filters = {}) {
     const ph = ids.map(() => '?').join(',');
     for (const p of sqlite
       .prepare(
-        `SELECT match_id, character_name, prestige, perks, post_game_stat, emblems
+        `SELECT match_id, role, character_id, character_name, prestige, perks, addons,
+                offering_id, offering_name, power_id, power_name, post_game_stat, emblems
          FROM match_players WHERE is_self = 1 AND match_id IN (${ph})`,
       )
       .all(...ids)) {
       selfByMatch[p.match_id] = {
+        role: p.role,
+        character_id: p.character_id,
         character_name: p.character_name,
         prestige: p.prestige,
         perks: safeJson(p.perks, []),
+        addons: safeJson(p.addons, []),
+        offering_id: p.offering_id,
+        offering_name: p.offering_name,
+        power_id: p.power_id,
+        power_name: p.power_name,
         post_game_stat: safeJson(p.post_game_stat, null),
         emblems: safeJson(p.emblems, []),
       };

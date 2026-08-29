@@ -46,7 +46,7 @@ export default function Overview() {
       {/* --- our own tracked data --- */}
       <div className="section-label">Tracked by EntityTrack</div>
       {tracked.data && (
-        <div className="grid cols-4">
+        <div className="grid cols-4 stagger">
           <Tile k="Matches tracked" v={tracked.data.totalMatches} sub={`${tracked.data.canceledMatches} canceled`} />
           <Tile
             k="Entity-corrected"
@@ -91,14 +91,14 @@ export default function Overview() {
 
       {w && (
         <>
-          <div className="grid cols-4">
+          <div className="grid cols-4 stagger">
             <Tile k="Hours played" v={hrs(gen?.totalHoursPlayed)} sub={`${num(gen?.totalMatchesPlayed)} matches`} />
             <Tile k="Avg BP / match" v={num(Math.round(gen?.avgBPEarnedPerMatch ?? 0))} />
             <Tile k="Escape rate" v={pct(surv?.escapeRate)} sub={`${num(surv?.matchesEscaped)} escapes`} neg={surv?.escapeRate != null && surv.escapeRate < 0.35} />
             <Tile k="Kill rate" v={pct(kill?.avgKillRate)} sub={`${num(kill?.totalKills)} kills · ${kill?.avgHooks?.toFixed(1) ?? '—'} avg hooks`} />
           </div>
 
-          <div className="grid cols-3" style={{ marginTop: 12 }}>
+          <div className="grid cols-3 stagger" style={{ marginTop: 12 }}>
             <Tile k="Survivor · chases won" v={num(surv?.survivorChasesWon)} sub={`longest ${Math.round(surv?.survivorLongestChaseTimeInSeconds ?? 0)}s`} />
             <Tile k="Survivor · heals" v={num(surv?.survivorSuccessfullyHealed)} sub={`hooked ${num(surv?.survivorTimesHooked)}×`} />
             <Tile k="Killer · pallets / gens / walls" v={`${num(kill?.totalPalletsDestroyed)} / ${num(kill?.totalGenKicked)} / ${num(kill?.totalWallsBroken)}`} />

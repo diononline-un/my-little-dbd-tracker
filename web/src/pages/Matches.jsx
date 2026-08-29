@@ -1,42 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { api, dur, when, QUALITY_COLORS } from '../api.js';
-
-function ScoreCats({ post }) {
-  if (!post) return <span className="muted">—</span>;
-  const entries = Object.entries(post);
-  const max = Math.max(1, ...entries.map(([, v]) => v));
-  return (
-    <span style={{ display: 'inline-flex', gap: 2, alignItems: 'flex-end', height: 16 }}>
-      {entries.map(([k, v]) => (
-        <span
-          key={k}
-          title={`${k.split('_').pop()}: ${v.toLocaleString()}`}
-          style={{ width: 5, height: `${(v / max) * 16}px`, background: 'var(--s1)', display: 'inline-block' }}
-        />
-      ))}
-    </span>
-  );
-}
-
-function Emblems({ list }) {
-  if (!list?.length) return null;
-  return (
-    <span style={{ display: 'inline-flex', gap: 3 }}>
-      {list.map((e, i) => (
-        <span
-          key={i}
-          title={`${e.emblem_name}: ${e.emblem_quality}`}
-          style={{ width: 8, height: 8, borderRadius: 2, background: QUALITY_COLORS[e.emblem_quality] ?? 'var(--q-none)' }}
-        />
-      ))}
-    </span>
-  );
-}
+import { api } from '../api.js';
+import MatchCard from '../components/MatchCard.jsx';
 
 export default function Matches() {
-  const [f, setF] = useState({ role: '', corrected: '', killerId: '', mapId: '', limit: 40, offset: 0 });
+  const [f, setF] = useState({ role: '', corrected: '', killerId: '', mapId: '', limit: 25, offset: 0 });
   const set = (patch) => setF((x) => ({ ...x, offset: 0, ...patch }));
 
   const { data, isLoading, error } = useQuery({
@@ -80,34 +48,10 @@ export default function Matches() {
 
       {data && (
         <>
-          <table>
-            <thead>
-              <tr>
-                <th>When</th><th>Role</th><th>Map</th><th>Killer</th><th>Char</th>
-                <th>Dur</th><th>Result</th><th>Emblems</th><th>Score</th><th>BP</th><th />
-              </tr>
-            </thead>
-            <tbody>
-              {data.matches.map((m) => (
-                <tr key={m.match_id}>
-                  <td>{when(m.played_at)}</td>
-                  <td>{m.self_role}</td>
-                  <td>{m.map_name ?? m.map_id ?? '—'}</td>
-                  <td>{m.killer_name ?? '—'}</td>
-                  <td className="muted">{m.self?.character_name ?? '—'}{m.self?.prestige ? ` P${m.self.prestige}` : ''}</td>
-                  <td>{dur(m.duration_seconds)}</td>
-                  <td>
-                    {m.outcome}
-                    {m.is_corrected && <> <span className="flag">corrected</span></>}
-                  </td>
-                  <td><Emblems list={m.self?.emblems} /></td>
-                  <td><ScoreCats post={m.self?.post_game_stat} /></td>
-                  <td>{m.self_bloodpoints?.toLocaleString() ?? '—'}</td>
-                  <td><Link to={`/matches/${m.match_id}`} className="muted">→</Link></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="stagger">
+            {data.matches.map((m) => <MatchCard key={m.match_id} m={m} />)}
+          </div>
+          {data.matches.length === 0 && <p className="muted">No matches for this filter.</p>}
           <p className="muted" style={{ marginTop: 12 }}>
             {data.total} matches ·{' '}
             <button className="pager" disabled={f.offset === 0} onClick={() => setF((x) => ({ ...x, offset: Math.max(0, x.offset - x.limit) }))}>prev</button>{' '}
