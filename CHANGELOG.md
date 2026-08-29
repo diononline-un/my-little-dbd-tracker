@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-08-29 — Second dataset + dashboard depth
+
+- Verified end to end: the collector delivered 52 real matches; escape rate 37%,
+  killer win rate 65%. The refresh-token 400 was a stale mirror — content script now
+  writes tokens straight to `chrome.storage` on a 15s poll, refresh uses the confirmed
+  JSON `{grant_type, client_id, refresh_token}` shape. Access tokens last ~1h.
+- **Dataset 2 — career/aggregate stats** (`GET /player-stats/games/dbd?matchCategory=…`):
+  - Discovered the `matchCategory` param — without it BHVR returns all-zero (their bug);
+    per real mode (Regular/2v8/Chaos Shuffle/Lights Out/My Little Oni) it's fully
+    populated: escape rate, kill rate, chases, hooks, heals, gen-kicks, pallet/wall
+    breaks, and emblem-quality distributions, for 30-day and all-time windows.
+  - Extension polls all five categories each run; backend stores one `career_snapshots`
+    row per `(category, BHVR updatedAt)` (BHVR updates ~daily). New endpoints
+    `GET /api/career`, `GET /api/career/trend`, `POST /api/ingest/career`.
+- **Match enrichment**: keep per-player `postGameStat` (score categories),
+  `leaderboardScore`, `characterLevel`. Additive schema migration for existing DBs.
+- **New analytics**: `/api/analytics/{self-killers,maps,perk-pairs,offerings}`;
+  `/api/matches` rows now carry the self player's perks + score categories + emblems.
+- **Dashboard rebuilt** (React, inline-SVG charts, dataviz palette validated):
+  - **Overview** — career KPI tiles with mode tabs + 30d/all-time toggle, emblem
+    distribution stacked bars, plus our own tracked-data strip.
+  - **Trends** — line charts (crosshair + tooltip) of escape/kill rate & avg BP over
+    the snapshot history.
+  - **Matches** — score-category sparkbars, emblem dots, self loadout, real
+    killer/map filters.
+  - **Match detail** — full score breakdown per player, colored emblems, character level.
+  - **Analytics** — 7 tabs: Vs Killers, My Killers, Maps, Builds, Perk pairs,
+    Offerings, Teammates.
+- Player UUID identified (`sub` claim of the access JWT) for future multi-account.
+
 ## 2026-08-29 — Phases 1–3 scaffolded and wired end to end
 
 - **Phase 0 (API discovery)** done via the Claude browser extension on a live

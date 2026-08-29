@@ -3,10 +3,14 @@
 export const BHVR = {
   apiBase: 'https://account-backend.bhvr.com',
   matchHistoryPath: '/player-stats/match-history/games/dbd/providers/bhvr',
+  careerPath: '/player-stats/games/dbd/providers/bhvr',
   tokenPath: '/sso/token',
   clientId: 'DBDStats',
   matchHistoryLimit: 50, // API hard cap
   lang: 'en',
+  // BHVR's "Total" bucket is bugged (all-zero); poll per real mode and let the
+  // backend aggregate. Verified list from match-categories; refreshed at runtime.
+  careerCategories: ['Regular', 'Calamari', 'ChocolateBox', 'Firefly', 'Cake'],
 };
 
 export const DEFAULTS = {

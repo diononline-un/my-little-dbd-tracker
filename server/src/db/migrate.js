@@ -79,11 +79,45 @@ CREATE TABLE IF NOT EXISTS sync_state (
   value      TEXT,
   updated_at INTEGER NOT NULL
 );
+
+-- Daily career/aggregate snapshots (dataset 2 — /player-stats/games/dbd).
+-- One row per (category, bhvr_updated_at): BHVR refreshes ~daily, we poll every
+-- 10 min, so we only keep a new row when BHVR's own updatedAt advances.
+CREATE TABLE IF NOT EXISTS career_snapshots (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  captured_at     INTEGER NOT NULL,          -- when we ingested it
+  category        TEXT    NOT NULL,          -- 'Regular' | 'Calamari' | 'ChocolateBox' | 'Firefly' | ...
+  bhvr_updated_at INTEGER,                   -- payload.updatedAt
+  bhvr_ingested_at INTEGER,                  -- payload.ingestedAt
+  payload         TEXT    NOT NULL,          -- JSON: full data block (30-days, all-time, match-categories)
+  raw_payload_id  INTEGER REFERENCES raw_payloads (id),
+  UNIQUE (category, bhvr_updated_at)
+);
+CREATE INDEX IF NOT EXISTS career_snapshots_cat_idx ON career_snapshots (category, captured_at);
 `;
+
+// Columns added after the initial schema shipped. Each runs once; "duplicate
+// column" on re-run is expected and ignored. node:sqlite has no IF NOT EXISTS
+// for ADD COLUMN.
+export const ADDITIVE = [
+  `ALTER TABLE match_players ADD COLUMN post_game_stat TEXT`,   // JSON score categories
+  `ALTER TABLE match_players ADD COLUMN leaderboard_score INTEGER`,
+  `ALTER TABLE match_players ADD COLUMN character_level INTEGER`,
+];
+
+export function applySchema(db) {
+  db.exec(DDL);
+  for (const stmt of ADDITIVE) {
+    try {
+      db.exec(stmt);
+    } catch (err) {
+      if (!/duplicate column name/i.test(err.message)) throw err;
+    }
+  }
+}
 
 // Allow `node src/db/migrate.js` to bootstrap a DB without starting the server.
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { db } = await import('./index.js');
-  db.exec(DDL);
   console.log('[migrate] schema is up to date');
 }

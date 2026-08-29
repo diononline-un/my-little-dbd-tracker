@@ -4,7 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import './theme.css';
 import App from './App.jsx';
-import Dashboard from './pages/Dashboard.jsx';
+import Overview from './pages/Overview.jsx';
+import Trends from './pages/Trends.jsx';
 import Matches from './pages/Matches.jsx';
 import MatchDetail from './pages/MatchDetail.jsx';
 import Analytics from './pages/Analytics.jsx';
@@ -19,7 +20,8 @@ const router = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <Dashboard /> },
+      { index: true, element: <Overview /> },
+      { path: 'trends', element: <Trends /> },
       { path: 'matches', element: <Matches /> },
       { path: 'matches/:matchId', element: <MatchDetail /> },
       { path: 'analytics', element: <Analytics /> },

@@ -4,10 +4,12 @@
  */
 import { config } from './config.js';
 import { normalize } from './normalize/index.js';
+import { normalizeCareer, availableCategories } from './normalize/career.js';
 import { runCorrector } from './corrector/index.js';
 import {
   storeRawPayload,
   saveNormalizedMatch,
+  storeCareerSnapshot,
   bumpRepollAttempt,
   clearRepoll,
   getMatch,
@@ -63,5 +65,31 @@ export function ingestPayload({ endpoint, body, httpStatus = 200, now = new Date
     rawPayloadId: raw.id,
     deduped: raw.deduped,
     matches: results,
+  };
+}
+
+/**
+ * Ingest one career/aggregate snapshot for a given matchCategory.
+ * body is the `{ data, updatedAt, ingestedAt }` payload.
+ */
+export function ingestCareer({ category, body, now = new Date() }) {
+  const text = typeof body === 'string' ? body : JSON.stringify(body);
+  const parsed = typeof body === 'string' ? JSON.parse(body) : body;
+
+  const raw = storeRawPayload({
+    endpoint: `/player-stats/games/dbd/providers/bhvr#${category}`,
+    fetchedAt: now,
+    httpStatus: 200,
+    body: text,
+  });
+
+  const normalized = normalizeCareer(category, parsed);
+  const { inserted } = storeCareerSnapshot(normalized, raw.id);
+
+  return {
+    category,
+    inserted,
+    bhvrUpdatedAt: normalized.bhvrUpdatedAt,
+    availableCategories: availableCategories(normalized.data),
   };
 }

@@ -7,6 +7,7 @@ import './db/index.js'; // opens the DB and applies the schema on boot
 import ingestRoutes from './routes/ingest.js';
 import matchRoutes from './routes/matches.js';
 import analyticsRoutes from './routes/analytics.js';
+import careerRoutes from './routes/career.js';
 
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' } });
 
@@ -19,6 +20,7 @@ await app.register(async (api) => {
   await api.register(ingestRoutes);
   await api.register(matchRoutes);
   await api.register(analyticsRoutes);
+  await api.register(careerRoutes);
   api.get('/health', async () => ({ ok: true }));
 }, { prefix: '/api' });
 

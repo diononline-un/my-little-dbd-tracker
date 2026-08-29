@@ -1,0 +1,103 @@
+{
+  "data": {
+    "30-days": {
+      "global": {
+        "killers": {
+          "totalHoursPlayed": 33,
+          "totalMatchesPlayed": 83,
+          "avgBPEarnedPerMatch": 121000.5,
+          "bpEarnedThroughMatch": 10043041,
+          "avgHooks": 7.1,
+          "avgKillRate": 0.665663,
+          "totalKills": 221,
+          "totalHooks": 590,
+          "totalHits": 1400,
+          "totalGenKicked": 402,
+          "totalPalletsDestroyed": 310,
+          "totalWallsBroken": 120,
+          "totalChasesWon": 640,
+          "emblems": {
+            "Emblem_Killer_Chaser": { "None": 2, "Bronze": 8, "Silver": 14, "Gold": 26, "Iridescent": 33 }
+          }
+        },
+        "survivors": {
+          "totalHoursPlayed": 20.6,
+          "totalMatchesPlayed": 131,
+          "avgBPEarnedPerMatch": 103064.29,
+          "bpEarnedThroughMatch": 13501422,
+          "escapeRate": 0.366412,
+          "matchesEscaped": 48,
+          "survivorChasesWon": 346,
+          "survivorLongestChaseTimeInSeconds": 74.99,
+          "survivorSuccessfullyHealed": 292,
+          "survivorTimesHooked": 198,
+          "avgTimesHooked": 1.07,
+          "emblems": {
+            "Emblem_Survivor_Benevolent": { "None": 3, "Bronze": 12, "Silver": 24, "Gold": 30, "Iridescent": 62 }
+          }
+        },
+        "general": {
+          "totalHoursPlayed": 33,
+          "totalMatchesPlayed": 185,
+          "avgBPEarnedPerMatch": 108304.91,
+          "bpEarnedThroughMatch": 20036409
+        }
+      }
+    },
+    "all-time": {
+      "global": {
+        "killers": {
+          "totalHoursPlayed": 99.6,
+          "totalMatchesPlayed": 451,
+          "avgBPEarnedPerMatch": 128057.46,
+          "bpEarnedThroughMatch": 57753915,
+          "avgHooks": 7.379,
+          "avgKillRate": 0.652,
+          "totalKills": 1177,
+          "totalHooks": 3328,
+          "totalHits": 8200,
+          "totalGenKicked": 2266,
+          "totalPalletsDestroyed": 1800,
+          "totalWallsBroken": 640,
+          "totalChasesWon": 3400,
+          "emblems": {
+            "Emblem_Killer_Chaser": { "None": 11, "Bronze": 42, "Silver": 72, "Gold": 139, "Iridescent": 187 },
+            "Emblem_Killer_Devout": { "None": 69, "Bronze": 57, "Silver": 96, "Gold": 128, "Iridescent": 101 }
+          }
+        },
+        "survivors": {
+          "totalHoursPlayed": 341,
+          "totalMatchesPlayed": 2144,
+          "avgBPEarnedPerMatch": 95488.23,
+          "bpEarnedThroughMatch": 204726776,
+          "escapeRate": 0.338153,
+          "matchesEscaped": 725,
+          "survivorChasesWon": 6988,
+          "survivorLongestChaseTimeInSeconds": 100.95,
+          "survivorSuccessfullyHealed": 6893,
+          "survivorTimesHooked": 4288,
+          "avgTimesHooked": 2,
+          "emblems": {
+            "Emblem_Survivor_Benevolent": { "None": 45, "Bronze": 179, "Silver": 401, "Gold": 461, "Iridescent": 1065 }
+          }
+        },
+        "general": {
+          "totalHoursPlayed": 440.5,
+          "totalMatchesPlayed": 2595,
+          "avgBPEarnedPerMatch": 101148.63,
+          "bpEarnedThroughMatch": 262480691
+        }
+      }
+    },
+    "match-categories": [
+      { "name": "Total", "stats": true },
+      { "name": "Calamari", "stats": true },
+      { "name": "Regular", "stats": true },
+      { "name": "ChocolateBox", "stats": true },
+      { "name": "Firefly", "stats": true },
+      { "name": "Cake", "stats": false }
+    ]
+  },
+  "updatedAt": 1787961600000,
+  "ingestedAt": 1787996865721
+}

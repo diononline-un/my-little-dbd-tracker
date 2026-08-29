@@ -8,7 +8,8 @@ export default function App() {
       <aside className="sidebar">
         <h1>ENTITYTRACK</h1>
         <nav>
-          <NavLink to="/" end className={link}>Dashboard</NavLink>
+          <NavLink to="/" end className={link}>Overview</NavLink>
+          <NavLink to="/trends" className={link}>Trends</NavLink>
           <NavLink to="/matches" className={link}>Matches</NavLink>
           <NavLink to="/analytics" className={link}>Analytics</NavLink>
           <NavLink to="/settings" className={link}>Settings</NavLink>

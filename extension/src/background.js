@@ -7,8 +7,8 @@
  *   2. POST it to the EntityTrack backend /api/ingest
  *   3. ask the backend which matches need a loadout re-poll, re-fetch, re-POST
  */
-import { getSettings } from './config.js';
-import { fetchMatchHistory } from './bhvr-client.js';
+import { getSettings, BHVR } from './config.js';
+import { fetchMatchHistory, fetchCareer } from './bhvr-client.js';
 
 const ALARM = 'entitytrack-poll';
 
@@ -76,12 +76,26 @@ async function runOnce() {
       console.warn('[EntityTrack] repoll step failed', err);
     }
 
+    // Career/aggregate snapshots — cheap, and BHVR only updates them ~daily so
+    // the backend dedups. Sequential to stay gentle on the API.
+    let careerInserted = 0;
+    for (const cat of BHVR.careerCategories) {
+      try {
+        const payload = await fetchCareer(cat);
+        const r = await postToBackend('/api/ingest/career', { category: cat, body: payload });
+        if (r.inserted) careerInserted += 1;
+      } catch (err) {
+        console.warn(`[EntityTrack] career ${cat} failed`, err);
+      }
+    }
+
     await setStatus({
       ok: true,
       lastRun: Date.now(),
       matches: result.matches?.length ?? 0,
       corrected: result.matches?.filter((m) => m.isCorrected).length ?? 0,
       repolled,
+      careerInserted,
       error: null,
     });
   } catch (err) {

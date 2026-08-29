@@ -72,10 +72,11 @@ Either way the "zero interaction, tab fully closed for weeks" ideal from the PRD
 The core endpoint. Query params: `lang` (e.g. `en`, localizes display names), `limit`.
 
 - `limit` max is **50** (higher is silently clamped).
-- **No pagination.** `offset`, `page` are ignored — every call returns the most-recent
-  N matches. You can never fetch matches older than the latest 50. EntityTrack's history
-  is therefore built up incrementally by polling; a gap of >50 matches between polls
-  loses matches permanently. At a 10-min poll interval this is a non-issue.
+- **No pagination, no filtering.** `offset`, `page`, `matchCategory`, `character_id`
+  are all silently ignored — every call returns the most-recent N matches across all
+  modes. You can never fetch matches older than the latest 50. EntityTrack's history is
+  built up incrementally by polling; a gap of >50 matches between polls loses matches
+  permanently. At a 10-min poll interval this is a non-issue.
 - **No match ID field anywhere in the payload.** The only per-match unique key is
   `matchStat.matchStartTime` (unix **seconds**). Use it as the synthetic match id;
   tie-break with `playerRole`/`mapName` if a collision ever occurs.
@@ -157,24 +158,57 @@ Total players = `1 (playerStat) + opponentStat.length`. Normally 5. The self pla
 | `VE_SurrenderLoss` | match ended by survivor-vote surrender, this player on losing side |
 | `VE_SurrenderDraw` | surrender, treated as a draw / escape (carries `name: "ESCAPED"`) |
 
+### `GET /player-stats/games/dbd/providers/bhvr` — career / aggregate stats (dataset 2)
+
+Powers the `/statistics` page. Query params: `lang`, **`matchCategory`**.
+
+- ⚠️ **Without `matchCategory` (or with `matchCategory=Total`) every detailed field is
+  `0`** — a BHVR bug. Query per real category and aggregate yourself.
+- Categories (BHVR codename → in-game name): `Regular`→Regular Trials, `Calamari`→2v8,
+  `ChocolateBox`→Chaos Shuffle, `Firefly`→Lights Out, `Cake`→My Little Oni. The
+  payload's `data["match-categories"]` lists which currently have stats
+  (`{name, stats: bool}`).
+- The SPA fetches this **server-side** (Next.js RSC) — no XHR on page load. A bearer
+  token still works for a direct call.
+
+```jsonc
+{
+  "data": {
+    "30-days":  { "global": { "killers": {...}, "survivors": {...}, "general": {...} } },
+    "all-time": { "global": { "killers": {...}, "survivors": {...}, "general": {...} } },
+    "match-categories": [ { "name": "Regular", "stats": true }, ... ]
+  },
+  "updatedAt": 1787961600000,   // BHVR refreshes ~daily — dedup snapshots on this
+  "ingestedAt": 1787996865721
+}
+```
+
+Per-role fields (populated only with a real `matchCategory`):
+- **survivors**: `totalHoursPlayed`, `totalMatchesPlayed`, `avgBPEarnedPerMatch`,
+  `bpEarnedThroughMatch`, `escapeRate`, `matchesEscaped`, `survivorChasesWon`,
+  `survivorLongestChaseTimeInSeconds`, `survivorSuccessfullyHealed`,
+  `survivorTimesHooked`, `avgTimesHooked`, `emblems` (`{Emblem_*: {None|Bronze|Silver|Gold|Iridescent: count}}`)
+- **killers**: same header fields + `avgHooks`, `avgKillRate`, `totalKills`,
+  `totalHooks`, `totalHits`, `totalGenKicked`, `totalPalletsDestroyed`,
+  `totalWallsBroken`, `totalChasesWon`, `emblems`
+- **general**: hours / matches / BP totals only
+
+EntityTrack polls all five categories each run and stores a `career_snapshots` row per
+`(category, updatedAt)`; trends are `json_extract` over those rows.
+
 ### `GET /players/me`
 
 Account profile: `{ accounts[], email, nickName, country, communicationLang, gameLibrary, ... }`.
-No stable player UUID at top level. Not needed for single-user self-host; useful later for
-SaaS multi-account scoping.
+The stable **player UUID is the `sub` claim of the access-token JWT**
+(`f7917035-…`), not a top-level field. Useful later for SaaS multi-account scoping.
 
 ### `GET /players/me/game-accounts/dbd`
 
 Linked provider accounts: `[ { provider, status, createdAt, updatedAt }, ... ]`.
 
-### `GET /auth/flags`
+### `GET /auth/flags` · `GET /campaigns`
 
-Feature flags, e.g. `{ "communityStats": true }`.
-
-### `GET /player-stats/games/dbd/providers/{provider}`
-
-Powers the aggregate `/statistics` page (totals: hours, matches, bloodpoints, per role).
-Not required for EntityTrack (we aggregate from match history ourselves) but available.
+Feature flags (`{ "communityStats": true }`) and marketing campaigns. No analytics value.
 
 ## Anomaly signatures for the Entity Corrector
 

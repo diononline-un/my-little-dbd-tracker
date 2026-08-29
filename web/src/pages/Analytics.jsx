@@ -1,92 +1,137 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api, pct } from '../api.js';
+import { api, pct, pct0, num } from '../api.js';
 
-function RateTable({ rows, label, rateKey, countKey, rateFn }) {
+function Bar({ rate, danger = 0.4 }) {
+  return (
+    <div className="bar">
+      <span className={rate != null && rate < danger ? 'low' : ''} style={{ width: `${(rate ?? 0) * 100}%` }} />
+    </div>
+  );
+}
+
+function RateTable({ rows, cols }) {
   if (!rows?.length) return <p className="muted">Not enough data yet.</p>;
-  const max = Math.max(...rows.map((r) => r[countKey]));
   return (
     <table>
       <thead>
-        <tr><th>{label}</th><th>Matches</th><th>Rate</th><th style={{ width: 160 }} /></tr>
+        <tr>{cols.map((c) => <th key={c.key} style={c.w ? { width: c.w } : undefined}>{c.h}</th>)}</tr>
       </thead>
       <tbody>
-        {rows.map((r, i) => {
-          const rate = rateFn(r);
-          return (
-            <tr key={i}>
-              <td>{r[rateKey] ?? '—'}</td>
-              <td>{r[countKey]}</td>
-              <td>{pct(rate)}</td>
-              <td>
-                <div className="bar">
-                  <span
-                    className={rate != null && rate < 0.4 ? 'low' : ''}
-                    style={{ width: `${(rate ?? 0) * 100}%` }}
-                  />
-                </div>
-              </td>
-            </tr>
-          );
-        })}
+        {rows.map((r, i) => (
+          <tr key={i}>{cols.map((c) => <td key={c.key}>{c.render(r)}</td>)}</tr>
+        ))}
       </tbody>
     </table>
   );
 }
 
+const TABS = {
+  'vs-killers': {
+    label: 'Vs Killers',
+    hint: 'Your escape rate as survivor, by the killer you faced.',
+    q: () => api.killers(),
+    pick: (d) => d.killers,
+    cols: [
+      { key: 'n', h: 'Killer', render: (r) => r.killerName ?? r.killerId ?? '—' },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'r', h: 'Escape', render: (r) => pct(r.escapeRate) },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.escapeRate} /> },
+    ],
+  },
+  'my-killers': {
+    label: 'My Killers',
+    hint: 'How you do with each killer you play.',
+    q: () => api.selfKillers(),
+    pick: (d) => d.killers,
+    cols: [
+      { key: 'n', h: 'Killer', render: (r) => r.killerName ?? r.killerId ?? '—' },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'w', h: 'Win (3K+)', render: (r) => pct(r.winRate) },
+      { key: 'k', h: 'Avg kills', render: (r) => r.avgKills?.toFixed(2) ?? '—' },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.winRate} danger={0.5} /> },
+    ],
+  },
+  maps: {
+    label: 'Maps',
+    hint: 'Per-map performance. Survivor rows show escape rate, killer rows show 3K+ win rate.',
+    q: () => api.maps(),
+    pick: (d) => d.maps,
+    cols: [
+      { key: 'n', h: 'Map', render: (r) => r.mapName ?? r.mapId },
+      { key: 'role', h: 'Role', render: (r) => r.role },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'r', h: 'Rate', render: (r) => pct(r.role === 'survivor' ? r.escapeRate : r.killerWinRate) },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.role === 'survivor' ? r.escapeRate : r.killerWinRate} danger={r.role === 'survivor' ? 0.4 : 0.5} /> },
+    ],
+  },
+  builds: {
+    label: 'Builds',
+    hint: 'Your escape rate by a perk you were running (survivor).',
+    q: () => api.builds({ minMatches: 2 }),
+    pick: (d) => d.builds,
+    cols: [
+      { key: 'n', h: 'Perk', render: (r) => r.perkName ?? r.perkId },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'r', h: 'Escape', render: (r) => pct(r.escapeRate) },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.escapeRate} /> },
+    ],
+  },
+  'perk-pairs': {
+    label: 'Perk pairs',
+    hint: 'Escape rate for pairs of your own perks (survivor).',
+    q: () => api.perkPairs({ minMatches: 2 }),
+    pick: (d) => d.pairs,
+    cols: [
+      { key: 'n', h: 'Pair', render: (r) => r.perks.map((p) => p.name || p.id).join(' + ') },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'r', h: 'Escape', render: (r) => pct(r.escapeRate) },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.escapeRate} /> },
+    ],
+  },
+  offerings: {
+    label: 'Offerings',
+    hint: 'Escape / win rate by the offering you burned.',
+    q: () => api.offerings({ minMatches: 2 }),
+    pick: (d) => d.offerings,
+    cols: [
+      { key: 'n', h: 'Offering', render: (r) => r.offeringName ?? r.offeringId },
+      { key: 'role', h: 'Role', render: (r) => r.role },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'r', h: 'Rate', render: (r) => pct(r.rate) },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.rate} danger={r.role === 'survivor' ? 0.4 : 0.5} /> },
+    ],
+  },
+  teammates: {
+    label: 'Teammates',
+    hint: 'Your escape rate when a random teammate ran a given perk (solo-queue).',
+    q: () => api.teammates({ minMatches: 2 }),
+    pick: (d) => d.teammates,
+    cols: [
+      { key: 'n', h: 'Teammate perk', render: (r) => r.perkName ?? r.perkId },
+      { key: 'm', h: 'Matches', render: (r) => r.matches },
+      { key: 'r', h: 'Your escape', render: (r) => pct(r.selfEscapeRateWhenPresent) },
+      { key: 'b', h: '', w: 160, render: (r) => <Bar rate={r.selfEscapeRateWhenPresent} /> },
+    ],
+  },
+};
+
 export default function Analytics() {
-  const [tab, setTab] = useState('killers');
-  const killers = useQuery({ queryKey: ['an', 'killers'], queryFn: () => api.killers() });
-  const builds = useQuery({ queryKey: ['an', 'builds'], queryFn: () => api.builds() });
-  const teammates = useQuery({ queryKey: ['an', 'teammates'], queryFn: () => api.teammates() });
+  const [tab, setTab] = useState('vs-killers');
+  const t = TABS[tab];
+  const { data, isLoading, error } = useQuery({ queryKey: ['an', tab], queryFn: t.q });
 
   return (
     <>
       <h2>Analytics</h2>
-      <div className="tabs">
-        {['killers', 'builds', 'teammates'].map((t) => (
-          <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>
-            {t[0].toUpperCase() + t.slice(1)}
-          </button>
+      <div className="tabs" style={{ flexWrap: 'wrap' }}>
+        {Object.entries(TABS).map(([k, v]) => (
+          <button key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{v.label}</button>
         ))}
       </div>
-
-      {tab === 'killers' && (
-        <>
-          <p className="muted">Your escape rate as survivor, by the killer you faced.</p>
-          <RateTable
-            rows={killers.data?.killers}
-            label="Killer"
-            rateKey="killerName"
-            countKey="matches"
-            rateFn={(r) => r.escapeRate}
-          />
-        </>
-      )}
-      {tab === 'builds' && (
-        <>
-          <p className="muted">Your escape rate by a perk you were running.</p>
-          <RateTable
-            rows={builds.data?.builds}
-            label="Perk"
-            rateKey="perkName"
-            countKey="matches"
-            rateFn={(r) => r.escapeRate}
-          />
-        </>
-      )}
-      {tab === 'teammates' && (
-        <>
-          <p className="muted">Your escape rate when a random teammate ran a given perk (solo-queue).</p>
-          <RateTable
-            rows={teammates.data?.teammates}
-            label="Teammate perk"
-            rateKey="perkName"
-            countKey="matches"
-            rateFn={(r) => r.selfEscapeRateWhenPresent}
-          />
-        </>
-      )}
+      <p className="muted">{t.hint}</p>
+      {error && <p className="warn">{String(error.message)}</p>}
+      {isLoading ? <p className="muted">Loading…</p> : <RateTable rows={t.pick(data ?? {})} cols={t.cols} />}
     </>
   );
 }

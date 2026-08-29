@@ -64,13 +64,13 @@ const upsertMatchStmt = db.prepare(`
 const delPlayers = db.prepare('DELETE FROM match_players WHERE match_id = ?');
 const insPlayer = db.prepare(`
   INSERT INTO match_players (
-    match_id, slot, role, character_id, character_name, prestige, time_in_match,
-    bloodpoints, emblems, perks, addons, offering_id, offering_name, power_id,
-    power_name, status, killer_grade, is_self
+    match_id, slot, role, character_id, character_name, prestige, character_level,
+    time_in_match, bloodpoints, leaderboard_score, post_game_stat, emblems, perks,
+    addons, offering_id, offering_name, power_id, power_name, status, killer_grade, is_self
   ) VALUES (
-    :match_id, :slot, :role, :character_id, :character_name, :prestige, :time_in_match,
-    :bloodpoints, :emblems, :perks, :addons, :offering_id, :offering_name, :power_id,
-    :power_name, :status, :killer_grade, :is_self
+    :match_id, :slot, :role, :character_id, :character_name, :prestige, :character_level,
+    :time_in_match, :bloodpoints, :leaderboard_score, :post_game_stat, :emblems, :perks,
+    :addons, :offering_id, :offering_name, :power_id, :power_name, :status, :killer_grade, :is_self
   )
 `);
 
@@ -116,8 +116,11 @@ export function saveNormalizedMatch({ match, players }, rawPayloadId) {
         character_id: p.characterId ?? null,
         character_name: p.characterName ?? null,
         prestige: p.prestige ?? null,
+        character_level: p.characterLevel ?? null,
         time_in_match: p.timeInMatch ?? null,
         bloodpoints: p.bloodpoints ?? null,
+        leaderboard_score: p.leaderboardScore ?? null,
+        post_game_stat: j(p.postGameStat ?? null),
         emblems: j(p.emblems ?? []),
         perks: j(p.perks ?? []),
         addons: j(p.addons ?? []),
@@ -181,8 +184,72 @@ export function getMatch(matchId) {
       emblems: parse(p.emblems, []),
       perks: parse(p.perks, []),
       addons: parse(p.addons, []),
+      post_game_stat: parse(p.post_game_stat, null),
     })),
   };
+}
+
+// ------------------------------------------------------------- career snapshots
+
+const insCareer = db.prepare(`
+  INSERT INTO career_snapshots
+    (captured_at, category, bhvr_updated_at, bhvr_ingested_at, payload, raw_payload_id)
+  VALUES (:captured_at, :category, :bhvr_updated_at, :bhvr_ingested_at, :payload, :raw_payload_id)
+  ON CONFLICT (category, bhvr_updated_at) DO NOTHING
+`);
+
+/** Store one career snapshot; no-op if we already have this (category, updatedAt). */
+export function storeCareerSnapshot({ category, bhvrUpdatedAt, bhvrIngestedAt, data }, rawPayloadId) {
+  const info = insCareer.run({
+    captured_at: Date.now(),
+    category,
+    bhvr_updated_at: bhvrUpdatedAt ?? null,
+    bhvr_ingested_at: bhvrIngestedAt ?? null,
+    payload: JSON.stringify(data),
+    raw_payload_id: rawPayloadId ?? null,
+  });
+  return { inserted: info.changes > 0 };
+}
+
+const selLatestCareer = db.prepare(`
+  SELECT * FROM career_snapshots WHERE category = ?
+  ORDER BY bhvr_updated_at DESC, captured_at DESC LIMIT 1
+`);
+const selCareerCategories = db.prepare(
+  'SELECT DISTINCT category FROM career_snapshots ORDER BY category',
+);
+
+export function latestCareer(category) {
+  const row = selLatestCareer.get(category);
+  if (!row) return null;
+  return { ...row, payload: parse(row.payload, null) };
+}
+
+export function careerCategories() {
+  return selCareerCategories.all().map((r) => r.category);
+}
+
+/**
+ * Time series of one metric for a (category, window, role), one point per stored
+ * snapshot. `metricPath` is a JSON path segment like 'survivors.escapeRate'.
+ */
+export function careerTrend(category, window, metricPath) {
+  const jsonPath = `$."${window}".global.${metricPath
+    .split('.')
+    .map((s) => `"${s}"`)
+    .join('.')}`;
+  return db
+    .prepare(
+      `SELECT captured_at, bhvr_updated_at AS t,
+              json_extract(payload, ?) AS value
+       FROM career_snapshots
+       WHERE category = ?
+       GROUP BY bhvr_updated_at
+       ORDER BY bhvr_updated_at`,
+    )
+    .all(jsonPath, category)
+    .filter((r) => r.value != null)
+    .map((r) => ({ t: r.t ?? r.captured_at, value: r.value }));
 }
 
 // ------------------------------------------------------------------ sync state

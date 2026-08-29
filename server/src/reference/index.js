@@ -9,6 +9,53 @@
 
 export const ASSET_BASE = 'https://assets.live.bhvraccount.com';
 
+/**
+ * BHVR internal game-mode codenames → display labels. `match-categories` in a
+ * career payload lists which of these currently have stats. "Total" is a BHVR
+ * bug (returns all-zero) — always query per real category and aggregate.
+ */
+export const MATCH_CATEGORIES = {
+  Regular: 'Regular Trials',
+  Calamari: '2v8',
+  ChocolateBox: 'Chaos Shuffle',
+  Firefly: 'Lights Out',
+  Cake: 'My Little Oni',
+};
+
+export const REAL_CATEGORIES = Object.keys(MATCH_CATEGORIES); // excludes 'Total'
+
+export function categoryLabel(id) {
+  return MATCH_CATEGORIES[id] ?? id;
+}
+
+export const EMBLEM_QUALITIES = ['None', 'Bronze', 'Silver', 'Gold', 'Iridescent'];
+
+export function emblemLabel(emblemId) {
+  // "Emblem_Survivor_Benevolent" -> "Benevolent"
+  return String(emblemId ?? '').split('_').pop();
+}
+
+/** postGameStat keys -> readable score categories, per role. */
+export const SCORE_CATEGORIES = {
+  DBD_CamperScoreCat_Objectives: 'Objectives',
+  DBD_CamperScoreCat_Altruism: 'Altruism',
+  DBD_CamperScoreCat_Boldness: 'Boldness',
+  DBD_CamperScoreCat_Survival: 'Survival',
+  DBD_SlasherScoreCat_Brutality: 'Brutality',
+  DBD_SlasherScoreCat_Deviousness: 'Deviousness',
+  DBD_SlasherScoreCat_Hunter: 'Hunting',
+  DBD_SlasherScoreCat_Sacrifice: 'Sacrifice',
+};
+
+export function scoreCategories(postGameStat) {
+  if (!postGameStat) return [];
+  return Object.entries(postGameStat).map(([k, v]) => ({
+    key: k,
+    label: SCORE_CATEGORIES[k] ?? k,
+    value: v,
+  }));
+}
+
 /** Prefix a payload `image.path` with the asset host. */
 export function assetUrl(path) {
   if (!path) return null;

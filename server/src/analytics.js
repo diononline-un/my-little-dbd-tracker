@@ -94,15 +94,42 @@ export function listMatches(filters = {}) {
     )
     .all({ ...params, limit, offset });
 
-  return { total, limit, offset, matches: rows.map(hydrateMatchRow) };
+  // self loadout + score categories for the returned page, in one query
+  const ids = rows.map((r) => r.match_id);
+  const selfByMatch = {};
+  if (ids.length) {
+    const ph = ids.map(() => '?').join(',');
+    for (const p of sqlite
+      .prepare(
+        `SELECT match_id, character_name, prestige, perks, post_game_stat, emblems
+         FROM match_players WHERE is_self = 1 AND match_id IN (${ph})`,
+      )
+      .all(...ids)) {
+      selfByMatch[p.match_id] = {
+        character_name: p.character_name,
+        prestige: p.prestige,
+        perks: safeJson(p.perks, []),
+        post_game_stat: safeJson(p.post_game_stat, null),
+        emblems: safeJson(p.emblems, []),
+      };
+    }
+  }
+
+  return {
+    total,
+    limit,
+    offset,
+    matches: rows.map((r) => hydrateMatchRow(r, selfByMatch[r.match_id])),
+  };
 }
 
-function hydrateMatchRow(r) {
+function hydrateMatchRow(r, self) {
   return {
     ...r,
     is_corrected: Boolean(r.is_corrected),
     self_escaped: r.self_escaped == null ? null : Boolean(r.self_escaped),
     correction_notes: safeJson(r.correction_notes, []),
+    self: self ?? null,
   };
 }
 
@@ -168,6 +195,124 @@ export function buildAnalytics({ minMatches = 3 } = {}) {
     .map((r) => ({
       perkId: r.perk_id,
       perkName: r.perk_name,
+      matches: r.matches,
+      escapes: r.escapes,
+      escapeRate: r.matches ? r.escapes / r.matches : null,
+    }));
+}
+
+/**
+ * Per-map performance. Survivor rows show escape rate; killer rows show 3K+ win
+ * rate and avg kills. Canceled matches excluded.
+ */
+export function mapAnalytics({ role } = {}) {
+  const where = [`m.${NOT_CANCELED}`, 'm.map_id IS NOT NULL'];
+  const params = {};
+  if (role) { where.push('m.self_role = :role'); params.role = role; }
+  return sqlite
+    .prepare(
+      `SELECT map_id, map_name, self_role,
+              COUNT(*) AS matches,
+              SUM(CASE WHEN self_escaped THEN 1 ELSE 0 END) AS escapes,
+              SUM(CASE WHEN self_kills >= 3 THEN 1 ELSE 0 END) AS killer_wins,
+              AVG(self_kills) AS avg_kills,
+              AVG(self_bloodpoints) AS avg_bp
+       FROM matches m
+       WHERE ${where.join(' AND ')}
+       GROUP BY map_id, self_role
+       ORDER BY matches DESC`,
+    )
+    .all(params)
+    .map((r) => ({
+      mapId: r.map_id,
+      mapName: r.map_name,
+      role: r.self_role,
+      matches: r.matches,
+      escapeRate: r.self_role === 'survivor' && r.matches ? r.escapes / r.matches : null,
+      killerWinRate: r.self_role === 'killer' && r.matches ? r.killer_wins / r.matches : null,
+      avgKills: r.self_role === 'killer' ? r.avg_kills : null,
+      avgBloodpoints: r.avg_bp,
+    }));
+}
+
+/** How the player does with each killer THEY play (killer matches). */
+export function selfKillerAnalytics() {
+  return sqlite
+    .prepare(
+      `SELECT killer_id, killer_name,
+              COUNT(*) AS matches,
+              SUM(CASE WHEN self_kills >= 3 THEN 1 ELSE 0 END) AS wins,
+              AVG(self_kills) AS avg_kills,
+              AVG(self_bloodpoints) AS avg_bp
+       FROM matches
+       WHERE self_role = 'killer' AND ${NOT_CANCELED} AND killer_id IS NOT NULL
+       GROUP BY killer_id
+       ORDER BY matches DESC`,
+    )
+    .all()
+    .map((r) => ({
+      killerId: r.killer_id,
+      killerName: r.killer_name,
+      matches: r.matches,
+      winRate: r.matches ? r.wins / r.matches : null,
+      avgKills: r.avg_kills,
+      avgBloodpoints: r.avg_bp,
+    }));
+}
+
+/** Escape/win rate by the player's own offering. */
+export function offeringAnalytics({ minMatches = 3 } = {}) {
+  return sqlite
+    .prepare(
+      `SELECT sp.offering_id, sp.offering_name, m.self_role,
+              COUNT(*) AS matches,
+              SUM(CASE WHEN m.self_escaped THEN 1 ELSE 0 END) AS escapes,
+              SUM(CASE WHEN m.self_kills >= 3 THEN 1 ELSE 0 END) AS wins
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE m.${NOT_CANCELED} AND sp.offering_id IS NOT NULL
+       GROUP BY sp.offering_id, m.self_role
+       HAVING matches >= :minMatches
+       ORDER BY matches DESC`,
+    )
+    .all({ minMatches })
+    .map((r) => ({
+      offeringId: r.offering_id,
+      offeringName: r.offering_name,
+      role: r.self_role,
+      matches: r.matches,
+      rate: r.matches
+        ? (r.self_role === 'survivor' ? r.escapes : r.wins) / r.matches
+        : null,
+    }));
+}
+
+/** Escape rate for pairs of the player's own perks (survivor). */
+export function perkPairAnalytics({ minMatches = 3 } = {}) {
+  return sqlite
+    .prepare(
+      `SELECT json_extract(a.value, '$.id') AS perk_a_id,
+              json_extract(a.value, '$.name') AS perk_a,
+              json_extract(b.value, '$.id') AS perk_b_id,
+              json_extract(b.value, '$.name') AS perk_b,
+              COUNT(*) AS matches,
+              SUM(CASE WHEN m.self_escaped THEN 1 ELSE 0 END) AS escapes
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       JOIN json_each(sp.perks) a
+       JOIN json_each(sp.perks) b
+         ON json_extract(a.value, '$.id') < json_extract(b.value, '$.id')
+       WHERE m.self_role = 'survivor' AND m.${NOT_CANCELED}
+       GROUP BY perk_a_id, perk_b_id
+       HAVING matches >= :minMatches
+       ORDER BY escapes * 1.0 / matches DESC, matches DESC`,
+    )
+    .all({ minMatches })
+    .map((r) => ({
+      perks: [
+        { id: r.perk_a_id, name: r.perk_a },
+        { id: r.perk_b_id, name: r.perk_b },
+      ],
       matches: r.matches,
       escapes: r.escapes,
       escapeRate: r.matches ? r.escapes / r.matches : null,

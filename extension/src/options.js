@@ -24,7 +24,7 @@ async function renderStatus() {
   if (status) {
     lines.push(
       status.ok
-        ? `last run: ${new Date(status.lastRun).toLocaleString()} — ${status.matches} matches, ${status.corrected} corrected, ${status.repolled} re-polled`
+        ? `last run: ${new Date(status.lastRun).toLocaleString()} — ${status.matches} matches, ${status.corrected} corrected, ${status.repolled} re-polled, ${status.careerInserted ?? 0} career snapshots`
         : `last run FAILED: ${status.error}`,
     );
   } else {

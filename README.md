@@ -75,10 +75,16 @@ Requires Node ≥ 24 for the built-in `node:sqlite` (no native build step).
     `repoll_after`; the extension re-fetches via `GET /api/repoll-queue`.
   - Any corrected match carries `is_corrected = true` and human-readable
     `correction_notes`, surfaced in red on the dashboard.
-- **`web/`** — React + Vite. Dashboard KPIs, filterable match ledger, 5-player tally
-  screen, and Killers / Builds / Teammates analytics. Blood-red (`#8B0000`) is used
-  only for corrected data, warnings, and negative trends.
-- **`docs/api-contract.md`** — the reverse-engineered BHVR API.
+- **`server/src/normalize/career.js`** — second dataset: the extension also polls
+  `GET /player-stats/games/dbd?matchCategory=…` per game mode (BHVR's aggregate stats;
+  the un-parametrised call is bugged to all-zero). Stored as daily `career_snapshots`
+  for the Overview tiles and trend charts.
+- **`web/`** — React + Vite, inline-SVG charts. Overview (career KPIs + emblem
+  distributions, per mode, 30d/all-time), Trends (escape/kill-rate lines), filterable
+  match ledger with score sparkbars, 5-player tally, and 7 analytics tabs (Vs Killers,
+  My Killers, Maps, Builds, Perk pairs, Offerings, Teammates). Blood-red (`#8B0000`) is
+  used only for corrected data, warnings, and negative trends.
+- **`docs/api-contract.md`** — the reverse-engineered BHVR API (both datasets).
 
 ## Moving to Postgres
 

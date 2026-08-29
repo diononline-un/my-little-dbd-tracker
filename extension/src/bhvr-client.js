@@ -74,3 +74,13 @@ export async function fetchMatchHistory({ limit = BHVR.matchHistoryLimit } = {})
   if (!res.ok) throw new Error(`match-history ${res.status}`);
   return res.json();
 }
+
+/** Career/aggregate stats for one game-mode category. */
+export async function fetchCareer(category) {
+  const qs = new URLSearchParams({ lang: BHVR.lang, matchCategory: category });
+  const res = await fetch(`${BHVR.apiBase}${BHVR.careerPath}?${qs}`, {
+    headers: { Authorization: await authHeader() },
+  });
+  if (!res.ok) throw new Error(`career ${category} ${res.status}`);
+  return res.json();
+}
