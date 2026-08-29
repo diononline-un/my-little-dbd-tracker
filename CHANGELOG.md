@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-08-29 — Visual overhaul (game art + official-style match view)
+
+- Pull all game art from BHVR's asset CDN (`assets.live.bhvraccount.com`), paths
+  derived from the ids we store — perks, add-ons, offerings, items/powers,
+  character portraits, map thumbnails, emblem shields, outcome icons. Graceful
+  monogram fallback on a 404.
+- **Matches** is now a card list mirroring stats.deadbydaylight.com: portrait +
+  outcome banner, loadout icon strip, score-category tiles, emblem row, map/date/
+  killer meta.
+- **Match detail** matches the official modal — Duration / Perks / Item & Add-ons /
+  Offering / Emblems / Map cards + an expandable Players list with portraits and
+  per-player score breakdown.
+- Analytics rows carry killer / perk / map / offering icons.
+- Load animations: chart line draw-in, bar grow, staggered tile/card fade-rise —
+  all behind `prefers-reduced-motion`.
+- Palette retuned toward the official look (near-black surfaces, white-alpha
+  borders, subtle entity-red accents).
+
 ## 2026-08-29 — Second dataset + dashboard depth
 
 - Verified end to end: the collector delivered 52 real matches; escape rate 37%,

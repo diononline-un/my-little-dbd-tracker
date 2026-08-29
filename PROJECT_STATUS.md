@@ -1,6 +1,6 @@
 ---
 status: in-development
-progress: 70
+progress: 78
 version: "0.0.1"
 tags: [node, fastify, node-sqlite, react, vite, mv3-extension, docker, dead-by-daylight, stats, reverse-engineering]
 scope: "Self-hosted DBD match tracker: MV3 extension polls the official BHVR match-history + career-stats APIs (OAuth bearer, no OCR), Node backend stores raw payloads immutably + runs the Entity Corrector anomaly pipeline + daily career snapshots, React dashboard with match history, career overview, trend charts and archetype/build/map analytics. Docker-first, Postgres-swappable."
