@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-29 — Death ✕, result strip, at-a-glance context
+
+- **Dead players get a red ✕ over a dimmed portrait** (survivors who died / were
+  sacrificed), "OUT" for a disconnect — on the card, opponent tiles, and the detail
+  tally. `PlayerPortrait` helper in `icons.jsx`.
+- **Result strip** across the top of each card: 4 segments — kills (red) for a killer
+  match, per-survivor escaped (green) / died (red) / dc (grey) for a survivor match.
+  Plus a light-red wash over the whole card that deepens with your kill count.
+- **At-a-glance context on the card**: your score vs your role average
+  (`avgScoreByRole`), where you fell among the survivors ("1st out" … "last down"),
+  and your head-to-head record vs that killer ("vs The Nurse: faced 2× · escaped 0").
+- `/api/matches` opponents + self now carry `time_in_match`; the response carries
+  `avgScoreByRole` and each match a `deathPosition` + `vsKiller` record.
+
 ## 2026-08-29 — Score fix (leaderboard vs BP), bigger card, full opponent tiles
 
 - **The card's "Score" was showing bloodpoints, not the match score.** Fixed — it now

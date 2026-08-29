@@ -63,6 +63,28 @@ export function GameIcon({ src, alt = '', size = 28, w, h, rounded = 6, title, c
   );
 }
 
+const DEAD = new Set(['died', 'sacrificed']);
+const OUT = new Set(['dc', 'ragequit']);
+
+/**
+ * Character portrait with a result overlay: red ✕ + dimmed for a death,
+ * "OUT" for a disconnect, untouched for an escape / the killer.
+ */
+export function PlayerPortrait({ characterId, role, name, status, size = 40, rounded = 4 }) {
+  const dead = DEAD.has(status);
+  const out = OUT.has(status);
+  return (
+    <span className="pp" style={{ width: size, height: size }}>
+      <GameIcon
+        src={charIcon(characterId, role)} alt={name} size={size} rounded={rounded}
+        className={dead || out ? 'pp-dim' : ''}
+      />
+      {dead && <span className="pp-x" aria-label="died">✕</span>}
+      {out && <span className="pp-out">OUT</span>}
+    </span>
+  );
+}
+
 /** A horizontal strip of small icons (perks, add-ons, …) with an optional "+". */
 export function IconRow({ items = [], size = 22, gap = 3, plusAfter }) {
   const out = [];

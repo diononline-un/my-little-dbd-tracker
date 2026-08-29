@@ -1,6 +1,6 @@
 import { dur, when, num } from '../api.js';
 import {
-  GameIcon, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
+  GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
 } from '../icons.jsx';
 
 const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
@@ -37,7 +37,8 @@ function PlayerRow({ p }) {
   return (
     <div className={`tally-player${p.is_self ? ' is-self' : ''}`}>
       <div className="tally-head">
-        <GameIcon src={charIcon(p.character_id, p.role)} alt={p.character_name} size={38} rounded={5} />
+        <PlayerPortrait characterId={p.character_id} role={p.role} name={p.character_name}
+          status={p.role === 'killer' ? null : p.status} size={38} rounded={5} />
         <span className="tally-name">
           {p.character_name ?? p.character_id ?? '—'}
           {p.is_self ? ' · you' : ''}

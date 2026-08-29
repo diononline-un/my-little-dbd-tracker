@@ -49,7 +49,9 @@ export default function Matches() {
       {data && (
         <>
           <div className="stagger">
-            {data.matches.map((m) => <MatchCard key={m.match_id} m={m} />)}
+            {data.matches.map((m) => (
+              <MatchCard key={m.match_id} m={m} avg={data.avgScoreByRole?.[m.self_role]} />
+            ))}
           </div>
           {data.matches.length === 0 && <p className="muted">No matches for this filter.</p>}
           <p className="muted" style={{ marginTop: 12 }}>

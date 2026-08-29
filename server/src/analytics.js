@@ -103,7 +103,7 @@ export function listMatches(filters = {}) {
     for (const p of sqlite
       .prepare(
         `SELECT match_id, role, character_id, character_name, prestige, leaderboard_score,
-                perks, addons, offering_id, offering_name, power_id, power_name,
+                time_in_match, perks, addons, offering_id, offering_name, power_id, power_name,
                 post_game_stat, emblems
          FROM match_players WHERE is_self = 1 AND match_id IN (${ph})`,
       )
@@ -115,6 +115,7 @@ export function listMatches(filters = {}) {
         character_name: p.character_name,
         prestige: p.prestige,
         leaderboardScore: p.leaderboard_score,
+        time_in_match: p.time_in_match,
         perks: safeJson(p.perks, []),
         addons: safeJson(p.addons, []),
         offering_id: p.offering_id,
@@ -129,8 +130,8 @@ export function listMatches(filters = {}) {
     for (const p of sqlite
       .prepare(
         `SELECT match_id, slot, role, character_id, character_name, prestige, bloodpoints,
-                leaderboard_score, status, killer_grade, perks, addons, offering_id,
-                offering_name, power_id, power_name, post_game_stat, emblems
+                leaderboard_score, time_in_match, status, killer_grade, perks, addons,
+                offering_id, offering_name, power_id, power_name, post_game_stat, emblems
          FROM match_players WHERE is_self = 0 AND match_id IN (${ph}) ORDER BY slot`,
       )
       .all(...ids)) {
@@ -141,6 +142,7 @@ export function listMatches(filters = {}) {
         prestige: p.prestige,
         bloodpoints: p.bloodpoints,
         leaderboardScore: p.leaderboard_score,
+        time_in_match: p.time_in_match,
         status: p.status,
         killer_grade: p.killer_grade,
         perks: safeJson(p.perks, []),
@@ -155,19 +157,57 @@ export function listMatches(filters = {}) {
     }
   }
 
+  // context shared by the whole page: your record vs each killer + your avg score by role
+  const vsKiller = {};
+  for (const k of sqlite
+    .prepare(
+      `SELECT killer_id, COUNT(*) AS faced, SUM(CASE WHEN self_escaped THEN 1 ELSE 0 END) AS escapes
+       FROM matches WHERE self_role = 'survivor' AND ${NOT_CANCELED} AND killer_id IS NOT NULL
+       GROUP BY killer_id`,
+    )
+    .all()) {
+    vsKiller[k.killer_id] = { faced: k.faced, escapes: k.escapes };
+  }
+  const avgScoreByRole = {};
+  for (const a of sqlite
+    .prepare(
+      `SELECT m.self_role AS role, AVG(sp.leaderboard_score) AS avg
+       FROM matches m JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE m.${NOT_CANCELED} AND sp.leaderboard_score IS NOT NULL
+       GROUP BY m.self_role`,
+    )
+    .all()) {
+    avgScoreByRole[a.role] = a.avg == null ? null : Math.round(a.avg);
+  }
+
   return {
     total,
     limit,
     offset,
+    avgScoreByRole,
     matches: rows.map((r) =>
-      hydrateMatchRow(r, selfByMatch[r.match_id], oppByMatch[r.match_id] ?? []),
+      hydrateMatchRow(r, selfByMatch[r.match_id], oppByMatch[r.match_id] ?? [], vsKiller),
     ),
   };
 }
 
-function hydrateMatchRow(r, self, opponents = []) {
+function hydrateMatchRow(r, self, opponents = [], vsKiller = {}) {
   // survivors first, killer last — matches the official card ordering
   const ordered = [...opponents].sort((a, b) => (a.role === 'killer') - (b.role === 'killer'));
+
+  // where you fell among the survivors (by time in match) — survivor games only
+  let deathPosition = null;
+  if (r.self_role === 'survivor' && self?.time_in_match != null) {
+    const survs = [self, ...ordered.filter((p) => p.role === 'survivor')]
+      .filter((p) => p.time_in_match != null && p.time_in_match >= 0)
+      .sort((a, b) => a.time_in_match - b.time_in_match);
+    const idx = survs.findIndex((p) => p === self);
+    if (idx >= 0 && survs.length >= 2) {
+      if (r.self_escaped) deathPosition = 'survived';
+      else deathPosition = ['1st out', '2nd out', '3rd out', 'last down'][Math.min(idx, 3)];
+    }
+  }
+
   return {
     ...r,
     is_corrected: Boolean(r.is_corrected),
@@ -175,6 +215,8 @@ function hydrateMatchRow(r, self, opponents = []) {
     correction_notes: safeJson(r.correction_notes, []),
     self: self ?? null,
     opponents: ordered,
+    deathPosition,
+    vsKiller: r.self_role === 'survivor' && r.killer_id ? (vsKiller[r.killer_id] ?? null) : null,
   };
 }
 

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api, dur, when } from '../api.js';
 import {
-  GameIcon, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, statusIcon,
+  GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon,
 } from '../icons.jsx';
 import MatchDetailBody from './MatchDetailBody.jsx';
 
@@ -11,11 +11,6 @@ const GOOD = new Set(['escaped', 'surrender_draw']);
 const BAD = new Set(['died', 'sacrificed', 'dc', 'ragequit', 'surrender_loss']);
 const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
 const CAT_SHORT = (k) => CAT_LABEL(k).slice(0, 3);
-const STATUS_ICON = {
-  escaped: 'VE_Escaped', died: 'VE_Killed', sacrificed: 'VE_Sacrificed',
-  dc: 'VE_Disconnected', ragequit: 'VE_Disconnected',
-  surrender_loss: 'VE_SurrenderDraw', surrender_draw: 'VE_SurrenderDraw',
-};
 const score = (p) => p?.leaderboardScore ?? null;
 
 function Diamond({ src, alt, title, size = 26 }) {
@@ -60,13 +55,13 @@ function LoadoutRow({ self }) {
 
 function OppTile({ o }) {
   const isKiller = o.role === 'killer';
-  const st = STATUS_ICON[o.status];
   const perks = o.perks ?? [];
   const cats = o.post_game_stat ? Object.entries(o.post_game_stat) : [];
   return (
     <div className={`opp-tile${isKiller ? ' opp-killer' : ''}`}>
       <div className="opp-tile-head">
-        <GameIcon src={charIcon(o.character_id, o.role)} alt={o.character_name} size={40} rounded={4} />
+        <PlayerPortrait characterId={o.character_id} role={o.role} name={o.character_name}
+          status={isKiller ? null : o.status} size={40} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="opp-name">
             {o.character_name ?? o.character_id ?? '—'}
@@ -77,9 +72,9 @@ function OppTile({ o }) {
             <span className="muted"> {o.bloodpoints?.toLocaleString() ?? '—'} BP</span>
           </div>
         </div>
-        {isKiller
-          ? <span className="opp-tag" title={o.killer_grade ?? 'Killer'}>{(o.killer_grade ?? 'KILLER').replace(' KILLER', '')}</span>
-          : st && <GameIcon src={statusIcon(st)} alt={o.status} size={16} rounded={2} />}
+        {isKiller && (
+          <span className="opp-tag" title={o.killer_grade ?? 'Killer'}>{(o.killer_grade ?? 'KILLER').replace(' KILLER', '')}</span>
+        )}
       </div>
       <div className="opp-perks">
         {[0, 1, 2, 3].map((j) =>
@@ -101,7 +96,7 @@ function OppTile({ o }) {
   );
 }
 
-export default function MatchCard({ m }) {
+export default function MatchCard({ m, avg }) {
   const [open, setOpen] = useState(false);
   const self = m.self ?? {};
   const isKiller = m.self_role === 'killer';
@@ -116,6 +111,17 @@ export default function MatchCard({ m }) {
     : (GOOD.has(m.outcome) ? 'Escaped' : (m.outcome ?? '').replace('_', ' '));
   const cats = self.post_game_stat ? Object.entries(self.post_game_stat) : [];
   const bigScore = score(self) ?? m.self_bloodpoints;
+  const selfDead = m.self_role === 'survivor' && BAD.has(m.outcome) && m.outcome !== 'surrender_loss';
+
+  // result strip: killer → kills/4 red; survivor → per-survivor escaped(green)/died(red)
+  const strip = isKiller
+    ? Array.from({ length: 4 }, (_, i) => (i < (m.self_kills ?? 0) ? 'k' : 'e'))
+    : [self, ...(m.opponents ?? []).filter((o) => o.role === 'survivor')]
+        .slice(0, 4)
+        .map((p) => (['escaped', 'surrender_draw'].includes(p === self ? m.outcome : p.status) ? 'e'
+          : ['dc', 'ragequit'].includes(p.status) ? 'o' : 'd'));
+
+  const scoreDelta = avg && bigScore != null ? bigScore - avg : null;
 
   const detail = useQuery({
     queryKey: ['match', m.match_id],
@@ -124,14 +130,22 @@ export default function MatchCard({ m }) {
   });
 
   return (
-    <div className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}`}>
+    <div
+      className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}`}
+      style={isKiller && m.self_kills ? { '--kill-tint': (m.self_kills / 4) * 0.14 } : undefined}
+    >
+      <div className={`result-strip ${isKiller ? 'killer' : 'survivor'}`}>
+        {strip.map((s, i) => <span key={i} className={`rs rs-${s}`} />)}
+      </div>
       <div className="match-card-head" role="button" tabIndex={0}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setOpen((o) => !o))}>
 
         <div className="match-top">
           <div className="match-portrait">
-            {portrait && <img src={portrait} alt={self.character_name ?? ''} loading="lazy" />}
+            {portrait && <img src={portrait} alt={self.character_name ?? ''} loading="lazy"
+              className={selfDead ? 'pp-dim' : ''} />}
+            {selfDead && <span className="pp-x" style={{ fontSize: '3rem' }}>✕</span>}
             <div className={`outcome${outcomeBad ? ' bad' : ''}`}>{outcomeLabel}</div>
           </div>
 
@@ -139,13 +153,21 @@ export default function MatchCard({ m }) {
             <div className="match-name">
               {self.character_name ?? (isKiller ? m.killer_name : '—')}
               {self.prestige ? <span className="muted" style={{ fontWeight: 400 }}> · P{self.prestige}</span> : null}
+              {m.deathPosition && m.deathPosition !== 'survived' && (
+                <span className="match-chip">{m.deathPosition}</span>
+              )}
               {m.is_corrected && <> <span className="flag">corrected</span></>}
             </div>
             <div className="match-scorelabel">
               Score
+              {scoreDelta != null && (
+                <span className={`emblem-score${scoreDelta < 0 ? ' warn' : ''}`}>
+                  {' '}· {scoreDelta >= 0 ? '+' : ''}{scoreDelta.toLocaleString()} vs your avg
+                </span>
+              )}
               {self.emblemScore != null && (
                 <span className="emblem-score" title="Emblem score (0–16) — sum of your 4 emblem qualities. BHVR exposes no pips; this is the closest proxy.">
-                  · emblems {self.emblemScore}/16
+                  {' '}· emblems {self.emblemScore}/16
                 </span>
               )}
             </div>
@@ -153,6 +175,11 @@ export default function MatchCard({ m }) {
               {bigScore?.toLocaleString() ?? '—'}
               <span className="match-bp"> · {m.self_bloodpoints?.toLocaleString() ?? '—'} BP</span>
             </div>
+            {m.vsKiller && m.vsKiller.faced > 1 && (
+              <div className="muted" style={{ fontSize: 11, marginTop: 3 }}>
+                vs {m.killer_name}: faced {m.vsKiller.faced}× · escaped {m.vsKiller.escapes}
+              </div>
+            )}
             <LoadoutRow self={self} />
             {cats.length > 0 && (
               <div className="match-cats">

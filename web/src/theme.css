@@ -199,6 +199,20 @@ input, select {
   background: radial-gradient(120% 120% at 50% 15%, #2a2a2a, #131313);
 }
 
+/* portrait with result overlay */
+.pp { position: relative; display: inline-block; flex: 0 0 auto; line-height: 0; }
+.pp .pp-dim { filter: grayscale(0.7) brightness(0.5); }
+.pp-x {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: #ff5a5a; font-weight: 700; font-size: 130%; text-shadow: 0 0 6px rgba(0,0,0,0.9);
+  pointer-events: none;
+}
+.pp-out {
+  position: absolute; left: 0; right: 0; bottom: 0; text-align: center;
+  font-size: 8px; font-weight: 700; letter-spacing: 0.05em; color: #ffb0b0;
+  background: rgba(0,0,0,0.7); padding: 1px 0;
+}
+
 /* ---------- match cards (stats.deadbydaylight.com layout) ---------- */
 .match-card {
   border: 1px solid var(--border); border-radius: 8px;
@@ -208,8 +222,29 @@ input, select {
 .match-card:hover { border-color: var(--border-strong); }
 .match-card.is-corrected { box-shadow: inset 3px 0 0 var(--blood-bright); }
 .match-card.is-open { border-color: var(--border-strong); }
+.match-card { position: relative; overflow: hidden; }
+/* light red wash across the card, deeper the more kills you got (killer matches) */
+.match-card::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(120deg, rgba(139,0,0,1) 0%, rgba(139,0,0,0) 55%);
+  opacity: var(--kill-tint, 0); transition: opacity 0.2s;
+}
+
+/* result strip — top edge, 4 segments (kills for killer / per-survivor for survivor) */
+.result-strip { display: flex; height: 3px; }
+.result-strip .rs { flex: 1; }
+.rs-k { background: linear-gradient(90deg, var(--blood), var(--blood-bright)); }  /* a kill */
+.rs-e { background: #2a6b2f; }                                                    /* escaped / no kill */
+.rs-d { background: var(--blood); }                                              /* a survivor died */
+.rs-o { background: #555; }                                                      /* dc / ragequit */
+.result-strip .rs + .rs { border-left: 1px solid #0e0e0e; }
 
 .match-card-head { padding: 16px; cursor: pointer; }
+
+.match-chip {
+  display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px; vertical-align: middle;
+  border: 1px solid var(--border-strong); color: var(--text-dim); text-transform: lowercase;
+}
 
 .match-top {
   display: grid;
