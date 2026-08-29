@@ -28,6 +28,10 @@ export const api = {
   activity: (params = {}) => get(`/insights/activity?${qs(params)}`),
   killerMeta: () => get('/insights/killer-meta'),
   opponentPerks: (params = {}) => get(`/insights/opponent-perks?${qs(params)}`),
+  characterStreaks: () => get('/insights/character-streaks'),
+  sessions: (params = {}) => get(`/insights/sessions?${qs(params)}`),
+  recap: (params = {}) => get(`/insights/recap?${qs(params)}`),
+  scatter: (params = {}) => get(`/insights/scatter?${qs(params)}`),
 };
 
 export const pct = (r) => (r == null ? '—' : `${(r * 100).toFixed(1)}%`);

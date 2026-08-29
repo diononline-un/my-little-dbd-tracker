@@ -94,9 +94,10 @@ export function listMatches(filters = {}) {
     )
     .all({ ...params, limit, offset });
 
-  // self loadout + score categories for the returned page, in one query
+  // self loadout + opponent thumbnails for the returned page, two batched queries
   const ids = rows.map((r) => r.match_id);
   const selfByMatch = {};
+  const oppByMatch = {};
   if (ids.length) {
     const ph = ids.map(() => '?').join(',');
     for (const p of sqlite
@@ -121,23 +122,44 @@ export function listMatches(filters = {}) {
         emblems: safeJson(p.emblems, []),
       };
     }
+    for (const p of sqlite
+      .prepare(
+        `SELECT match_id, slot, role, character_id, character_name, bloodpoints,
+                status, killer_grade
+         FROM match_players WHERE is_self = 0 AND match_id IN (${ph}) ORDER BY slot`,
+      )
+      .all(...ids)) {
+      (oppByMatch[p.match_id] ??= []).push({
+        role: p.role,
+        character_id: p.character_id,
+        character_name: p.character_name,
+        bloodpoints: p.bloodpoints,
+        status: p.status,
+        killer_grade: p.killer_grade,
+      });
+    }
   }
 
   return {
     total,
     limit,
     offset,
-    matches: rows.map((r) => hydrateMatchRow(r, selfByMatch[r.match_id])),
+    matches: rows.map((r) =>
+      hydrateMatchRow(r, selfByMatch[r.match_id], oppByMatch[r.match_id] ?? []),
+    ),
   };
 }
 
-function hydrateMatchRow(r, self) {
+function hydrateMatchRow(r, self, opponents = []) {
+  // survivors first, killer last — matches the official card ordering
+  const ordered = [...opponents].sort((a, b) => (a.role === 'killer') - (b.role === 'killer'));
   return {
     ...r,
     is_corrected: Boolean(r.is_corrected),
     self_escaped: r.self_escaped == null ? null : Boolean(r.self_escaped),
     correction_notes: safeJson(r.correction_notes, []),
     self: self ?? null,
+    opponents: ordered,
   };
 }
 
@@ -330,11 +352,15 @@ export function perkPairAnalytics({ minMatches = 3 } = {}) {
 // --------------------------------------------------------------- streaks / form
 
 /** A match "won" from the self perspective (canceled matches are neutral, skipped). */
-const WON_EXPR = `CASE
-  WHEN outcome = 'canceled' THEN NULL
-  WHEN self_role = 'survivor' THEN (self_escaped = 1)
-  WHEN self_role = 'killer'   THEN (self_kills >= 3)
-  ELSE NULL END`;
+const wonExpr = (t = '') => {
+  const p = t ? `${t}.` : '';
+  return `CASE
+    WHEN ${p}outcome = 'canceled' THEN NULL
+    WHEN ${p}self_role = 'survivor' THEN (${p}self_escaped = 1)
+    WHEN ${p}self_role = 'killer'   THEN (${p}self_kills >= 3)
+    ELSE NULL END`;
+};
+const WON_EXPR = wonExpr();
 
 function streakFor(where = '1=1') {
   const rows = sqlite
@@ -401,6 +427,197 @@ export function recentForm({ limit = 20 } = {}) {
 
   const wins = rows.filter((r) => r.won).length;
   return { matches: rows, wins, losses: rows.length - wins, rate: rows.length ? wins / rows.length : null };
+}
+
+/** current + best/worst run stats from a newest-first array of win booleans. */
+function runStats(newestFirstBools) {
+  if (!newestFirstBools.length) return { current: 0, currentType: null, best: 0, worst: 0 };
+  const head = newestFirstBools[0];
+  let current = 0;
+  for (const w of newestFirstBools) { if (w === head) current += 1; else break; }
+  let best = 0, worst = 0, run = 0, prev = null;
+  for (const w of newestFirstBools) {
+    if (w === prev) run += 1; else { run = 1; prev = w; }
+    if (w && run > best) best = run;
+    if (!w && run > worst) worst = run;
+  }
+  return { current, currentType: head ? 'win' : 'loss', best, worst };
+}
+
+/**
+ * Win streaks bucketed by the self character (killer you play OR survivor you play).
+ * Returns { killers: [...], survivors: [...], records } — each entry
+ * { characterId, characterName, role, current, currentType, best, worst, matches, lastPlayedAt }.
+ */
+export function characterStreaks() {
+  const rows = sqlite
+    .prepare(
+      `SELECT m.played_at, m.self_role,
+              CASE WHEN m.self_role = 'killer' THEN m.killer_id ELSE sp.character_id END AS char_id,
+              CASE WHEN m.self_role = 'killer' THEN m.killer_name ELSE sp.character_name END AS char_name,
+              ${wonExpr('m')} AS won
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE m.outcome IS NOT 'canceled'
+       ORDER BY m.played_at DESC`,
+    )
+    .all()
+    .filter((r) => r.won != null && r.char_id);
+
+  const buckets = new Map(); // key: role|charId
+  for (const r of rows) {
+    const key = `${r.self_role}|${r.char_id}`;
+    if (!buckets.has(key)) {
+      buckets.set(key, {
+        characterId: r.char_id, characterName: r.char_name, role: r.self_role,
+        bools: [], matches: 0, lastPlayedAt: r.played_at,
+      });
+    }
+    const b = buckets.get(key);
+    b.bools.push(Boolean(r.won));
+    b.matches += 1;
+  }
+
+  const entries = [...buckets.values()].map((b) => {
+    const { bools, ...rest } = b;
+    return { ...rest, ...runStats(bools) };
+  });
+  const bySide = (role) =>
+    entries.filter((e) => e.role === role).sort((a, b) => b.best - a.best || b.matches - a.matches);
+
+  const killers = bySide('killer');
+  const survivors = bySide('survivor');
+  const topOf = (arr) => arr.slice().sort((a, b) => b.best - a.best)[0] ?? null;
+
+  return {
+    killers,
+    survivors,
+    records: {
+      killer: topOf(killers),
+      survivor: topOf(survivors),
+      overall: [topOf(killers), topOf(survivors)].filter(Boolean).sort((a, b) => b.best - a.best)[0] ?? null,
+    },
+  };
+}
+
+/**
+ * Group matches into play sessions — a gap larger than `gapMinutes` starts a new one.
+ * Newest session first.
+ */
+export function sessions({ gapMinutes = 45 } = {}) {
+  const rows = sqlite
+    .prepare(
+      `SELECT match_id, played_at, self_role, self_bloodpoints,
+              ${WON_EXPR} AS won
+       FROM matches
+       ORDER BY played_at ASC`,
+    )
+    .all();
+
+  const gap = gapMinutes * 60_000;
+  const out = [];
+  let cur = null;
+  for (const r of rows) {
+    if (!cur || r.played_at - cur.end > gap) {
+      cur = { start: r.played_at, end: r.played_at, count: 0, wins: 0, losses: 0,
+              bp: 0, roles: new Set(), bools: [], matchIds: [] };
+      out.push(cur);
+    }
+    cur.end = r.played_at;
+    cur.count += 1;
+    cur.bp += r.self_bloodpoints ?? 0;
+    cur.roles.add(r.self_role);
+    cur.matchIds.push(r.match_id);
+    if (r.won != null) {
+      cur.bools.push(Boolean(r.won));
+      if (r.won) cur.wins += 1; else cur.losses += 1;
+    }
+  }
+
+  return out
+    .map((s) => ({
+      start: s.start, end: s.end, durationMinutes: Math.round((s.end - s.start) / 60_000),
+      count: s.count, wins: s.wins, losses: s.losses, bp: s.bp,
+      roles: [...s.roles],
+      bestStreak: runStats(s.bools.slice().reverse()).best,
+      matchIds: s.matchIds,
+    }))
+    .reverse();
+}
+
+/** One week's aggregate vs the prior week. offset 0 = the last 7 days. */
+function weekAgg(offset) {
+  const now = Date.now();
+  const hi = now - offset * 7 * 86_400_000;
+  const lo = hi - 7 * 86_400_000;
+
+  const rows = sqlite
+    .prepare(
+      `SELECT m.played_at, m.self_role, m.self_bloodpoints, m.killer_id, m.killer_name,
+              ${wonExpr('m')} AS won,
+              sp.perks AS self_perks, sp.character_name AS self_char
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE m.played_at >= :lo AND m.played_at < :hi AND m.outcome IS NOT 'canceled'
+       ORDER BY m.played_at DESC`,
+    )
+    .all({ lo, hi });
+
+  const decided = rows.filter((r) => r.won != null);
+  const wins = decided.filter((r) => r.won).length;
+  const bp = rows.reduce((a, r) => a + (r.self_bloodpoints ?? 0), 0);
+
+  const count = (fn) => {
+    const m = new Map();
+    for (const r of rows) { const k = fn(r); if (k) m.set(k, (m.get(k) ?? 0) + 1); }
+    return [...m.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  };
+  const perkTally = new Map();
+  for (const r of rows) {
+    for (const p of safeJson(r.self_perks, [])) {
+      if (p?.name) perkTally.set(p.name, (perkTally.get(p.name) ?? 0) + 1);
+    }
+  }
+
+  return {
+    from: lo, to: hi,
+    matches: rows.length,
+    wins, losses: decided.length - wins,
+    winRate: decided.length ? wins / decided.length : null,
+    bp, avgBp: rows.length ? Math.round(bp / rows.length) : 0,
+    bestStreak: runStats(decided.map((r) => Boolean(r.won))).best,
+    mostPlayedKiller: count((r) => (r.self_role === 'killer' ? r.self_char : null)),
+    mostFacedKiller: count((r) => (r.self_role === 'survivor' ? r.killer_name : null)),
+    topPerk: [...perkTally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null,
+  };
+}
+
+export function recap({ offset = 0 } = {}) {
+  const cur = weekAgg(offset);
+  const prev = weekAgg(offset + 1);
+  const delta = {};
+  for (const k of ['matches', 'wins', 'winRate', 'bp', 'avgBp', 'bestStreak']) {
+    if (cur[k] != null && prev[k] != null) delta[k] = cur[k] - prev[k];
+  }
+  return { offset, current: cur, previous: prev, delta };
+}
+
+/** Usage-vs-performance points for a scatter chart. */
+export function scatter({ dimension = 'my-killers' } = {}) {
+  switch (dimension) {
+    case 'vs-killers':
+      return killerAnalytics().map((r) => ({ id: r.killerId, name: r.killerName, uses: r.matches, rate: r.escapeRate, role: 'survivor' }));
+    case 'my-killers':
+      return selfKillerAnalytics().map((r) => ({ id: r.killerId, name: r.killerName, uses: r.matches, rate: r.winRate, role: 'killer' }));
+    case 'builds':
+      return buildAnalytics({ minMatches: 1 }).map((r) => ({ id: r.perkId, name: r.perkName, uses: r.matches, rate: r.escapeRate }));
+    case 'maps':
+      return mapAnalytics().map((r) => ({ id: `${r.mapId}:${r.role}`, name: r.mapName ?? r.mapId, uses: r.matches, rate: r.role === 'survivor' ? r.escapeRate : r.killerWinRate, role: r.role }));
+    case 'offerings':
+      return offeringAnalytics({ minMatches: 1 }).map((r) => ({ id: r.offeringId, name: r.offeringName, uses: r.matches, rate: r.rate, role: r.role }));
+    default:
+      return [];
+  }
 }
 
 // ------------------------------------------------------------------------ meta

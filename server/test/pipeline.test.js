@@ -3,7 +3,10 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { ingestPayload } from '../src/ingest-pipeline.js';
 import { getMatch } from '../src/repository.js';
-import { summary, listMatches, buildAnalytics, streaks, recentForm, scoreProfile } from '../src/analytics.js';
+import {
+  summary, listMatches, buildAnalytics, streaks, recentForm, scoreProfile,
+  characterStreaks, sessions, recap, scatter,
+} from '../src/analytics.js';
 
 const fixture = readFileSync(
   fileURLToPath(new URL('./fixtures/match-history.sample.json', import.meta.url)),
@@ -63,5 +66,37 @@ describe('ingest pipeline end-to-end (temp SQLite)', () => {
     const sp = scoreProfile();
     expect(sp.survivor.some((c) => c.label === 'Boldness' && c.avg > 0)).toBe(true);
     expect(sp.killer.some((c) => ['Hunting', 'Brutality', 'Sacrifice'].includes(c.label))).toBe(true);
+  });
+
+  it('buckets per-character streaks by role + character', () => {
+    const cs = characterStreaks();
+    // fixture: 1 killer match as The Shape, 2 survivor as David King (1 esc, 1 surrender_loss)
+    expect(cs.killers.some((k) => k.characterName === 'The Shape')).toBe(true);
+    const david = cs.survivors.find((s) => s.characterName === 'David King');
+    expect(david?.matches).toBe(2);
+    for (const e of [...cs.killers, ...cs.survivors]) {
+      expect(e.best).toBeGreaterThanOrEqual(0);
+      expect(e.current).toBeLessThanOrEqual(e.matches);
+    }
+    expect(cs.records.overall).toBeTruthy();
+  });
+
+  it('groups matches into sessions and reshapes scatter data', () => {
+    const s = sessions({ gapMinutes: 45 });
+    expect(s.length).toBeGreaterThanOrEqual(1);
+    expect(s.reduce((a, x) => a + x.count, 0)).toBe(4); // every match lands in a session
+    expect(s[0].end).toBeGreaterThanOrEqual(s.at(-1).start); // newest-first
+
+    const pts = scatter({ dimension: 'my-killers' });
+    expect(Array.isArray(pts)).toBe(true);
+    expect(pts.every((p) => 'uses' in p && 'rate' in p)).toBe(true);
+  });
+
+  it('recap returns current + previous week windows with deltas', () => {
+    const r = recap({ offset: 0 });
+    expect(r.current).toHaveProperty('matches');
+    expect(r.current).toHaveProperty('winRate');
+    expect(r.previous.to).toBe(r.current.from); // contiguous windows
+    expect(typeof r.delta).toBe('object');
   });
 });

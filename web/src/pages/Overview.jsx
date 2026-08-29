@@ -5,6 +5,7 @@ import { api, pct, num, hrs, QUALITY_COLORS, QUALITY_ORDER } from '../api.js';
 import StackedBar from '../charts/StackedBar.jsx';
 import StreakBadge from '../components/StreakBadge.jsx';
 import FormStrip from '../components/FormStrip.jsx';
+import RecapCard from '../components/RecapCard.jsx';
 
 function Tile({ k, v, sub, neg }) {
   return (
@@ -47,6 +48,10 @@ export default function Overview() {
     <>
       <h2>Overview</h2>
 
+      <div style={{ marginBottom: 14 }}>
+        <RecapCard />
+      </div>
+
       {/* --- streaks + recent form --- */}
       {streak.data && (
         <div className="streak-row" style={{ marginBottom: 14 }}>
@@ -56,6 +61,7 @@ export default function Overview() {
           <div className="streak-badge" style={{ flex: '2 1 260px' }}>
             <div className="streak-label">
               Recent form{form.data ? ` · ${form.data.wins}–${form.data.losses} (last ${form.data.matches.length})` : ''}
+              {' '}<Link to="/streaks" className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>see all →</Link>
             </div>
             <div style={{ marginTop: 10 }}>
               <FormStrip matches={form.data?.matches ?? []} />

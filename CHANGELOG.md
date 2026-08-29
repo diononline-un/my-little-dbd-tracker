@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-08-29 — Official-style match cards, inline expand, per-character streaks, recap, sessions, scatter
+
+Informed by community research (NightLight.gg, the dedicated DBD-Winstreak-Tracker,
+improvement guides) — streaks and the usage-vs-performance scatter are the most-wanted
+unofficial-tracker features.
+
+- **Match cards rebuilt to the `stats.deadbydaylight.com` layout**: ornate CSS
+  portrait frame + outcome badge, diamond-framed perks, a middle column with the 4
+  opponents (portrait + BP + role icon, killer tile red-tinted), empty add-on slots as
+  placeholders, hairline column dividers, map thumbnail. `/api/matches` now returns an
+  `opponents` array per row.
+- **Inline expand**: clicking a card unfolds the full 5-player tally in place; the
+  sectioned body is a shared `MatchDetailBody` component reused by the `/matches/:id`
+  page. "open full page ↗" deep-links.
+- **Per-character win streaks** — new `/streaks` page: overall/role records, a streak
+  leaderboard (best + current per killer / per survivor), "on fire" callouts.
+  `/api/insights/character-streaks`.
+- **Weekly Recap** card on the Overview — matches, W/L, win rate, best streak, BP,
+  most-played / most-faced killer, top perk, each with a week-over-week delta
+  (▲ green / ▼ red — red only for a worse number). `/api/insights/recap?offset=`.
+- **Session tracking** — matches grouped into play sessions (>45 min gap = new one),
+  shown on Insights. `/api/insights/sessions`.
+- **Usage-vs-performance scatter** (NightLight's signature chart) on Insights — X =
+  matches played/faced, Y = your rate, median quadrant guides. Dimensions: my killers,
+  vs killers, perks, maps, offerings. `/api/insights/scatter?dimension=`.
+- Nav: added Streaks. Backlog (deferred): OBS overlay, match-sharing links, MMR/grade
+  proxy (BHVR doesn't expose it), 4-perk build combos, custom streak goals.
+
 ## 2026-08-29 — Streaks, Insights page, more charts
 
 - **API surface confirmed complete**: match-history (last 50, full detail) + career
