@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-29 — Recent-form strip reads newest-first
+
+- The **Recent form** strip on the Overview now runs **newest → oldest, left to
+  right**, with `now` / `older` end labels — it previously ran oldest→newest with no
+  labels, so an old cluster of wins on the left looked like recent form.
+- No logic change: a survivor "win" is still exactly `VE_Escaped`; `VE_SurrenderLoss`,
+  `VE_Killed`, `VE_Sacrificed` and DCs all count as losses. Verified against raw
+  payloads — the wins shown were all genuine hatch/gate escapes.
+
 ## 2026-08-29 — Overview is a recent-matches feed
 
 - The Overview now leads with the **last 4 matches in full** (the same detail cards
