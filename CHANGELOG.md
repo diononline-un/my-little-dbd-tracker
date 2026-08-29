@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-29 — Role badge, killer pinned top-right, bigger teammate tiles
+
+- **Role badge** (Survivor / Killer, colour-coded) next to the character name — the
+  match role is obvious at a glance.
+- **Killer pinned to the last opponent tile** (top-right on the card); the three
+  survivor tiles are sorted by score among themselves. Section label:
+  "Your team & killer" / "Survivors".
+- **Bigger teammate tiles** — 28px perk icons, 13px bold score, full-label score
+  categories — so you can read what your team ran without opening the match.
+
 ## 2026-08-29 — Fixed category order, k-rounding, players by score, portrait-only result
 
 - **Score categories always render in the same order** (Objectives · Altruism ·

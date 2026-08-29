@@ -298,27 +298,39 @@ input, select {
 .match-meta .dur { font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 600; color: var(--text-bright); letter-spacing: -0.01em; }
 .match-meta .map { color: var(--text); font-size: 12.5px; margin: 3px 0; }
 
-/* opponents — full-width grid of four generous tiles */
-.match-opps-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-  margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);
+/* role badge on the card */
+.role-badge {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 4px; margin-right: 8px;
+  vertical-align: middle;
 }
+.role-badge.survivor { background: rgba(57, 135, 229, 0.18); color: #7fb4f0; border: 1px solid rgba(57,135,229,0.4); }
+.role-badge.killer   { background: rgba(139, 0, 0, 0.28);   color: #f08a8a; border: 1px solid rgba(139,0,0,0.6); }
+
+/* opponents — full-width grid of four generous tiles, killer pinned last (top-right) */
+.match-opps { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.match-opps-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--text-dim); margin-bottom: 9px;
+}
+.match-opps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .opp-tile {
-  border: 1px solid var(--border); border-radius: 8px; padding: 10px 11px;
-  background: linear-gradient(180deg, #151515, #0e0e0e);
+  border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px;
+  background: linear-gradient(180deg, #161616, #0e0e0e);
 }
 .opp-killer {
-  border-color: rgba(139,0,0,0.55);
-  background: linear-gradient(157deg, rgba(139,0,0,0.3), rgba(30,6,6,0.14));
+  border-color: rgba(139,0,0,0.6);
+  background: linear-gradient(157deg, rgba(139,0,0,0.32), rgba(30,6,6,0.15));
 }
-.opp-tile-head { display: flex; gap: 9px; align-items: center; }
-.opp-name { font-size: 13px; color: var(--text-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.opp-nums { font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; margin-top: 1px; }
-.opp-nums strong { color: var(--text); font-size: 12px; }
+.opp-tile-head { display: flex; gap: 10px; align-items: center; }
+.opp-name { font-size: 13.5px; color: var(--text-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opp-nums { font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.opp-nums strong { color: var(--text-bright); font-size: 13px; }
 .opp-tag { font-size: 9px; letter-spacing: 0.03em; color: #ee7a7a; text-transform: uppercase; white-space: nowrap; }
-.opp-perks { display: flex; gap: 5px; margin-top: 9px; }
-.opp-perks .game-icon, .opp-perks .game-icon-fallback { width: 22px; height: 22px; }
-.opp-perk-empty { width: 22px; height: 22px; border-radius: 3px; background: #0c0c0c; border: 1px solid var(--border); display: inline-block; }
+.opp-perks { display: flex; gap: 6px; margin-top: 10px; }
+.opp-perks .game-icon, .opp-perks .game-icon-fallback { width: 28px; height: 28px; }
+.opp-perk-empty { width: 28px; height: 28px; border-radius: 4px; background: #0c0c0c; border: 1px solid var(--border); display: inline-block; }
+.opp-tile .score-line { margin-top: 9px; font-size: 11px; gap: 3px 10px; }
 
 .emblem-score { text-transform: none; letter-spacing: 0; color: var(--text-dim); font-size: 10px; }
 

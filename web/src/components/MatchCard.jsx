@@ -81,7 +81,7 @@ function OppTile({ o }) {
     <div className={`opp-tile${isKiller ? ' opp-killer' : ''}`}>
       <div className="opp-tile-head">
         <PlayerPortrait characterId={o.character_id} role={o.role} name={o.character_name}
-          status={isKiller ? null : o.status} size={40} />
+          status={isKiller ? null : o.status} size={44} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="opp-name">
             {o.character_name ?? o.character_id ?? '—'}
@@ -99,11 +99,11 @@ function OppTile({ o }) {
       <div className="opp-perks">
         {[0, 1, 2, 3].map((j) =>
           perks[j]
-            ? <GameIcon key={j} src={perkIcon(perks[j].id)} alt={perks[j].name} title={perks[j].name} size={20} rounded={3} />
+            ? <GameIcon key={j} src={perkIcon(perks[j].id)} alt={perks[j].name} title={perks[j].name} size={28} rounded={4} />
             : <span key={j} className="opp-perk-empty" />,
         )}
       </div>
-      <ScoreLine post={o.post_game_stat} compact />
+      <ScoreLine post={o.post_game_stat} />
     </div>
   );
 }
@@ -156,6 +156,9 @@ export default function MatchCard({ m, avg }) {
 
           <div className="match-body">
             <div className="match-name">
+              <span className={`role-badge ${isKiller ? 'killer' : 'survivor'}`}>
+                {isKiller ? 'Killer' : 'Survivor'}
+              </span>
               {self.character_name ?? (isKiller ? m.killer_name : '—')}
               {self.prestige ? <span className="muted" style={{ fontWeight: 400 }}> · P{self.prestige}</span> : null}
               {m.deathPosition && m.deathPosition !== 'survived' && (
@@ -197,8 +200,11 @@ export default function MatchCard({ m, avg }) {
         </div>
 
         {m.opponents?.length > 0 && (
-          <div className="match-opps-grid">
-            {m.opponents.map((o, i) => <OppTile key={i} o={o} />)}
+          <div className="match-opps">
+            <div className="match-opps-label">{isKiller ? 'Survivors' : 'Your team & killer'}</div>
+            <div className="match-opps-grid">
+              {m.opponents.map((o, i) => <OppTile key={i} o={o} />)}
+            </div>
           </div>
         )}
       </div>

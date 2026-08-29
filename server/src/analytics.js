@@ -194,8 +194,11 @@ export function listMatches(filters = {}) {
 const pts = (p) => p?.leaderboardScore ?? p?.bloodpoints ?? -1;
 
 function hydrateMatchRow(r, self, opponents = [], vsKiller = {}) {
-  // highest score first
-  const ordered = [...opponents].sort((a, b) => pts(b) - pts(a));
+  // survivors by score (highest first), then the killer pinned last (top-right on the card)
+  const ordered = [
+    ...opponents.filter((p) => p.role === 'survivor').sort((a, b) => pts(b) - pts(a)),
+    ...opponents.filter((p) => p.role === 'killer'),
+  ];
 
   // where you fell among the survivors (by time in match) — survivor games only
   let deathPosition = null;
