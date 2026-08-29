@@ -50,4 +50,25 @@ describe('normalize (real BHVR fixture)', () => {
     expect(killer.status).toBe('dc');
     expect(killer.bloodpoints).toBe(0);
   });
+
+  it('treats a surrender_draw as neutral — not an escape', () => {
+    const raw = {
+      matchStat: {
+        matchStartTime: 1799999999, matchDuration: 300,
+        map: { id: 'Map_X', name: 'Map X' }, gameType: { id: 'None' },
+      },
+      playerStat: {
+        playerRole: 'VE_Camper',
+        playerStatus: { id: 'VE_SurrenderDraw', name: 'ESCAPED' },
+        characterName: { id: 'Meg', name: 'Meg Thomas' },
+      },
+      opponentStat: [
+        { playerRole: 'VE_Slasher', characterName: { id: 'Trapper', name: 'The Trapper' },
+          killerMatchStatus: 'BRUTAL KILLER' },
+      ],
+    };
+    const [{ match }] = normalize(raw);
+    expect(match.outcome).toBe('surrender_draw');
+    expect(match.selfEscaped).toBeNull();
+  });
 });

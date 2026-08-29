@@ -4,7 +4,7 @@ progress: 90
 version: "0.0.1"
 tags: [node, fastify, node-sqlite, react, vite, mv3-extension, docker, dead-by-daylight, stats, reverse-engineering]
 scope: "Self-hosted DBD match tracker: MV3 extension polls the official BHVR match-history + career-stats APIs (OAuth bearer, no OCR), Node backend stores raw payloads immutably + runs the Entity Corrector anomaly pipeline + daily career snapshots, React dashboard with match history, career overview, trend charts and archetype/build/map analytics. Docker-first, Postgres-swappable."
-last_updated: "2026-08-29"
+last_updated: "2026-08-30"
 next_steps:
   - Verify POST /sso/token refresh RESPONSE body shape against a live token expiry (request shape confirmed: JSON {grant_type, client_id, refresh_token}); client handles both {authToken,...} and OAuth {access_token,...}
   - Trends page needs 2+ daily career snapshots before line charts draw (BHVR updates ~daily)

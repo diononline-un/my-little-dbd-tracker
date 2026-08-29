@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SURVIVOR_DOWNED } from './outcomes.js';
 
 /**
  * Game art from BHVR's public asset CDN. Every `image.path` in a match payload is
@@ -75,7 +76,7 @@ export function GameIcon({ src, alt = '', size = 28, w, h, rounded = 6, title, c
   );
 }
 
-const DOWNED = new Set(['died', 'sacrificed', 'dc', 'ragequit', 'surrender_loss']);
+const DOWNED = SURVIVOR_DOWNED;
 
 /**
  * Character portrait with the in-game result symbol centred over it: escape gate

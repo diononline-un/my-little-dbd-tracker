@@ -6,9 +6,8 @@ import {
   GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, veIcon,
 } from '../icons.jsx';
 import MatchDetailBody from './MatchDetailBody.jsx';
+import { SURVIVOR_ESCAPED as GOOD, SURVIVOR_DOWNED as BAD } from '../outcomes.js';
 
-const GOOD = new Set(['escaped', 'surrender_draw']);
-const BAD = new Set(['died', 'sacrificed', 'dc', 'ragequit', 'surrender_loss']);
 const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
 const CAT_SHORT = (k) => CAT_LABEL(k).slice(0, 3);
 const score = (p) => p?.leaderboardScore ?? null;
@@ -122,7 +121,7 @@ export default function MatchCard({ m, avg }) {
     ? (m.self_kills != null ? `${m.self_kills} / 4 kills` : (m.self_grade ?? 'killer').replace(' KILLER', ''))
     : (GOOD.has(m.outcome) ? 'Escaped' : (m.outcome ?? '').replace('_', ' '));
   const bigScore = score(self) ?? m.self_bloodpoints;
-  const selfDowned = !isKiller && ['died', 'sacrificed', 'dc', 'ragequit'].includes(m.outcome);
+  const selfDowned = !isKiller && BAD.has(m.outcome);
   const selfStatus = isKiller ? null : m.outcome;
 
   const scoreDelta = avg && bigScore != null ? bigScore - avg : null;

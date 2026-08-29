@@ -1,15 +1,18 @@
 /**
  * Read-side analytics. Raw SQL against the sqlite handle — group-bys and JSON
- * extraction are clearer here than through the ORM. Everything that computes a
- * rate excludes canceled matches (outcome = 'canceled').
+ * extraction are clearer here than through the ORM.
  *
- * "Win" definitions:
- *   survivor  -> self_escaped = 1  (escape, incl. surrender-draw)
- *   killer    -> self_kills >= 3   (2+ hooks convention: 3K/4K = win)
+ * The "win" definition and the decided/neutral split live in
+ * reference/outcomes.js and are pulled in as `WON_EXPR` / `DECIDED` below, so a
+ * win means exactly the same thing here, in the normalizer and on the web.
+ * Neutral outcomes ('canceled', 'surrender_draw') are excluded from every rate.
  */
 import { db as sqlite } from './db/index.js';
+import { decidedWhere, wonSql } from './reference/outcomes.js';
 
-const NOT_CANCELED = `outcome IS NOT 'canceled'`;
+const DECIDED = decidedWhere();
+const WON_EXPR = wonSql();
+const decidedFor = (alias) => decidedWhere(alias);
 
 export function summary() {
   const row = sqlite
@@ -30,7 +33,7 @@ export function summary() {
       `SELECT
          COUNT(*) AS n,
          SUM(CASE WHEN self_escaped THEN 1 ELSE 0 END) AS escapes
-       FROM matches WHERE self_role = 'survivor' AND ${NOT_CANCELED}`,
+       FROM matches WHERE self_role = 'survivor' AND ${DECIDED}`,
     )
     .get();
 
@@ -40,7 +43,7 @@ export function summary() {
          COUNT(*) AS n,
          SUM(CASE WHEN self_kills >= 3 THEN 1 ELSE 0 END) AS wins,
          AVG(self_kills) AS avg_kills
-       FROM matches WHERE self_role = 'killer' AND ${NOT_CANCELED}`,
+       FROM matches WHERE self_role = 'killer' AND ${DECIDED}`,
     )
     .get();
 
@@ -162,7 +165,7 @@ export function listMatches(filters = {}) {
   for (const k of sqlite
     .prepare(
       `SELECT killer_id, COUNT(*) AS faced, SUM(CASE WHEN self_escaped THEN 1 ELSE 0 END) AS escapes
-       FROM matches WHERE self_role = 'survivor' AND ${NOT_CANCELED} AND killer_id IS NOT NULL
+       FROM matches WHERE self_role = 'survivor' AND ${DECIDED} AND killer_id IS NOT NULL
        GROUP BY killer_id`,
     )
     .all()) {
@@ -173,7 +176,7 @@ export function listMatches(filters = {}) {
     .prepare(
       `SELECT m.self_role AS role, AVG(sp.leaderboard_score) AS avg
        FROM matches m JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
-       WHERE m.${NOT_CANCELED} AND sp.leaderboard_score IS NOT NULL
+       WHERE ${decidedFor('m')} AND sp.leaderboard_score IS NOT NULL
        GROUP BY m.self_role`,
     )
     .all()) {
@@ -244,7 +247,7 @@ export { emblemSum };
  */
 export function killerAnalytics({ mapId, selfPerkId } = {}) {
   const joins = [];
-  const where = [`m.self_role = 'survivor'`, `m.${NOT_CANCELED}`];
+  const where = [`m.self_role = 'survivor'`, `${decidedFor('m')}`];
   const params = {};
   if (mapId) { where.push('m.map_id = :mapId'); params.mapId = mapId; }
   if (selfPerkId) {
@@ -287,7 +290,7 @@ export function buildAnalytics({ minMatches = 3 } = {}) {
        FROM matches m
        JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
        JOIN json_each(sp.perks) je
-       WHERE m.self_role = 'survivor' AND m.${NOT_CANCELED}
+       WHERE m.self_role = 'survivor' AND ${decidedFor('m')}
        GROUP BY perk_id
        HAVING matches >= :minMatches
        ORDER BY escapes * 1.0 / matches DESC`,
@@ -307,7 +310,7 @@ export function buildAnalytics({ minMatches = 3 } = {}) {
  * rate and avg kills. Canceled matches excluded.
  */
 export function mapAnalytics({ role } = {}) {
-  const where = [`m.${NOT_CANCELED}`, 'm.map_id IS NOT NULL'];
+  const where = [`${decidedFor('m')}`, 'm.map_id IS NOT NULL'];
   const params = {};
   if (role) { where.push('m.self_role = :role'); params.role = role; }
   return sqlite
@@ -346,7 +349,7 @@ export function selfKillerAnalytics() {
               AVG(self_kills) AS avg_kills,
               AVG(self_bloodpoints) AS avg_bp
        FROM matches
-       WHERE self_role = 'killer' AND ${NOT_CANCELED} AND killer_id IS NOT NULL
+       WHERE self_role = 'killer' AND ${DECIDED} AND killer_id IS NOT NULL
        GROUP BY killer_id
        ORDER BY matches DESC`,
     )
@@ -371,7 +374,7 @@ export function offeringAnalytics({ minMatches = 3 } = {}) {
               SUM(CASE WHEN m.self_kills >= 3 THEN 1 ELSE 0 END) AS wins
        FROM matches m
        JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
-       WHERE m.${NOT_CANCELED} AND sp.offering_id IS NOT NULL
+       WHERE ${decidedFor('m')} AND sp.offering_id IS NOT NULL
        GROUP BY sp.offering_id, m.self_role
        HAVING matches >= :minMatches
        ORDER BY matches DESC`,
@@ -403,7 +406,7 @@ export function perkPairAnalytics({ minMatches = 3 } = {}) {
        JOIN json_each(sp.perks) a
        JOIN json_each(sp.perks) b
          ON json_extract(a.value, '$.id') < json_extract(b.value, '$.id')
-       WHERE m.self_role = 'survivor' AND m.${NOT_CANCELED}
+       WHERE m.self_role = 'survivor' AND ${decidedFor('m')}
        GROUP BY perk_a_id, perk_b_id
        HAVING matches >= :minMatches
        ORDER BY escapes * 1.0 / matches DESC, matches DESC`,
@@ -422,23 +425,12 @@ export function perkPairAnalytics({ minMatches = 3 } = {}) {
 
 // --------------------------------------------------------------- streaks / form
 
-/** A match "won" from the self perspective (canceled matches are neutral, skipped). */
-const wonExpr = (t = '') => {
-  const p = t ? `${t}.` : '';
-  return `CASE
-    WHEN ${p}outcome = 'canceled' THEN NULL
-    WHEN ${p}self_role = 'survivor' THEN (${p}self_escaped = 1)
-    WHEN ${p}self_role = 'killer'   THEN (${p}self_kills >= 3)
-    ELSE NULL END`;
-};
-const WON_EXPR = wonExpr();
-
 function streakFor(where = '1=1') {
   const rows = sqlite
     .prepare(
       `SELECT ${WON_EXPR} AS won, played_at
        FROM matches
-       WHERE outcome IS NOT 'canceled' AND ${where}
+       WHERE ${DECIDED} AND ${where}
        ORDER BY played_at DESC`,
     )
     .all()
@@ -483,17 +475,19 @@ export function streaks() {
 
 /** Last N decided matches, newest first — for a W/L strip + rolling rate. */
 export function recentForm({ limit = 20 } = {}) {
+  // filter to decided matches BEFORE the limit, so "last 20" is really 20
   const rows = sqlite
     .prepare(
-      `SELECT match_id, played_at, self_role, outcome, killer_name, map_name,
-              ${WON_EXPR} AS won
-       FROM matches
-       WHERE outcome IS NOT 'canceled'
+      `SELECT * FROM (
+         SELECT match_id, played_at, self_role, outcome, killer_name, map_name,
+                ${WON_EXPR} AS won
+         FROM matches WHERE ${DECIDED}
+       )
+       WHERE won IS NOT NULL
        ORDER BY played_at DESC
        LIMIT :limit`,
     )
     .all({ limit })
-    .filter((r) => r.won != null)
     .map((r) => ({ ...r, won: Boolean(r.won) }));
 
   const wins = rows.filter((r) => r.won).length;
@@ -526,10 +520,10 @@ export function characterStreaks() {
       `SELECT m.played_at, m.self_role,
               CASE WHEN m.self_role = 'killer' THEN m.killer_id ELSE sp.character_id END AS char_id,
               CASE WHEN m.self_role = 'killer' THEN m.killer_name ELSE sp.character_name END AS char_name,
-              ${wonExpr('m')} AS won
+              ${wonSql('m')} AS won
        FROM matches m
        JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
-       WHERE m.outcome IS NOT 'canceled'
+       WHERE ${decidedFor('m')}
        ORDER BY m.played_at DESC`,
     )
     .all()
@@ -624,11 +618,11 @@ function weekAgg(offset, now = Date.now()) {
   const rows = sqlite
     .prepare(
       `SELECT m.played_at, m.self_role, m.self_bloodpoints, m.killer_id, m.killer_name,
-              ${wonExpr('m')} AS won,
+              ${wonSql('m')} AS won,
               sp.perks AS self_perks, sp.character_name AS self_char
        FROM matches m
        JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
-       WHERE m.played_at >= :lo AND m.played_at < :hi AND m.outcome IS NOT 'canceled'
+       WHERE m.played_at >= :lo AND m.played_at < :hi AND ${decidedFor('m')}
        ORDER BY m.played_at DESC`,
     )
     .all({ lo, hi });
@@ -683,11 +677,11 @@ export function history({ rollingN = 15 } = {}) {
   const rows = sqlite
     .prepare(
       `SELECT m.played_at, m.self_role, m.self_bloodpoints,
-              ${wonExpr('m')} AS won,
+              ${wonSql('m')} AS won,
               sp.emblems AS emblems
        FROM matches m
        JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
-       WHERE m.outcome IS NOT 'canceled'
+       WHERE ${decidedFor('m')}
        ORDER BY m.played_at ASC`,
     )
     .all();
@@ -749,7 +743,7 @@ export function killerMeta() {
               COUNT(*) AS faced,
               SUM(CASE WHEN self_escaped THEN 1 ELSE 0 END) AS escapes
        FROM matches
-       WHERE self_role = 'survivor' AND ${NOT_CANCELED} AND killer_id IS NOT NULL
+       WHERE self_role = 'survivor' AND ${DECIDED} AND killer_id IS NOT NULL
        GROUP BY killer_id
        ORDER BY faced DESC`,
     )
@@ -774,7 +768,7 @@ export function opponentPerkMeta({ role = 'survivor', limit = 20 } = {}) {
        JOIN match_players op
          ON op.match_id = m.match_id AND op.is_self = 0 AND op.role = :role
        JOIN json_each(op.perks) je
-       WHERE m.${NOT_CANCELED}
+       WHERE ${decidedFor('m')}
        GROUP BY perk_id
        ORDER BY uses DESC
        LIMIT :limit`,
@@ -807,7 +801,7 @@ export function scoreProfile() {
       `SELECT m.self_role, sp.post_game_stat
        FROM matches m
        JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
-       WHERE m.${NOT_CANCELED} AND sp.post_game_stat IS NOT NULL`,
+       WHERE ${decidedFor('m')} AND sp.post_game_stat IS NOT NULL`,
     )
     .all();
 
@@ -845,7 +839,7 @@ export function teammateAnalytics({ minMatches = 3 } = {}) {
        JOIN match_players tp
          ON tp.match_id = m.match_id AND tp.is_self = 0 AND tp.role = 'survivor'
        JOIN json_each(tp.perks) je
-       WHERE m.self_role = 'survivor' AND m.${NOT_CANCELED}
+       WHERE m.self_role = 'survivor' AND ${decidedFor('m')}
        GROUP BY perk_id
        HAVING matches >= :minMatches
        ORDER BY matches DESC`,

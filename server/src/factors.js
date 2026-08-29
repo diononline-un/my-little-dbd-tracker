@@ -7,9 +7,7 @@
  * "likely factors", never "why you lost".
  */
 import { tagPerks, isStrongKiller } from './reference/index.js';
-
-const DEAD = new Set(['died', 'sacrificed']);
-const LEFT = new Set(['dc', 'ragequit']);
+import { SURVIVOR_KILLED as DEAD, LEFT_EARLY as LEFT, KILLER_WIN_KILLS } from './reference/outcomes.js';
 const catVal = (p, key) => Number(p.post_game_stat?.[key] ?? 0);
 
 export function analyzeMatch(m) {
@@ -22,7 +20,7 @@ export function analyzeMatch(m) {
   const survivors = m.players.filter((p) => p.role === 'survivor');
   const killer = m.players.find((p) => p.role === 'killer');
   const dur = m.duration_seconds ?? 0;
-  const won = isKiller ? (m.self_kills ?? 0) >= 3 : Boolean(m.self_escaped);
+  const won = isKiller ? (m.self_kills ?? 0) >= KILLER_WIN_KILLS : Boolean(m.self_escaped);
 
   const f = [];
   const add = (dir, weight, text) => f.push({ dir, weight, text }); // dir: 'for' | 'against' | 'neutral'

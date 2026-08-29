@@ -15,8 +15,7 @@ import {
   playerStatusFromApi,
   isKillerGrade,
 } from '../reference/index.js';
-
-const SURVIVOR_DEAD = new Set(['died', 'sacrificed']);
+import { SURVIVOR_KILLED, survivorEscaped } from '../reference/outcomes.js';
 
 /** synthetic match id — the payload has none; matchStartTime (unix s) is unique. */
 export function matchIdOf(raw) {
@@ -80,10 +79,10 @@ function normalizeOne(raw) {
   if (selfRole === 'killer') {
     selfGrade = self.killerGrade;
     outcome = self.status === 'dc' ? 'dc' : (selfGrade ?? null);
-    selfKills = survivors.filter((s) => SURVIVOR_DEAD.has(s.status)).length;
+    selfKills = survivors.filter((s) => SURVIVOR_KILLED.has(s.status)).length;
   } else if (selfRole === 'survivor') {
     outcome = self.status; // escaped | died | sacrificed | dc | surrender_loss | surrender_draw
-    selfEscaped = outcome === 'escaped' || outcome === 'surrender_draw';
+    selfEscaped = survivorEscaped(outcome); // true | false | null (surrender_draw = neutral)
   }
 
   const specialEventId =

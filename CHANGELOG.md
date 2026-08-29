@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-08-30 — One "win" definition, in one place
+
+- **`server/src/reference/outcomes.js`** is now the single source of truth for
+  what a survivor `outcome` means. The win rule, the downed/left/killed sets and
+  the decided-vs-neutral split were previously redeclared (slightly differently)
+  in `analytics.js`, `normalize/`, `factors.js`, `icons.jsx` and `MatchCard.jsx` —
+  they all import from `outcomes.js` (web side: `web/src/outcomes.js`) now.
+- **`surrender_draw` is neutral**, not a win. BHVR labels it "ESCAPED" and reuses
+  the loss icon for it, but it is a surrender vote, not a real escape — so it is
+  excluded from every rate, streak and the form strip, exactly like `canceled`.
+  `self_escaped` is `NULL` for those matches (was `1`).
+- **`recentForm` filters to decided matches *before* the limit**, so "last 20" is
+  really 20 even if a recent match was neutral.
+- New tests: `outcomes.test.js`, `factors.test.js` (the heuristic had none), plus
+  a `surrender_draw` case in `normalize.test.js`. 39 tests total.
+
 ## 2026-08-29 — Recent-form strip reads newest-first
 
 - The **Recent form** strip on the Overview now runs **newest → oldest, left to
