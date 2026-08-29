@@ -21,6 +21,13 @@ export const api = {
   perkPairs: (params = {}) => get(`/analytics/perk-pairs?${qs(params)}`),
   offerings: (params = {}) => get(`/analytics/offerings?${qs(params)}`),
   teammates: (params = {}) => get(`/analytics/teammates?${qs(params)}`),
+
+  streaks: () => get('/insights/streaks'),
+  form: (params = {}) => get(`/insights/form?${qs(params)}`),
+  scoreProfile: () => get('/insights/score-profile'),
+  activity: (params = {}) => get(`/insights/activity?${qs(params)}`),
+  killerMeta: () => get('/insights/killer-meta'),
+  opponentPerks: (params = {}) => get(`/insights/opponent-perks?${qs(params)}`),
 };
 
 export const pct = (r) => (r == null ? '—' : `${(r * 100).toFixed(1)}%`);

@@ -241,6 +241,35 @@ input, select {
 .match-emblems { display: flex; gap: 3px; margin-top: 8px; justify-content: flex-end; }
 .match-emblems img { width: 20px; height: 20px; }
 
+/* ---------- streaks + form ---------- */
+.streak-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.streak-badge {
+  flex: 1 1 150px; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;
+  background: linear-gradient(180deg, var(--panel), #0f0f0f); position: relative; overflow: hidden;
+}
+.streak-badge::before {
+  content: ""; position: absolute; inset: 0; opacity: 0.12; pointer-events: none;
+}
+.streak-badge.win::before { background: radial-gradient(120% 100% at 100% 0%, #2e7d32, transparent 70%); }
+.streak-badge.loss::before { background: radial-gradient(120% 100% at 100% 0%, var(--blood-bright), transparent 70%); }
+.streak-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-dim); }
+.streak-value { font-size: 30px; font-weight: 650; color: var(--text-bright); margin-top: 4px; line-height: 1; font-variant-numeric: tabular-nums; }
+.streak-badge.loss .streak-value { color: var(--blood-bright); }
+.streak-unit { font-size: 14px; margin-left: 3px; color: var(--text-dim); }
+.streak-sub { font-size: 11px; margin-top: 6px; }
+
+.form-strip { display: flex; gap: 4px; flex-wrap: wrap; }
+.form-dot {
+  width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; border: 1px solid var(--border);
+}
+.form-dot.w { background: rgba(46, 125, 50, 0.22); color: #7dc47d; border-color: rgba(46, 125, 50, 0.4); }
+.form-dot.l { background: rgba(139, 0, 0, 0.22); color: #e88; border-color: var(--blood); }
+.form-dot:hover { filter: brightness(1.3); }
+
+.viz-radar { transform-origin: center; animation: radar-in 0.5s var(--ease) both; }
+@keyframes radar-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+
 /* ---------- match detail grid ---------- */
 .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
 .detail-grid > .panel-block { margin-top: 0; }
@@ -281,8 +310,9 @@ input, select {
 .viz-dot { animation: pop 0.3s var(--ease) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, .anim-rise, .stagger > *, .bar > span, .viz-line, .viz-dot, .game-icon, .game-icon-fallback {
+  *, .anim-rise, .stagger > *, .bar > span, .viz-line, .viz-dot, .viz-radar,
+  .game-icon, .game-icon-fallback {
     animation: none !important; transition: none !important;
-    stroke-dashoffset: 0 !important; opacity: 1 !important;
+    stroke-dashoffset: 0 !important; opacity: 1 !important; transform: none !important;
   }
 }

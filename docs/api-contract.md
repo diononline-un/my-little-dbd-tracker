@@ -210,6 +210,20 @@ Linked provider accounts: `[ { provider, status, createdAt, updatedAt }, ... ]`.
 
 Feature flags (`{ "communityStats": true }`) and marketing campaigns. No analytics value.
 
+### Endpoints that do NOT exist
+
+The SPA bundle references `/community-stats` and `/community-stats/games/dbd/match-categories/`
+but they 404 (feature not shipped). Probing found no `/leaderboards`, `/player-stats/events`,
+`/player-stats/challenges`, `/player-stats/rift`, `/player-stats/summary`, per-character or
+per-perk stat endpoints, and no `v2` match-history. `offset` / `page` / `character_id` /
+`matchCategory` / `period` are all ignored on match-history.
+
+**The two endpoints above are the entire stats surface.** Match-history gives the last 50
+matches in full; career gives per-mode aggregates for two fixed windows. There is no way to
+pull older matches or finer-grained history — EntityTrack's depth comes from accumulating
+match history over time (streaks, activity, opponent meta, score profiles are all derived
+locally).
+
 ## Anomaly signatures for the Entity Corrector
 
 From real captured matches:

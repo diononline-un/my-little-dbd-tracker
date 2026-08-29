@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { ingestPayload } from '../src/ingest-pipeline.js';
 import { getMatch } from '../src/repository.js';
-import { summary, listMatches, buildAnalytics } from '../src/analytics.js';
+import { summary, listMatches, buildAnalytics, streaks, recentForm, scoreProfile } from '../src/analytics.js';
 
 const fixture = readFileSync(
   fileURLToPath(new URL('./fixtures/match-history.sample.json', import.meta.url)),
@@ -44,5 +44,24 @@ describe('ingest pipeline end-to-end (temp SQLite)', () => {
     const builds = buildAnalytics({ minMatches: 1 });
     expect(Array.isArray(builds)).toBe(true);
     expect(builds.some((b) => b.perkId === 'DeadHard')).toBe(true);
+  });
+
+  it('computes streaks and recent form over the fixture', () => {
+    // fixture decided matches (newest→oldest): survivor escaped, survivor surrender_loss, killer merciless(3K)
+    // (the 46s match is canceled → excluded)
+    const s = streaks();
+    expect(s.overall.current).toBeGreaterThanOrEqual(1);
+    expect(['win', 'loss']).toContain(s.overall.currentType);
+    expect(s.survivor.best).toBeGreaterThanOrEqual(0);
+
+    const form = recentForm({ limit: 10 });
+    expect(form.matches.length).toBe(3); // 3 decided, 1 canceled excluded
+    expect(form.wins + form.losses).toBe(3);
+  });
+
+  it('builds a score profile per role from post_game_stat', () => {
+    const sp = scoreProfile();
+    expect(sp.survivor.some((c) => c.label === 'Boldness' && c.avg > 0)).toBe(true);
+    expect(sp.killer.some((c) => ['Hunting', 'Brutality', 'Sacrifice'].includes(c.label))).toBe(true);
   });
 });

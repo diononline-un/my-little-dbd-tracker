@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { api, pct, pct0, num, hrs, QUALITY_COLORS, QUALITY_ORDER } from '../api.js';
+import { api, pct, num, hrs, QUALITY_COLORS, QUALITY_ORDER } from '../api.js';
 import StackedBar from '../charts/StackedBar.jsx';
+import StreakBadge from '../components/StreakBadge.jsx';
+import FormStrip from '../components/FormStrip.jsx';
 
 function Tile({ k, v, sub, neg }) {
   return (
@@ -33,6 +35,8 @@ export default function Overview() {
 
   const tracked = useQuery({ queryKey: ['summary'], queryFn: api.summary });
   const career = useQuery({ queryKey: ['career', cat], queryFn: () => api.career({ category: cat }) });
+  const streak = useQuery({ queryKey: ['streaks'], queryFn: api.streaks });
+  const form = useQuery({ queryKey: ['form', 20], queryFn: () => api.form({ limit: 20 }) });
 
   const w = career.data?.windows?.[win];
   const surv = w?.survivors;
@@ -42,6 +46,23 @@ export default function Overview() {
   return (
     <>
       <h2>Overview</h2>
+
+      {/* --- streaks + recent form --- */}
+      {streak.data && (
+        <div className="streak-row" style={{ marginBottom: 14 }}>
+          <StreakBadge label="Current streak" s={streak.data.overall} />
+          <StreakBadge label="Survivor" s={streak.data.survivor} />
+          <StreakBadge label="Killer" s={streak.data.killer} />
+          <div className="streak-badge" style={{ flex: '2 1 260px' }}>
+            <div className="streak-label">
+              Recent form{form.data ? ` · ${form.data.wins}–${form.data.losses} (last ${form.data.matches.length})` : ''}
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <FormStrip matches={form.data?.matches ?? []} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* --- our own tracked data --- */}
       <div className="section-label">Tracked by EntityTrack</div>

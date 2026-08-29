@@ -327,6 +327,176 @@ export function perkPairAnalytics({ minMatches = 3 } = {}) {
     }));
 }
 
+// --------------------------------------------------------------- streaks / form
+
+/** A match "won" from the self perspective (canceled matches are neutral, skipped). */
+const WON_EXPR = `CASE
+  WHEN outcome = 'canceled' THEN NULL
+  WHEN self_role = 'survivor' THEN (self_escaped = 1)
+  WHEN self_role = 'killer'   THEN (self_kills >= 3)
+  ELSE NULL END`;
+
+function streakFor(where = '1=1') {
+  const rows = sqlite
+    .prepare(
+      `SELECT ${WON_EXPR} AS won, played_at
+       FROM matches
+       WHERE outcome IS NOT 'canceled' AND ${where}
+       ORDER BY played_at DESC`,
+    )
+    .all()
+    .filter((r) => r.won != null);
+
+  if (!rows.length) return { current: 0, currentType: null, best: 0, bestType: null, worst: 0 };
+
+  // current streak: run from the most recent match
+  const head = rows[0].won;
+  let current = 0;
+  for (const r of rows) {
+    if (Boolean(r.won) === Boolean(head)) current += 1;
+    else break;
+  }
+
+  // best win streak + worst losing streak over all history
+  let best = 0, worst = 0, run = 0, runWon = null;
+  for (const r of rows) {
+    const w = Boolean(r.won);
+    if (w === runWon) run += 1;
+    else { run = 1; runWon = w; }
+    if (w && run > best) best = run;
+    if (!w && run > worst) worst = run;
+  }
+
+  return {
+    current,
+    currentType: head ? 'win' : 'loss',
+    best,
+    bestType: 'win',
+    worst,
+  };
+}
+
+export function streaks() {
+  return {
+    overall: streakFor(),
+    survivor: streakFor(`self_role = 'survivor'`),
+    killer: streakFor(`self_role = 'killer'`),
+  };
+}
+
+/** Last N decided matches, newest first — for a W/L strip + rolling rate. */
+export function recentForm({ limit = 20 } = {}) {
+  const rows = sqlite
+    .prepare(
+      `SELECT match_id, played_at, self_role, outcome, killer_name, map_name,
+              ${WON_EXPR} AS won
+       FROM matches
+       WHERE outcome IS NOT 'canceled'
+       ORDER BY played_at DESC
+       LIMIT :limit`,
+    )
+    .all({ limit })
+    .filter((r) => r.won != null)
+    .map((r) => ({ ...r, won: Boolean(r.won) }));
+
+  const wins = rows.filter((r) => r.won).length;
+  return { matches: rows, wins, losses: rows.length - wins, rate: rows.length ? wins / rows.length : null };
+}
+
+// ------------------------------------------------------------------------ meta
+
+/** How often you face each killer (survivor matches) + your rate vs them. */
+export function killerMeta() {
+  return sqlite
+    .prepare(
+      `SELECT killer_id, killer_name,
+              COUNT(*) AS faced,
+              SUM(CASE WHEN self_escaped THEN 1 ELSE 0 END) AS escapes
+       FROM matches
+       WHERE self_role = 'survivor' AND ${NOT_CANCELED} AND killer_id IS NOT NULL
+       GROUP BY killer_id
+       ORDER BY faced DESC`,
+    )
+    .all()
+    .map((r) => ({
+      killerId: r.killer_id, killerName: r.killer_name,
+      faced: r.faced, escapes: r.escapes,
+      escapeRate: r.faced ? r.escapes / r.faced : null,
+    }));
+}
+
+/** Perks the opposition runs against you, ranked by frequency. */
+export function opponentPerkMeta({ role = 'survivor', limit = 20 } = {}) {
+  // role = which side of the opposition: 'survivor' = other survivors, 'killer' = the killer
+  return sqlite
+    .prepare(
+      `SELECT json_extract(je.value, '$.id')   AS perk_id,
+              json_extract(je.value, '$.name') AS perk_name,
+              COUNT(*) AS uses,
+              COUNT(DISTINCT op.match_id) AS matches
+       FROM matches m
+       JOIN match_players op
+         ON op.match_id = m.match_id AND op.is_self = 0 AND op.role = :role
+       JOIN json_each(op.perks) je
+       WHERE m.${NOT_CANCELED}
+       GROUP BY perk_id
+       ORDER BY uses DESC
+       LIMIT :limit`,
+    )
+    .all({ role, limit })
+    .map((r) => ({ perkId: r.perk_id, perkName: r.perk_name, uses: r.uses, matches: r.matches }));
+}
+
+/** Matches per calendar day — for a contribution-style heatmap. */
+export function activity({ days = 120 } = {}) {
+  const since = Date.now() - days * 86_400_000;
+  return sqlite
+    .prepare(
+      `SELECT date(played_at / 1000, 'unixepoch') AS day,
+              COUNT(*) AS matches,
+              SUM(CASE WHEN ${WON_EXPR} THEN 1 ELSE 0 END) AS wins,
+              SUM(self_bloodpoints) AS bp
+       FROM matches
+       WHERE played_at >= :since
+       GROUP BY day
+       ORDER BY day`,
+    )
+    .all({ since });
+}
+
+/** Average score-category values for the self player, per role — for a radar. */
+export function scoreProfile() {
+  const rows = sqlite
+    .prepare(
+      `SELECT m.self_role, sp.post_game_stat
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE m.${NOT_CANCELED} AND sp.post_game_stat IS NOT NULL`,
+    )
+    .all();
+
+  const acc = { survivor: {}, killer: {} };
+  const counts = { survivor: 0, killer: 0 };
+  for (const r of rows) {
+    const role = r.self_role;
+    if (!acc[role]) continue;
+    let pg;
+    try { pg = JSON.parse(r.post_game_stat); } catch { continue; }
+    counts[role] += 1;
+    for (const [k, v] of Object.entries(pg)) {
+      const label = k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
+      acc[role][label] = (acc[role][label] ?? 0) + v;
+    }
+  }
+  const out = {};
+  for (const role of ['survivor', 'killer']) {
+    out[role] = Object.entries(acc[role]).map(([label, sum]) => ({
+      label, avg: counts[role] ? Math.round(sum / counts[role]) : 0,
+    }));
+  }
+  return out;
+}
+
 /** Escape rate by a random teammate's perk (solo-queue signal). */
 export function teammateAnalytics({ minMatches = 3 } = {}) {
   return sqlite

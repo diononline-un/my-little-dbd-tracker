@@ -5,6 +5,7 @@ import { api } from './api.js';
 
 const NAV = [
   { to: '/', label: 'Overview', end: true },
+  { to: '/insights', label: 'Insights' },
   { to: '/trends', label: 'Trends' },
   { to: '/matches', label: 'Matches' },
   { to: '/analytics', label: 'Analytics' },

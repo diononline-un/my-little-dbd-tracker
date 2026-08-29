@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-08-29 — Streaks, Insights page, more charts
+
+- **API surface confirmed complete**: match-history (last 50, full detail) + career
+  aggregates per mode are everything BHVR exposes. `community-stats` is referenced in
+  their bundle but 404s (not shipped). No leaderboard / events / per-character /
+  historical-beyond-50 endpoints exist. Depth now comes from accumulating match
+  history over time.
+- **Win-streak counter**: current + best-win + worst-loss streaks, overall / survivor
+  / killer, on the Overview (canceled matches are neutral, don't break a streak).
+- **Recent-form strip**: W/L timeline of the last 20 decided matches, each linking to
+  its detail.
+- **New Insights page**: survivor & killer score-category radars (avg/match), a
+  contribution-style activity heatmap, "killers you face most" (with portraits + your
+  escape rate), and "perks the opposition runs" (survivor + killer meta, with icons).
+- New endpoints: `/api/insights/{streaks,form,score-profile,activity,killer-meta,opponent-perks}`.
+- Chart components added: Radar, Sparkline, Heatmap.
+
 ## 2026-08-29 — Responsive top-nav shell
 
 - Left sidebar → sticky full-width top bar (wordmark + red diamond, horizontal

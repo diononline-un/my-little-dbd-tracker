@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './theme.css';
 import App from './App.jsx';
 import Overview from './pages/Overview.jsx';
+import Insights from './pages/Insights.jsx';
 import Trends from './pages/Trends.jsx';
 import Matches from './pages/Matches.jsx';
 import MatchDetail from './pages/MatchDetail.jsx';
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <Overview /> },
+      { path: 'insights', element: <Insights /> },
       { path: 'trends', element: <Trends /> },
       { path: 'matches', element: <Matches /> },
       { path: 'matches/:matchId', element: <MatchDetail /> },
