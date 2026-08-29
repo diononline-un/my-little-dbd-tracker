@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-29 — Responsive top-nav shell
+
+- Left sidebar → sticky full-width top bar (wordmark + red diamond, horizontal
+  nav with red active underline, live "N tracked" pill; menu button under 720px).
+- Centered page container (max-width 1400, fluid side padding), red-topped footer.
+- All card grids auto-reflow; match cards 3→2→1 col, match-detail a real 3-col
+  stepping down at 900/560px. Pill tab controls.
+
 ## 2026-08-29 — Visual overhaul (game art + official-style match view)
 
 - Pull all game art from BHVR's asset CDN (`assets.live.bhvraccount.com`), paths
