@@ -1,5 +1,6 @@
-import { dur, when } from '../api.js';
+import { dur, when, num } from '../api.js';
 import { QUALITY_COLORS } from '../api.js';
+import { orderedCats, label as catLabel } from '../scoreCats.js';
 import ScoreBar from '../charts/ScoreBar.jsx';
 import {
   GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
@@ -96,7 +97,11 @@ function PlayerRow({ p }) {
         {p.post_game_stat && (
           <div className="tally-line">
             <span className="tally-lbl">Score</span>
-            <div className="tally-vals"><ScoreBar post={p.post_game_stat} compact /></div>
+            <div className="tally-vals">
+              <span className="muted" style={{ fontSize: 12 }}>
+                {orderedCats(p.post_game_stat).map(([k, v]) => `${catLabel(k)} ${num(v)}`).join(' · ')}
+              </span>
+            </div>
           </div>
         )}
       </div>

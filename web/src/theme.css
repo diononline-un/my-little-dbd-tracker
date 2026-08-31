@@ -299,12 +299,14 @@ input, select {
 .match-score-row { display: flex; align-items: center; gap: 14px; margin-top: 2px; }
 .match-score { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-bright); line-height: 1.05; letter-spacing: -0.01em; }
 .match-bp { font-size: 12px; font-weight: 400; color: var(--text-dim); }
-.match-body .score-bar { margin-top: 10px; }
+/* score bar on the card renders like it does in the detail view: same bar
+   height, same 8px gap to the legend, same tight rhythm to the perks. The perk
+   diamonds are rotated 45° (~5px corner overhang), so the margin is the detail's
+   6px line gap + that overhang for an equal *visual* gap. */
+.match-body .score-bar { margin-top: 12px; }
 .match-body .score-bar-legend { font-size: 11px; gap: 3px 12px; }
-/* the perk diamonds are rotated 45°, so their corners overhang ~5px — keep a
-   clear gap between the score-bar legend and the perk row */
-.match-body .score-bar + .match-loadout { margin-top: 18px; }
-.opp-tile .score-bar { margin-top: 12px; }
+.match-body .score-bar + .match-loadout { margin-top: 11px; }
+.opp-tile .score-bar { margin-top: 11px; }
 
 .card-factors { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
 
@@ -423,10 +425,10 @@ input, select {
 .tally-player:not(.is-self) .tally-name { color: var(--text); }
 .tally-bp { font-variant-numeric: tabular-nums; color: var(--text-dim); font-size: 12px; }
 .tally-loadout { display: grid; gap: 6px; margin-top: 8px; }
-.tally-line { display: flex; align-items: flex-start; gap: 8px; }
-.tally-vals { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 5px 6px; }
+.tally-line { display: flex; align-items: flex-start; gap: 6px; }
+.tally-vals { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .tally-lbl {
-  width: 62px; flex: 0 0 62px; padding-top: 3px; font-size: 10px; text-transform: uppercase;
+  width: 62px; flex: 0 0 62px; padding-top: 2px; font-size: 10px; text-transform: uppercase;
   letter-spacing: 0.06em; color: var(--text-dim);
 }
 
