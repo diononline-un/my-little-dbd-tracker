@@ -103,6 +103,7 @@ export const ADDITIVE = [
   `ALTER TABLE match_players ADD COLUMN post_game_stat TEXT`,   // JSON score categories
   `ALTER TABLE match_players ADD COLUMN leaderboard_score INTEGER`,
   `ALTER TABLE match_players ADD COLUMN character_level INTEGER`,
+  `ALTER TABLE match_players ADD COLUMN platform TEXT`,         // steam | egs | psn | ...
 ];
 
 export function applySchema(db) {

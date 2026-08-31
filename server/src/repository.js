@@ -64,11 +64,11 @@ const upsertMatchStmt = db.prepare(`
 const delPlayers = db.prepare('DELETE FROM match_players WHERE match_id = ?');
 const insPlayer = db.prepare(`
   INSERT INTO match_players (
-    match_id, slot, role, character_id, character_name, prestige, character_level,
+    match_id, slot, role, character_id, character_name, prestige, character_level, platform,
     time_in_match, bloodpoints, leaderboard_score, post_game_stat, emblems, perks,
     addons, offering_id, offering_name, power_id, power_name, status, killer_grade, is_self
   ) VALUES (
-    :match_id, :slot, :role, :character_id, :character_name, :prestige, :character_level,
+    :match_id, :slot, :role, :character_id, :character_name, :prestige, :character_level, :platform,
     :time_in_match, :bloodpoints, :leaderboard_score, :post_game_stat, :emblems, :perks,
     :addons, :offering_id, :offering_name, :power_id, :power_name, :status, :killer_grade, :is_self
   )
@@ -117,6 +117,7 @@ export function saveNormalizedMatch({ match, players }, rawPayloadId) {
         character_name: p.characterName ?? null,
         prestige: p.prestige ?? null,
         character_level: p.characterLevel ?? null,
+        platform: p.platform ?? null,
         time_in_match: p.timeInMatch ?? null,
         bloodpoints: p.bloodpoints ?? null,
         leaderboard_score: p.leaderboardScore ?? null,

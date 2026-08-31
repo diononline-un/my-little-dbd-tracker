@@ -20,6 +20,12 @@
       "matches": ["https://stats.deadbydaylight.com/*"],
       "js": ["src/content.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://stats.deadbydaylight.com/*"],
+      "js": ["src/inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "options_page": "src/options.html",

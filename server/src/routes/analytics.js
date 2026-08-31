@@ -17,6 +17,7 @@ import {
   recap,
   scatter,
   history,
+  estimatedGradeTrend,
 } from '../analytics.js';
 
 const SCATTER_DIMS = new Set(['vs-killers', 'my-killers', 'builds', 'maps', 'offerings']);
@@ -50,6 +51,10 @@ export default async function analyticsRoutes(app) {
   }));
   app.get('/insights/recap', async (req) => recap({ offset: Math.max(0, Number(req.query?.offset) || 0) }));
   app.get('/insights/history', async (req) => history({ rollingN: Number(req.query?.rollingN) || 15 }));
+  app.get('/insights/grade-trend', async (req) => {
+    const role = req.query?.role === 'survivor' || req.query?.role === 'killer' ? req.query.role : undefined;
+    return estimatedGradeTrend({ role });
+  });
   app.get('/insights/scatter', async (req) => {
     const dimension = SCATTER_DIMS.has(req.query?.dimension) ? req.query.dimension : 'my-killers';
     return { dimension, points: scatter({ dimension }) };

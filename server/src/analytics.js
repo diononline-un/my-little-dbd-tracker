@@ -9,6 +9,8 @@
  */
 import { db as sqlite } from './db/index.js';
 import { decidedWhere, wonSql } from './reference/outcomes.js';
+import { emblemPointSum, pipDelta, runGradeTrend } from './reference/emblems.js';
+import { analyzeMatch } from './factors.js';
 
 const DECIDED = decidedWhere();
 const WON_EXPR = wonSql();
@@ -105,9 +107,9 @@ export function listMatches(filters = {}) {
     const ph = ids.map(() => '?').join(',');
     for (const p of sqlite
       .prepare(
-        `SELECT match_id, role, character_id, character_name, prestige, leaderboard_score,
-                time_in_match, perks, addons, offering_id, offering_name, power_id, power_name,
-                post_game_stat, emblems
+        `SELECT match_id, role, character_id, character_name, prestige, character_level, platform,
+                leaderboard_score, time_in_match, status, perks, addons, offering_id, offering_name,
+                power_id, power_name, post_game_stat, emblems
          FROM match_players WHERE is_self = 1 AND match_id IN (${ph})`,
       )
       .all(...ids)) {
@@ -117,8 +119,11 @@ export function listMatches(filters = {}) {
         character_id: p.character_id,
         character_name: p.character_name,
         prestige: p.prestige,
+        character_level: p.character_level,
+        platform: p.platform,
         leaderboardScore: p.leaderboard_score,
         time_in_match: p.time_in_match,
+        status: p.status,
         perks: safeJson(p.perks, []),
         addons: safeJson(p.addons, []),
         offering_id: p.offering_id,
@@ -128,12 +133,13 @@ export function listMatches(filters = {}) {
         post_game_stat: safeJson(p.post_game_stat, null),
         emblems,
         emblemScore: emblemSum(emblems),
+        pipDelta: pipDelta(emblems),
       };
     }
     for (const p of sqlite
       .prepare(
-        `SELECT match_id, slot, role, character_id, character_name, prestige, bloodpoints,
-                leaderboard_score, time_in_match, status, killer_grade, perks, addons,
+        `SELECT match_id, slot, role, character_id, character_name, prestige, character_level, platform,
+                bloodpoints, leaderboard_score, time_in_match, status, killer_grade, perks, addons,
                 offering_id, offering_name, power_id, power_name, post_game_stat, emblems
          FROM match_players WHERE is_self = 0 AND match_id IN (${ph}) ORDER BY slot`,
       )
@@ -143,6 +149,8 @@ export function listMatches(filters = {}) {
         character_id: p.character_id,
         character_name: p.character_name,
         prestige: p.prestige,
+        character_level: p.character_level,
+        platform: p.platform,
         bloodpoints: p.bloodpoints,
         leaderboardScore: p.leaderboard_score,
         time_in_match: p.time_in_match,
@@ -216,6 +224,27 @@ function hydrateMatchRow(r, self, opponents = [], vsKiller = {}) {
     }
   }
 
+  // compact "likely factors" for the card — the 2 strongest signals only.
+  // The full list stays on the match detail view (/api/matches/:id).
+  let factors = [];
+  if (self) {
+    const players = [
+      {
+        is_self: true, role: self.role,
+        status: r.self_role === 'survivor' ? r.outcome : self.status,
+        time_in_match: self.time_in_match, character_name: self.character_name,
+        perks: self.perks, post_game_stat: self.post_game_stat,
+      },
+      ...ordered.map((o) => ({
+        is_self: false, role: o.role, status: o.status, time_in_match: o.time_in_match,
+        character_name: o.character_name, perks: o.perks, post_game_stat: o.post_game_stat,
+      })),
+    ];
+    factors = analyzeMatch({ ...r, self_escaped: r.self_escaped, players })
+      .filter((f) => f.weight === 'major')
+      .slice(0, 2);
+  }
+
   return {
     ...r,
     is_corrected: Boolean(r.is_corrected),
@@ -224,6 +253,7 @@ function hydrateMatchRow(r, self, opponents = [], vsKiller = {}) {
     self: self ?? null,
     opponents: ordered,
     deathPosition,
+    factors,
     vsKiller: r.self_role === 'survivor' && r.killer_id ? (vsKiller[r.killer_id] ?? null) : null,
   };
 }
@@ -232,13 +262,9 @@ function safeJson(s, fallback) {
   try { return JSON.parse(s); } catch { return fallback; }
 }
 
-// Derived "emblem score" (0–16): BHVR exposes no pips/grade, but the 4 emblem
-// qualities per match historically drove pip gain. None=0 … Iridescent=4.
-const EMBLEM_Q = { None: 0, Bronze: 1, Silver: 2, Gold: 3, Iridescent: 4 };
-function emblemSum(emblems) {
-  if (!Array.isArray(emblems) || !emblems.length) return null;
-  return emblems.reduce((a, e) => a + (EMBLEM_Q[e.emblem_quality] ?? 0), 0);
-}
+// "emblem score" (0–16) = sum of the 4 emblem qualities. BHVR exposes no
+// pips/grade; the estimated pip/grade model lives in reference/emblems.js.
+const emblemSum = emblemPointSum;
 export { emblemSum };
 
 /**
@@ -467,6 +493,7 @@ function streakFor(where = '1=1') {
 
 export function streaks() {
   return {
+    ...estimatedGradeSummary(),
     overall: streakFor(),
     survivor: streakFor(`self_role = 'survivor'`),
     killer: streakFor(`self_role = 'killer'`),
@@ -711,6 +738,50 @@ export function history({ rollingN = 15 } = {}) {
       killRate: rolling(killer, (r) => (r.won == null ? null : (r.won ? 1 : 0))),
       avgBloodpoints: rolling(rows, (r) => r.self_bloodpoints ?? null),
       emblemScore: rolling(rows, (r) => emblemSum(safeJson(r.emblems, []))),
+    },
+  };
+}
+
+/**
+ * Estimated grade trajectory over tracked matches. BHVR exposes no pips; this
+ * folds per-match emblem qualities through reference/emblems.js. Labelled
+ * "estimated" everywhere it surfaces. `role`: 'survivor' | 'killer' | undefined.
+ */
+export function estimatedGradeTrend({ role } = {}) {
+  const where = role === 'survivor' || role === 'killer' ? `AND m.self_role = :role` : '';
+  const rows = sqlite
+    .prepare(
+      `SELECT m.played_at, m.self_role, sp.emblems AS emblems
+       FROM matches m
+       JOIN match_players sp ON sp.match_id = m.match_id AND sp.is_self = 1
+       WHERE ${decidedFor('m')} ${where}
+       ORDER BY m.played_at ASC`,
+    )
+    .all(role ? { role } : {});
+
+  const trend = runGradeTrend(rows.map((r) => ({ emblems: safeJson(r.emblems, []), playedAt: r.played_at })));
+  return {
+    estimated: true,
+    points: trend.map((g, i) => ({
+      t: rows[i].played_at,
+      role: rows[i].self_role,
+      delta: g.delta,
+      pips: g.cumPips,
+      gradeIndex: g.index,
+      grade: g.label,
+    })),
+    current: trend.length ? trend[trend.length - 1].label : null,
+    currentPips: trend.length ? trend[trend.length - 1].cumPips : 0,
+  };
+}
+
+/** Compact estimated-grade block for the streaks payload. Grades are per-role. */
+function estimatedGradeSummary() {
+  return {
+    estimatedGrade: {
+      estimated: true,
+      survivor: estimatedGradeTrend({ role: 'survivor' }).current,
+      killer: estimatedGradeTrend({ role: 'killer' }).current,
     },
   };
 }

@@ -17,3 +17,15 @@ export const NEUTRAL_OUTCOMES = new Set(['canceled', 'surrender_draw']);
 
 export const isEscape = (o) => SURVIVOR_ESCAPED.has(o);
 export const isDowned = (o) => SURVIVOR_DOWNED.has(o);
+
+/** self-perspective result of a whole match: 'win' | 'loss' | 'neutral'. */
+export function matchResult(m) {
+  if (NEUTRAL_OUTCOMES.has(m.outcome)) return 'neutral';
+  if (m.self_role === 'killer') {
+    if (m.self_kills == null) return 'neutral';
+    return m.self_kills >= 3 ? 'win' : 'loss';
+  }
+  if (SURVIVOR_ESCAPED.has(m.outcome)) return 'win';
+  if (SURVIVOR_DOWNED.has(m.outcome)) return 'loss';
+  return 'neutral';
+}

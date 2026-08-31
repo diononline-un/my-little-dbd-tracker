@@ -23,11 +23,11 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <Overview /> },
-      { path: 'insights', element: <Insights /> },
       { path: 'streaks', element: <Streaks /> },
-      { path: 'trends', element: <Trends /> },
       { path: 'matches', element: <Matches /> },
       { path: 'matches/:matchId', element: <MatchDetail /> },
+      { path: 'insights', element: <Insights /> },
+      { path: 'trends', element: <Trends /> },
       { path: 'analytics', element: <Analytics /> },
       { path: 'settings', element: <Settings /> },
       { path: '*', element: <Navigate to="/" replace /> },

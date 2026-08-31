@@ -135,4 +135,16 @@ describe('ingest pipeline end-to-end (temp SQLite)', () => {
     const withOppPerks = page.matches.find((m) => m.opponents.some((o) => (o.perks ?? []).length));
     expect(withOppPerks).toBeTruthy();
   });
+
+  it('listMatches rows carry a compact factors list and a self pipDelta', () => {
+    const page = listMatches({ limit: 10 });
+    for (const m of page.matches) {
+      expect(Array.isArray(m.factors)).toBe(true);
+      expect(m.factors.length).toBeLessThanOrEqual(2);
+      for (const f of m.factors) expect(f.weight).toBe('major');
+      if (m.self && m.self.emblemScore != null) {
+        expect([-1, 0, 1, 2]).toContain(m.self.pipDelta);
+      }
+    }
+  });
 });

@@ -1,5 +1,42 @@
 # Changelog
 
+## 2026-09-01 — Dashboard refinement pass (Phase R)
+
+- **Nav** reordered: Overview → Streaks → Matches → Insights → Trends → Analytics.
+- **One score bar everywhere** (`web/src/charts/ScoreBar.jsx`): the 4 categories
+  stacked in their colours on a fixed 0–40k / 1k-tick scale with a value legend —
+  on the collapsed card, the opponent tiles (compact, no legend), and the match
+  detail. Replaces the old per-context text lines / tiles.
+- **Match card (collapsed)**: the self-perspective outcome shows above the
+  timestamp; a left accent border colours the card by win / loss / neutral
+  (`matchResult()` in `web/src/outcomes.js`). The dead space under the portrait is
+  filled with an estimated-pip chip and a 4-emblem quality row. The 1–2 strongest
+  "likely factors" now render on the card, not only in the detail view
+  (`analytics.listMatches` attaches `row.factors`).
+- **Match detail**: dropped the standalone "Your build" / "Duration & result" /
+  "Emblems" cards. Duration + outcome fold into the score bar; emblems fold onto
+  each player row; the ragged label indentation in the player rows is fixed
+  (`.tally-line` grid → label column + wrapping value column).
+- **Estimated grade** (`server/src/reference/emblems.js`): BHVR exposes no pips,
+  so a per-match pip delta is derived from the 4 emblem qualities and folded into
+  a running grade (monthly-reset approximated). New `estimatedGradeTrend()` +
+  `GET /api/insights/grade-trend`, a grade line on Trends, an estimated-grade line
+  on Streaks, a per-match `+N est. pip` chip on the card. Everything labelled
+  "estimated". `emblems.test.js` — 7 cases.
+- **Score-category helpers** consolidated into `web/src/scoreCats.js` (label /
+  short / colour / order) — previously duplicated across four files.
+- **Matches page**: page-based pager → infinite scroll (`useInfiniteQuery` +
+  IntersectionObserver); `content-visibility: auto` on match cards.
+- **Newly surfaced data**: per-player `platform` (additive column + normalizer),
+  `character_level` / `prestige` in the match-list payload, and the previously
+  hidden career fields (killer total hits/hooks/chases-won, survivor avg hooked,
+  per-role hours/matches/BP) in the Career panel.
+- **Faster capture**: `extension/src/inject.js` (MAIN world) wraps fetch/XHR on
+  stats.deadbydaylight.com and nudges the worker to ingest when the SPA pulls its
+  own match history — debounced 30s, the 10-min alarm floor still applies.
+- **New wordmark** — a flat 2D running survivor with the Entity's claw
+  (`web/src/components/Logo.jsx`) + matching favicon.
+
 ## 2026-08-30 — One "win" definition, in one place
 
 - **`server/src/reference/outcomes.js`** is now the single source of truth for

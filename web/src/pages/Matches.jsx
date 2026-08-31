@@ -1,17 +1,42 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { api } from '../api.js';
 import MatchCard from '../components/MatchCard.jsx';
 
-export default function Matches() {
-  const [f, setF] = useState({ role: '', corrected: '', killerId: '', mapId: '', limit: 25, offset: 0 });
-  const set = (patch) => setF((x) => ({ ...x, offset: 0, ...patch }));
+const PAGE = 25;
 
-  const { data, isLoading, error } = useQuery({
+export default function Matches() {
+  const [f, setF] = useState({ role: '', corrected: '', killerId: '', mapId: '' });
+  const set = (patch) => setF((x) => ({ ...x, ...patch }));
+  const sentinel = useRef(null);
+
+  const {
+    data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['matches', f],
-    queryFn: () => api.matches(f),
+    queryFn: ({ pageParam = 0 }) => api.matches({ ...f, limit: PAGE, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (last, pages) => {
+      const loaded = pages.reduce((a, p) => a + p.matches.length, 0);
+      return loaded < last.total ? loaded : undefined;
+    },
     placeholderData: (prev) => prev,
   });
+
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
+    }, { rootMargin: '600px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const matches = data?.pages.flatMap((p) => p.matches) ?? [];
+  const total = data?.pages[0]?.total ?? 0;
+  const avgScoreByRole = data?.pages[0]?.avgScoreByRole;
+
   const killers = useQuery({ queryKey: ['an', 'vs-killers'], queryFn: () => api.killers() });
   const maps = useQuery({ queryKey: ['an', 'maps'], queryFn: () => api.maps() });
 
@@ -49,15 +74,14 @@ export default function Matches() {
       {data && (
         <>
           <div className="stagger">
-            {data.matches.map((m) => (
-              <MatchCard key={m.match_id} m={m} avg={data.avgScoreByRole?.[m.self_role]} />
+            {matches.map((m) => (
+              <MatchCard key={m.match_id} m={m} avg={avgScoreByRole?.[m.self_role]} />
             ))}
           </div>
-          {data.matches.length === 0 && <p className="muted">No matches for this filter.</p>}
+          {matches.length === 0 && <p className="muted">No matches for this filter.</p>}
+          <div ref={sentinel} />
           <p className="muted" style={{ marginTop: 12 }}>
-            {data.total} matches ·{' '}
-            <button className="pager" disabled={f.offset === 0} onClick={() => setF((x) => ({ ...x, offset: Math.max(0, x.offset - x.limit) }))}>prev</button>{' '}
-            <button className="pager" disabled={f.offset + f.limit >= data.total} onClick={() => setF((x) => ({ ...x, offset: x.offset + x.limit }))}>next</button>
+            {isFetchingNextPage ? 'Loading more…' : `${matches.length} of ${total} matches`}
           </p>
         </>
       )}

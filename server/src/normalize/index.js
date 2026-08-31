@@ -39,6 +39,7 @@ function normalizePlayer(rawPlayer, slot, isSelf) {
     characterName: rawPlayer.characterName?.name ?? null,
     prestige: rawPlayer.prestigeLevel ?? null,
     characterLevel: rawPlayer.characterLevel ?? null,
+    platform: rawPlayer.platform ?? null,
     timeInMatch: rawPlayer.playerTimeInMatch ?? null,
     bloodpoints: rawPlayer.bloodpointsEarned ?? null,
     leaderboardScore: rawPlayer.leaderboardScore ?? null,

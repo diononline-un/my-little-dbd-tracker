@@ -1,9 +1,9 @@
-import { dur, when, num, orderedCats } from '../api.js';
+import { dur, when } from '../api.js';
+import { QUALITY_COLORS } from '../api.js';
+import ScoreBar from '../charts/ScoreBar.jsx';
 import {
   GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, emblemIcon, statusIcon,
 } from '../icons.jsx';
-
-const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
 
 const STATUS_ICON = {
   escaped: 'VE_Escaped', died: 'VE_Killed', sacrificed: 'VE_Sacrificed',
@@ -44,6 +44,7 @@ function PlayerRow({ p }) {
           {p.is_self ? ' · you' : ''}
           {p.prestige ? <span className="muted"> P{p.prestige}</span> : null}
           {p.character_level ? <span className="muted"> · lvl {p.character_level}</span> : null}
+          {p.platform ? <span className="muted" style={{ textTransform: 'capitalize' }}> · {p.platform}</span> : null}
         </span>
         <span className="tally-bp">
           {p.leaderboard_score != null && <strong style={{ color: 'var(--text)' }}>{p.leaderboard_score.toLocaleString()}</strong>}
@@ -56,29 +57,46 @@ function PlayerRow({ p }) {
       <div className="tally-loadout">
         <div className="tally-line">
           <span className="tally-lbl">Perks</span>
-          {perks.length
-            ? perks.map((x) => <Named key={x.id} src={perkIcon(x.id)} name={x.name || x.id} />)
-            : <span className="muted">— not recorded</span>}
+          <div className="tally-vals">
+            {perks.length
+              ? perks.map((x) => <Named key={x.id} src={perkIcon(x.id)} name={x.name || x.id} />)
+              : <span className="muted">— not recorded</span>}
+          </div>
         </div>
         {(p.power_id || addons.length > 0) && (
           <div className="tally-line">
             <span className="tally-lbl">{p.role === 'killer' ? 'Power' : 'Item'}</span>
-            {p.power_id && <Named src={itemIcon(p.power_id)} name={p.power_name || p.power_id} />}
-            {addons.map((x) => <Named key={x.id} src={addonIcon(x.id)} name={x.name || x.id} />)}
+            <div className="tally-vals">
+              {p.power_id && <Named src={itemIcon(p.power_id)} name={p.power_name || p.power_id} />}
+              {addons.map((x) => <Named key={x.id} src={addonIcon(x.id)} name={x.name || x.id} />)}
+            </div>
           </div>
         )}
         {p.offering_id && (
           <div className="tally-line">
             <span className="tally-lbl">Offering</span>
-            <Named src={offeringIcon(p.offering_id)} name={p.offering_name || p.offering_id} />
+            <div className="tally-vals">
+              <Named src={offeringIcon(p.offering_id)} name={p.offering_name || p.offering_id} />
+            </div>
+          </div>
+        )}
+        {(p.emblems ?? []).length > 0 && (
+          <div className="tally-line">
+            <span className="tally-lbl">Emblems</span>
+            <div className="tally-vals">
+              {p.emblems.map((e, i) => (
+                <span key={i} className="named-item" title={`${e.emblem_name}: ${e.emblem_quality}`}>
+                  <GameIcon src={emblemIcon(e.emblem_id, e.emblem_quality)} alt="" size={18} rounded={2} />
+                  <span style={{ color: QUALITY_COLORS[e.emblem_quality] ?? 'var(--text)' }}>{e.emblem_quality}</span>
+                </span>
+              ))}
+            </div>
           </div>
         )}
         {p.post_game_stat && (
           <div className="tally-line">
             <span className="tally-lbl">Score</span>
-            <span className="muted" style={{ fontSize: 12 }}>
-              {orderedCats(p.post_game_stat).map(([k, v]) => `${CAT_LABEL(k)} ${num(v)}`).join(' · ')}
-            </span>
+            <div className="tally-vals"><ScoreBar post={p.post_game_stat} compact /></div>
           </div>
         )}
       </div>
@@ -112,7 +130,6 @@ export default function MatchDetailBody({ match: m, showHeader = true }) {
   if (!m) return <p className="muted">Loading…</p>;
   const self = m.players.find((p) => p.is_self) ?? {};
   const notes = m.correctionNotes ?? m.correction_notes ?? [];
-  const load = self.perks ?? [];
 
   return (
     <>
@@ -149,44 +166,15 @@ export default function MatchDetailBody({ match: m, showHeader = true }) {
       )}
 
       <div className="detail-grid">
-        <Card label="Your build">
-          <div className="tally-loadout">
-            <div className="tally-line">
-              <span className="tally-lbl">Perks</span>
-              {load.length ? load.map((x) => <Named key={x.id} src={perkIcon(x.id)} name={x.name || x.id} />)
-                : <span className="muted">— not recorded</span>}
+        {self.post_game_stat && (
+          <Card label="Your score" wide>
+            <ScoreBar post={self.post_game_stat} />
+            <div className="muted" style={{ marginTop: 8, fontSize: 12.5 }}>
+              {dur(m.duration_seconds)} · {m.outcome}
+              {m.self_kills != null ? ` · ${m.self_kills} kills` : ''}
             </div>
-            {(self.power_id || (self.addons ?? []).length) && (
-              <div className="tally-line">
-                <span className="tally-lbl">{self.role === 'killer' ? 'Power' : 'Item'}</span>
-                {self.power_id && <Named src={itemIcon(self.power_id)} name={self.power_name || self.power_id} />}
-                {(self.addons ?? []).map((x) => <Named key={x.id} src={addonIcon(x.id)} name={x.name || x.id} />)}
-              </div>
-            )}
-            {self.offering_id && (
-              <div className="tally-line">
-                <span className="tally-lbl">Offering</span>
-                <Named src={offeringIcon(self.offering_id)} name={self.offering_name || self.offering_id} />
-              </div>
-            )}
-          </div>
-        </Card>
-        <Card label="Duration & result">
-          <div style={{ fontSize: 18, fontVariantNumeric: 'tabular-nums' }}>{dur(m.duration_seconds)}</div>
-          <div className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-            {m.outcome}{m.self_kills != null ? ` · ${m.self_kills} kills` : ''}
-          </div>
-        </Card>
-        <Card label="Emblems">
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {(self.emblems ?? []).map((e, i) => (
-              <span key={i} className="named-item">
-                <GameIcon src={emblemIcon(e.emblem_id, e.emblem_quality)} alt="" size={22} rounded={3} />
-                <span>{e.emblem_name} <span className="muted">{e.emblem_quality}</span></span>
-              </span>
-            ))}
-          </div>
-        </Card>
+          </Card>
+        )}
         <Card label="Map" wide>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <GameIcon src={mapIcon(m.map_id)} alt={m.map_name} w={200} h={112} rounded={6} />

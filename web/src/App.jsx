@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from './api.js';
+import Logo from './components/Logo.jsx';
 
 const NAV = [
   { to: '/', label: 'Overview', end: true },
-  { to: '/insights', label: 'Insights' },
   { to: '/streaks', label: 'Streaks' },
-  { to: '/trends', label: 'Trends' },
   { to: '/matches', label: 'Matches' },
+  { to: '/insights', label: 'Insights' },
+  { to: '/trends', label: 'Trends' },
   { to: '/analytics', label: 'Analytics' },
   { to: '/settings', label: 'Settings' },
 ];
@@ -30,7 +31,7 @@ export default function App() {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="brand">
-            <span className="brand-mark" />
+            <Logo />
             ENTITYTRACK
           </div>
 

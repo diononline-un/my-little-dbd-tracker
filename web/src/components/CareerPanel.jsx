@@ -68,8 +68,14 @@ export default function CareerPanel() {
 
           <div className="grid cols-3 stagger" style={{ marginTop: 12 }}>
             <Tile k="Survivor · chases won" v={num(surv?.survivorChasesWon)} sub={`longest ${Math.round(surv?.survivorLongestChaseTimeInSeconds ?? 0)}s`} />
-            <Tile k="Survivor · heals" v={num(surv?.survivorSuccessfullyHealed)} sub={`hooked ${num(surv?.survivorTimesHooked)}×`} />
+            <Tile k="Survivor · heals" v={num(surv?.survivorSuccessfullyHealed)} sub={`hooked ${num(surv?.survivorTimesHooked)}× · avg ${surv?.avgTimesHooked?.toFixed(1) ?? '—'}`} />
             <Tile k="Killer · pallets / gens / walls" v={`${num(kill?.totalPalletsDestroyed)} / ${num(kill?.totalGenKicked)} / ${num(kill?.totalWallsBroken)}`} />
+          </div>
+
+          <div className="grid cols-3 stagger" style={{ marginTop: 12 }}>
+            <Tile k="Killer · total hits / hooks" v={`${num(kill?.totalHits)} / ${num(kill?.totalHooks)}`} sub={`${num(kill?.totalChasesWon)} chases won`} />
+            <Tile k="Survivor time" v={hrs(surv?.totalHoursPlayed)} sub={`${num(surv?.totalMatchesPlayed)} matches · ${num(Math.round(surv?.avgBPEarnedPerMatch ?? 0))} avg BP`} />
+            <Tile k="Killer time" v={hrs(kill?.totalHoursPlayed)} sub={`${num(kill?.totalMatchesPlayed)} matches · ${num(Math.round(kill?.avgBPEarnedPerMatch ?? 0))} avg BP`} />
           </div>
 
           {surv?.emblems && Object.keys(surv.emblems).length > 0 && (

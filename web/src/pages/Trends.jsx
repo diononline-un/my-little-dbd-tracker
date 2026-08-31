@@ -59,6 +59,41 @@ function TrendPanel({ panel, category, window }) {
   );
 }
 
+function GradeTrend() {
+  const [role, setRole] = useState('survivor');
+  const { data, isLoading } = useQuery({
+    queryKey: ['gradeTrend', role],
+    queryFn: () => api.gradeTrend({ role }),
+  });
+  const points = data?.points ?? [];
+  const abbr = (g) => (g ? g.replace(/^(\w)\w+ /, '$1') : '');
+  const labelByIdx = {};
+  for (const p of points) labelByIdx[p.gradeIndex] = abbr(p.grade);
+  const series = [{ label: 'Estimated grade', points: points.map((p) => ({ t: p.t, value: p.gradeIndex })) }];
+
+  return (
+    <div className="panel-block">
+      <div className="section-label">
+        Estimated grade{data?.current ? ` · now ~${data.current}` : ''}
+        <span className="muted" style={{ textTransform: 'none', letterSpacing: 0 }}>
+          {' '}· estimated from emblem qualities — BHVR exposes no real pips
+        </span>
+      </div>
+      <div className="tabs" style={{ marginBottom: 8 }}>
+        <button className={role === 'survivor' ? 'active' : ''} onClick={() => setRole('survivor')}>Survivor</button>
+        <button className={role === 'killer' ? 'active' : ''} onClick={() => setRole('killer')}>Killer</button>
+      </div>
+      {isLoading && <p className="muted">Loading…</p>}
+      {!isLoading && points.length < 2 && (
+        <p className="muted">Need a few tracked {role} matches before the estimate is meaningful.</p>
+      )}
+      {points.length >= 2 && (
+        <LineChart series={series} yFormat={(v) => labelByIdx[Math.round(v)] ?? ''} />
+      )}
+    </div>
+  );
+}
+
 export default function Trends() {
   const [cat, setCat] = useState('Regular');
   const [win, setWin] = useState('all-time');
@@ -70,6 +105,7 @@ export default function Trends() {
 
       <div className="section-label">From your tracked matches</div>
       <HistoryTrends rollingN={15} />
+      <GradeTrend />
 
       <div className="section-label" style={{ marginTop: 28 }}>BHVR career snapshots</div>
       <p className="muted" style={{ fontSize: 12, marginTop: -4 }}>

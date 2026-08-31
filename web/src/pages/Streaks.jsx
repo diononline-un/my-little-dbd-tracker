@@ -56,6 +56,14 @@ export default function Streaks() {
         </div>
       )}
 
+      {s.data?.estimatedGrade && (
+        <p className="muted" style={{ marginTop: -6, fontSize: 12.5 }}>
+          Estimated grade — survivor <strong>{s.data.estimatedGrade.survivor ?? '—'}</strong>,
+          {' '}killer <strong>{s.data.estimatedGrade.killer ?? '—'}</strong>
+          {' '}<span style={{ opacity: 0.7 }}>(derived from emblem qualities; BHVR exposes no real pips)</span>
+        </p>
+      )}
+
       {onFire.length > 0 && (
         <div className="panel-block" style={{ marginTop: 0 }}>
           <div className="section-label">On fire</div>

@@ -42,3 +42,15 @@ mirror();
 setInterval(mirror, 15_000);
 window.addEventListener('focus', mirror);
 window.addEventListener('visibilitychange', () => { if (!document.hidden) mirror(); });
+
+/**
+ * inject.js (MAIN world) posts here when the SPA fetches its own match history —
+ * relay it to the worker as an off-schedule poll trigger. inject.js already
+ * debounces; the worker's alarm floor is the real rate limit.
+ */
+window.addEventListener('message', (e) => {
+  if (e.source !== window || e.data?.source !== 'entitytrack') return;
+  if (e.data.type === 'match-history-fetched') {
+    chrome.runtime.sendMessage({ type: 'run-now' }).catch(() => {});
+  }
+});

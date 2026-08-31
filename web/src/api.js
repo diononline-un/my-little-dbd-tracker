@@ -33,6 +33,7 @@ export const api = {
   recap: (params = {}) => get(`/insights/recap?${qs(params)}`),
   scatter: (params = {}) => get(`/insights/scatter?${qs(params)}`),
   history: (params = {}) => get(`/insights/history?${qs(params)}`),
+  gradeTrend: (params = {}) => get(`/insights/grade-trend?${qs(params)}`),
 };
 
 export const pct = (r) => (r == null ? '—' : `${(r * 100).toFixed(1)}%`);
@@ -49,21 +50,6 @@ export const kfmt = (n) => {
   if (Math.abs(v) < 1000) return String(Math.round(v));
   const k = v / 1000;
   return `${Math.abs(k) >= 10 ? Math.round(k) : k.toFixed(1)}k`;
-};
-
-const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
-const CAT_ORDER = [
-  // survivor
-  'Objectives', 'Altruism', 'Boldness', 'Survival',
-  // killer
-  'Hunter', 'Deviousness', 'Brutality', 'Sacrifice',
-];
-/** post_game_stat object → [[key, value], …] in a fixed, stable order. */
-export const orderedCats = (pgs) => {
-  if (!pgs) return [];
-  return Object.entries(pgs).sort(
-    (a, b) => CAT_ORDER.indexOf(CAT_LABEL(a[0])) - CAT_ORDER.indexOf(CAT_LABEL(b[0])),
-  );
 };
 
 export const QUALITY_COLORS = {

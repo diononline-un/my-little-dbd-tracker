@@ -1,33 +1,53 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { api, dur, when, kfmt, orderedCats } from '../api.js';
+import { api, dur, when } from '../api.js';
 import {
-  GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, veIcon,
+  GameIcon, PlayerPortrait, charIcon, mapIcon, perkIcon, addonIcon, offeringIcon, itemIcon, veIcon, emblemIcon,
 } from '../icons.jsx';
+import { QUALITY_COLORS } from '../api.js';
 import MatchDetailBody from './MatchDetailBody.jsx';
-import { SURVIVOR_ESCAPED as GOOD, SURVIVOR_DOWNED as BAD } from '../outcomes.js';
+import ScoreBar from '../charts/ScoreBar.jsx';
+import { SURVIVOR_ESCAPED as GOOD, SURVIVOR_DOWNED as BAD, matchResult } from '../outcomes.js';
 
-const CAT_LABEL = (k) => k.replace(/^DBD_(Camper|Slasher)ScoreCat_/, '');
-const CAT_SHORT = (k) => CAT_LABEL(k).slice(0, 3);
 const score = (p) => p?.leaderboardScore ?? null;
 
-const CAT_COLOR = {
-  Objectives: 'var(--s1)', Altruism: 'var(--s3)', Boldness: 'var(--s4)', Survival: 'var(--s5)',
-  Hunter: 'var(--s1)', Deviousness: 'var(--s7)', Brutality: 'var(--s2)', Sacrifice: 'var(--s8)',
-};
-
-/** Score categories in a fixed order, k-rounded, with a small colour dot each. */
-function ScoreLine({ post, compact }) {
-  const cats = orderedCats(post);
-  if (!cats.length) return null;
+/** estimated pip movement for the match — BHVR exposes no real pips. */
+function PipChip({ delta }) {
+  if (delta == null) return null;
+  const cls = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
+  const txt = delta > 0 ? `+${delta}` : String(delta);
   return (
-    <div className={`score-line${compact ? ' compact' : ''}`}>
-      {cats.map(([k, v]) => (
-        <span key={k}>
-          <i style={{ background: CAT_COLOR[CAT_LABEL(k)] ?? 'var(--text-dim)' }} />
-          {compact ? CAT_SHORT(k) : CAT_LABEL(k)} {kfmt(v)}
+    <span className={`pip-chip ${cls}`} title="Estimated pip change from your 4 emblems — BHVR exposes no real pips.">
+      {txt} est. pip{Math.abs(delta) === 1 ? '' : 's'}
+    </span>
+  );
+}
+
+/** the 4 emblems as a tiny quality-tinted row. */
+function EmblemRow({ emblems = [] }) {
+  if (!emblems.length) return null;
+  return (
+    <div className="emblem-row" title={emblems.map((e) => `${e.emblem_name}: ${e.emblem_quality}`).join('  ·  ')}>
+      {emblems.map((e, i) => (
+        <span key={i} className="emblem-pip" style={{ borderColor: QUALITY_COLORS[e.emblem_quality] ?? 'var(--border)' }}>
+          <GameIcon src={emblemIcon(e.emblem_id, e.emblem_quality)} alt="" size={15} rounded={2} />
         </span>
+      ))}
+    </div>
+  );
+}
+
+/** the 1–2 strongest "likely factors" for the collapsed card. */
+function CardFactors({ list = [] }) {
+  if (!list.length) return null;
+  return (
+    <div className="card-factors">
+      {list.map((x, i) => (
+        <div key={i} className={`factor factor-${x.dir}`}>
+          <span className="factor-mark">{x.dir === 'for' ? '＋' : x.dir === 'against' ? '－' : '·'}</span>
+          {x.text}
+        </div>
       ))}
     </div>
   );
@@ -102,7 +122,7 @@ function OppTile({ o }) {
             : <span key={j} className="opp-perk-empty" />,
         )}
       </div>
-      <ScoreLine post={o.post_game_stat} />
+      <ScoreBar post={o.post_game_stat} compact />
     </div>
   );
 }
@@ -116,7 +136,7 @@ export default function MatchCard({ m, avg }) {
     ? charIcon(self.character_id, m.self_role)
     : m.killer_id && charIcon(m.killer_id, 'killer');
 
-  const outcomeBad = BAD.has(m.outcome);
+  const result = matchResult(m); // 'win' | 'loss' | 'neutral'
   const outcomeLabel = isKiller
     ? (m.self_kills != null ? `${m.self_kills} / 4 kills` : (m.self_grade ?? 'killer').replace(' KILLER', ''))
     : (GOOD.has(m.outcome) ? 'Escaped' : (m.outcome ?? '').replace('_', ' '));
@@ -138,19 +158,22 @@ export default function MatchCard({ m, avg }) {
     : undefined;
 
   return (
-    <div className={`match-card${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}`}>
+    <div className={`match-card result-${result}${m.is_corrected ? ' is-corrected' : ''}${open ? ' is-open' : ''}`}>
       <div className="match-card-head" role="button" tabIndex={0} style={headStyle}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setOpen((o) => !o))}>
 
         <div className="match-top">
-          <div className="match-portrait">
-            {portrait && <img src={portrait} alt={self.character_name ?? ''} loading="lazy"
-              className={selfDowned ? 'pp-dim' : ''} />}
-            {selfStatus && veIcon(selfStatus) && (
-              <img className="pp-status" src={veIcon(selfStatus)} alt={selfStatus} style={{ width: 56, height: 56 }} />
-            )}
-            <div className={`outcome${outcomeBad ? ' bad' : ''}`}>{outcomeLabel}</div>
+          <div className="match-portrait-col">
+            <div className="match-portrait">
+              {portrait && <img src={portrait} alt={self.character_name ?? ''} loading="lazy"
+                className={selfDowned ? 'pp-dim' : ''} />}
+              {selfStatus && veIcon(selfStatus) && (
+                <img className="pp-status" src={veIcon(selfStatus)} alt={selfStatus} style={{ width: 56, height: 56 }} />
+              )}
+            </div>
+            <PipChip delta={self.pipDelta} />
+            <EmblemRow emblems={self.emblems} />
           </div>
 
           <div className="match-body">
@@ -172,11 +195,6 @@ export default function MatchCard({ m, avg }) {
                   {' '}· {scoreDelta >= 0 ? '+' : ''}{scoreDelta.toLocaleString()} vs your avg
                 </span>
               )}
-              {self.emblemScore != null && (
-                <span className="emblem-score" title="Emblem score (0–16) — sum of your 4 emblem qualities. BHVR exposes no pips; this is the closest proxy.">
-                  {' '}· emblems {self.emblemScore}/16
-                </span>
-              )}
             </div>
             <div className="match-score">
               {bigScore?.toLocaleString() ?? '—'}
@@ -187,13 +205,15 @@ export default function MatchCard({ m, avg }) {
                 vs {m.killer_name}: faced {m.vsKiller.faced}× · escaped {m.vsKiller.escapes}
               </div>
             )}
+            <ScoreBar post={self.post_game_stat} />
             <LoadoutRow self={self} />
-            <ScoreLine post={self.post_game_stat} />
+            <CardFactors list={m.factors} />
           </div>
 
           <div className="match-meta">
             <div className="dur">{dur(m.duration_seconds)}</div>
             <div className="map">{m.map_name ?? m.map_id ?? 'Unknown map'}</div>
+            <div className={`match-meta-outcome result-${result}`}>{outcomeLabel}</div>
             <div className="muted">{when(m.played_at)}</div>
           </div>
         </div>
