@@ -299,13 +299,11 @@ input, select {
 .match-score-row { display: flex; align-items: center; gap: 14px; margin-top: 2px; }
 .match-score { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-bright); line-height: 1.05; letter-spacing: -0.01em; }
 .match-bp { font-size: 12px; font-weight: 400; color: var(--text-dim); }
-/* score bar on the card renders like it does in the detail view: same bar
-   height, same 8px gap to the legend, same tight rhythm to the perks. The perk
-   diamonds are rotated 45° (~5px corner overhang), so the margin is the detail's
-   6px line gap + that overhang for an equal *visual* gap. */
-.match-body .score-bar { margin-top: 12px; }
+/* score bar sits below the loadout — same order as the opponent tiles (perks
+   then bar) — with a clear gap, well clear of the 45°-rotated perk diamonds. */
+.match-body .score-bar { margin-top: 16px; }
 .match-body .score-bar-legend { font-size: 11px; gap: 3px 12px; }
-.match-body .score-bar + .match-loadout { margin-top: 11px; }
+.match-body .card-factors { margin-top: 14px; }
 .opp-tile .score-bar { margin-top: 11px; }
 
 .card-factors { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }

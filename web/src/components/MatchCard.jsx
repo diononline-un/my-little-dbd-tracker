@@ -205,8 +205,8 @@ export default function MatchCard({ m, avg }) {
                 vs {m.killer_name}: faced {m.vsKiller.faced}× · escaped {m.vsKiller.escapes}
               </div>
             )}
-            <ScoreBar post={self.post_game_stat} />
             <LoadoutRow self={self} />
+            <ScoreBar post={self.post_game_stat} />
             <CardFactors list={m.factors} />
           </div>
 
