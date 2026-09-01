@@ -21,9 +21,10 @@ signed-in Behaviour account — exact, tamper-proof, cross-platform.
 
 ## Status
 
-Complete. All PRD phases implemented and tested against real captured payloads.
-See `PROJECT_STATUS.md` for what's solid and what's still open (chiefly: live
-verification of the OAuth token-refresh call).
+Complete — `v1.0.0`, archived. All PRD phases implemented, 47 vitest cases, and
+verified end to end against real captured payloads. `PROJECT_STATUS.md` has the
+full picture. The one carried caveat: the `POST /sso/token` refresh was never
+seen against a live token expiry (bounded anyway by the 30-day refresh token).
 
 ## Quick start (self-host)
 
