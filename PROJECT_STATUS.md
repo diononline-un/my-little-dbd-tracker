@@ -1,17 +1,24 @@
 ---
-status: in-development
-progress: 90
-version: "0.0.1"
-tags: [node, fastify, node-sqlite, react, vite, mv3-extension, docker, dead-by-daylight, stats, reverse-engineering]
-scope: "Self-hosted DBD match tracker: MV3 extension polls the official BHVR match-history + career-stats APIs (OAuth bearer, no OCR), Node backend stores raw payloads immutably + runs the Entity Corrector anomaly pipeline + daily career snapshots, React dashboard with match history, career overview, trend charts and archetype/build/map analytics. Docker-first, Postgres-swappable."
-last_updated: "2026-08-30"
-next_steps:
-  - Verify POST /sso/token refresh RESPONSE body shape against a live token expiry (request shape confirmed: JSON {grant_type, client_id, refresh_token}); client handles both {authToken,...} and OAuth {access_token,...}
-  - Trends page needs 2+ daily career snapshots before line charts draw (BHVR updates ~daily)
-  - Tune corrector thresholds (lobby-dc KILLER_MIN_BP, ragequit ratios) against more real anomaly samples
-  - Confirm isCustomMatch / specialEventId handling (all captured matches were gameType "Online", no events)
-  - Backlog: OBS overlay mode, match-sharing links, 4-perk build combos, time-of-day performance, platform icons per player
+status: complete
+progress: 100
+version: "1.0.0"
+tags: [node, fastify, node-sqlite, react, vite, mv3-extension, docker, dead-by-daylight, stats, reverse-engineering, archived]
+scope: "Self-hosted, single-user DBD match tracker: MV3 extension polls the official BHVR match-history + career-stats APIs (OAuth bearer, no OCR), Node backend stores raw payloads immutably + runs the Entity Corrector anomaly pipeline + daily career snapshots, React dashboard with match history, career overview, trend charts, estimated-grade and archetype/build/map analytics. Docker-first."
+last_updated: "2026-09-01"
+successor: "The hosted, multi-user product continues privately as diononline-un/entity-track (accounts, OBS overlays, friend system, billing). This repo is the finished hobby version and is archived."
+next_steps: []
 ---
+
+# Done
+
+This is `v1.0.0` — the hobby build, frozen and archived. Everything below is
+implemented, tested (47 vitest cases), and verified end to end against real
+captured payloads.
+
+The one known caveat carried from development: `POST /sso/token` was never
+observed against a *live* token expiry, so headless refresh is bounded by the
+30-day refresh-token lifetime — revisit `stats.deadbydaylight.com` if both
+tokens ever lapse.
 
 # Aktueller Stand
 

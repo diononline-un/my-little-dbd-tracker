@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-01 — v1.0.0 · hobby build complete
+
+Frozen and archived at this point. The hosted multi-user product (accounts, OBS
+overlays, friend system, billing) continues privately as `entity-track`.
+
 ## 2026-09-01 — Dashboard refinement pass (Phase R)
 
 - **Nav** reordered: Overview → Streaks → Matches → Insights → Trends → Analytics.

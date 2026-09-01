@@ -1,4 +1,8 @@
-# EntityTrack
+# my-little-dbd-tracker
+
+> **Archived · v1.0.0 — the finished hobby build.**
+> A self-hosted, single-user match tracker. The hosted, multi-user product
+> (accounts, OBS overlays, friend system) continues privately as `entity-track`.
 
 Automated, OS-agnostic match tracker for Dead by Daylight. Instead of OCR or memory
 hooks, it reads the JSON that `stats.deadbydaylight.com` already serves to your
@@ -17,7 +21,7 @@ signed-in Behaviour account — exact, tamper-proof, cross-platform.
 
 ## Status
 
-Phases 1–3 of the PRD are implemented and tested against a real captured payload.
+Complete. All PRD phases implemented and tested against real captured payloads.
 See `PROJECT_STATUS.md` for what's solid and what's still open (chiefly: live
 verification of the OAuth token-refresh call).
 
